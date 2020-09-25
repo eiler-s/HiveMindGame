@@ -5,30 +5,22 @@ class Stage1 extends Phaser.Scene{
     }
 
     preload(){
-        this.load.image("tilemap", "src/sprites/tilemap.png");
-        this.load.tilemapCSV("terrain", "src/tilemaps/stage1.csv");
-        //this.load.tilemapCSV("entity", "src/tilemaps/stage1Entity.csv")
+        this.load.image('tilemap', "src/sprites/tilemap.png");
+        //this.load.tilemapCSV('map', "src/tilemaps/stage1.csv");
+        this.load.tilemapTiledJSON('map', 'src/tilemaps/map.JSON')
+        //this.load.tilemapCSV('map', "src/tilemaps/stage1Entity.csv")
     }
 
     create(){
-        var terrainConfig = {
-            key: "terrain",
+        var config = {
+            key: 'map',
             tileWidth: 32,
             tileHeight: 32
         }
-        /*var entityConfig = {
-            key: 'enemy',
-            tileWidth: 32,
-            tileHeight: 32
-        }*/
-        var map = this.make.tilemap(terrainConfig);
-        //var entityMap = this.maketilemap(entityConfig);
-        //var entityTiles = entityMap.addTilesetImage('entity');
-        var tiles = map.addTilesetImage('tilemap');
-        var terrainLayer = map.createStaticLayer(0, tiles, 0, 0);
-        terrainLayer.width = 800;
-        terrainLayer.height = 600;
-        //var entityLayer = map.createStaticLayer(1, entityTiles, 0, 0);
+        this.map = this.make.tilemap(config);
+        var tiles = this.map.addTilesetImage('tilemap');
+        this.terrain = this.map.createStaticLayer('terrain', tiles, 0, 0);
+        this.entity = this.map.createStaticLayer('entity', tiles, 0, 0);
         this.cursors = this.input.keyboard.createCursorKeys();
         var controlConfig = {
             camera: this.cameras.main,
@@ -42,7 +34,7 @@ class Stage1 extends Phaser.Scene{
         };
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
         this.cam = this.cameras.main;
-        this.cam.setBounds(0,0, (26+21)*32,22*32)
+        this.cam.setBounds(0,0, (26+21)*32, 22*32)
     }
 
     update(time,delta){

@@ -16,11 +16,15 @@ class Stage1 extends Phaser.Scene{
             tileHeight: 32
         }
         this.map = this.make.tilemap(config);
-        var tiles = this.map.addTilesetImage('tilemap');
-        this.terrain = this.map.createStaticLayer('terrain', tiles, 0, 0);
-        this.entity = this.map.createStaticLayer('entity', tiles, 0, 0);
-        this.cursors = this.input.keyboard.createCursorKeys();
+        this.tiles = this.map.addTilesetImage('tilemap');
+        this.terrain = this.map.createStaticLayer('terrain', this.tiles, 0, 0);
+        //this.entity = this.map.createStaticLayer('entity', this.tiles, 0, 0);
+        this.bugs = this.map.createFromObjects('entity', 11, {key:'bug'});
         this.map.setLayer('terrain');
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.marker = this.add.graphics();
+        this.marker.lineStyle(3, 0xffffff, 1);
+        this.marker.strokeRect(0,0, this.map.tileWidth, this.map.tileHeight);
         this.finder = new EasyStar.js();
         this.terrainGrid =[];
         for (var y=0; y < this.map.height; y++){
@@ -31,6 +35,18 @@ class Stage1 extends Phaser.Scene{
             this.terrainGrid.push(col);
         }
         this.finder.setGrid(this.terrainGrid);
+        var tileset = this.map.tilesets[0];
+        var properties = tileset.tileProperties;
+        this.acceptableTiles=[];
+        for (var i = tileset.firstgid-1; i < this.tiles.total; i++){
+            if(!properties.hasOwnProperty(i)) {
+                this.acceptableTiles.push(i+1);
+                continue;
+            }
+            if(!properties[i].collide)this.acceptableTiles.push(i+1);
+            if(properties[i].cost) this.finder.setTileCost(i+1, properties[i].cost); // If there is a cost attached to the tile, let's register it
+        }
+        this.finder.setAcceptableTiles(this.acceptableTiles);
         var controlConfig = {
             camera: this.cameras.main,
             left: this.cursors.left,
@@ -43,12 +59,25 @@ class Stage1 extends Phaser.Scene{
         };
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
         this.cam = this.cameras.main;
-        this.cam.setBounds(0,0, (26+21)*32, 22*32)
+        this.cam.setDeadzone(700,500);
+        this.cam.startFollow(this.marker, true);
+        this.cam.setBounds(0,0, (48)*32, 22*32);
+        
         
     }
 
     update(time ,delta){
         this.controls.update(delta)
+        
+        //console.log(this.input.activePointer.worldX)
+        //console.log(this.input.activePointer.worldY)
+        var worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
+        // Rounds down to nearest tile
+        var pointerTileX = this.map.worldToTileX(worldPoint.x);
+        var pointerTileY = this.map.worldToTileY(worldPoint.y);
+        this.marker.x = this.map.tileToWorldX(pointerTileX);
+        this.marker.y = this.map.tileToWorldY(pointerTileY);
+        //this.marker.setVisible(!this.checkCollision(pointerTileX,pointerTileY));
     }
 
     getTileID(x,y){
@@ -59,6 +88,19 @@ class Stage1 extends Phaser.Scene{
         else{
             return 0;
         }
+    }
+    
+    checkCollision(x,y){
+        var tile = this.map.getTileAt(x, y);
+        return tile.properties.collide == true;
+    }
+    
+    handleClick(pointer){
+        var x = this.cam.scrollX + pointer.x;
+        var y = this.cam.scrollY + pointer.y;
+        var toX = Math.floor(x/32);
+        var toY = Math.floor(y/32);
+
     }
 
 }

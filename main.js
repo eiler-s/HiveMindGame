@@ -4,7 +4,10 @@ var config={
     width: 800,
     height: 600,
     pixelArt: true,
-    backgroundColor: '#4287f5'
+    backgroundColor: '#4287f5',
+    input:{
+        activePointers: 1
+    }
 }
 const game = new Phaser.Game(config);
 game.scene.add('stage1', Stage1);

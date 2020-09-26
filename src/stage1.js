@@ -6,7 +6,20 @@ class Stage1 extends Phaser.Scene{
 
     preload(){
         this.load.image('tilemap', "src/sprites/tilemap.png");
-        this.load.tilemapTiledJSON('map', 'src/tilemaps/map.JSON')
+        this.load.tilemapTiledJSON('map', 'src/tilemaps/map.JSON');
+        this.load.spritesheet('bug', 'Sprites/hunter.png',{
+            frameWidth:32,
+            frameHeight:32,
+
+        });
+        this.load.spritesheet('man', 'Sprites/cowboy.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        this.load.spritesheet('girl', 'Sprites/cowgirl.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
     }
 
     create(){
@@ -18,8 +31,32 @@ class Stage1 extends Phaser.Scene{
         this.map = this.make.tilemap(config);
         this.tiles = this.map.addTilesetImage('tilemap');
         this.terrain = this.map.createStaticLayer('terrain', this.tiles, 0, 0);
-        //this.entity = this.map.createStaticLayer('entity', this.tiles, 0, 0);
-        this.bugs = this.map.createFromObjects('entity', 11, {key:'bug'});
+        this.bug = this.map.getObjectLayer('bug')['objects'];
+        this.bugs = this.add.group();
+        this.bug.forEach(object => {
+            let obj = this.bugs.create(object.x, object.y, "bug");
+            obj.setOrigin(0,1);
+            //var hitArea = new Phaser.Geom.Square(obj.width, obj.height)
+            obj.setInteractive();
+        });
+        this.input.on('pointerdown', function (pointer, gameObject) {
+
+            this.children.bringToTop(gameObject);
+    
+        }, this);
+        this.man = this.map.getObjectLayer('man')['objects'];
+        this.mans = this.add.group();
+        this.man.forEach(object => {
+            let obj = this.mans.create(object.x, object.y, "man");
+            obj.setOrigin(0,1);
+        });
+        
+        this.girl = this.map.getObjectLayer('girl')['objects'];
+        this.girls = this.add.group();
+        this.girl.forEach(object => {
+            let obj = this.girls.create(object.x, object.y, "girl");
+            obj.setOrigin(0,1);
+        })
         this.map.setLayer('terrain');
         this.cursors = this.input.keyboard.createCursorKeys();
         this.marker = this.add.graphics();
@@ -66,6 +103,7 @@ class Stage1 extends Phaser.Scene{
         
     }
 
+
     update(time ,delta){
         this.controls.update(delta)
         
@@ -95,6 +133,10 @@ class Stage1 extends Phaser.Scene{
         return tile.properties.collide == true;
     }
     
+    selectBug(pointer){
+
+    }
+
     handleClick(pointer){
         var x = this.cam.scrollX + pointer.x;
         var y = this.cam.scrollY + pointer.y;

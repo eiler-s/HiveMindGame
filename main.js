@@ -1,4 +1,3 @@
-import Stage1 from './src/stage1.js';
 var config={
     type: Phaser.AUTO,
     width: 800,
@@ -7,8 +6,8 @@ var config={
     backgroundColor: '#4287f5',
     input:{
         activePointers: 1
-    }
+    },
+    scene:[Stage1]
 }
 const game = new Phaser.Game(config);
-game.scene.add('stage1', Stage1);
 game.scene.start('stage1');

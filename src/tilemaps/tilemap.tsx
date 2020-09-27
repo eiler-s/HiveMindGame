@@ -46,4 +46,9 @@
    <property name="collide" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="10">
+  <properties>
+   <property name="spent" type="bool" value="false"/>
+  </properties>
+ </tile>
 </tileset>

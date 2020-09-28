@@ -35,9 +35,9 @@ var Stage1 ={};
     Stage1.create=function(){
         Stage1.sfx = {};
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
-        //Stage1.playSound('hammer');
         Stage1.sfx.cowboyDeath = Stage1.scene.sound.add('cowboyDeath');
         Stage1.playSound('cowboyDeath');
+        Stage1.playSound('hammer');
 
         Stage1.myTurn = true;
         Stage1.pathed = false;

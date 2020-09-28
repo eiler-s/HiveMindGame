@@ -119,9 +119,10 @@ var Stage1 ={};
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
                 Stage1.originX = Math.floor(gameObject.x/32);
-                Stage1.originY = Math.floor(gameObject.y/32);
+                Stage1.originY = Math.floor((gameObject.y)/32) + 1;
+                console.log(gameObject.x+" "+gameObject.y)
                 console.log(Stage1.originX+" "+Stage1.originY)
-                var shape = new Phaser.Geom.Circle(Stage1.originX*32, (Stage1.originY + 1)*32, 5*32);
+                var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
                 var squares = Stage1.map.getTilesWithinShape(shape);
                 for (var i=0; i < squares.length; i++){
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){

@@ -13,6 +13,7 @@ var Stage1 ={};
     Stage1.preload=function(){
         Stage1.scene = this;
         Stage1.scene.load.audio('music', 'src/sound/Crowd Hammer.mp3');
+        Stage1.scene.load.audio('cowboyDeath', 'src/sound/death.mp3');
         Stage1.scene.load.image('tilemap', "src/sprites/tilemap.png");
         Stage1.scene.load.tilemapTiledJSON('map', 'src/tilemaps/map.JSON');
         Stage1.scene.load.image('red', 'src/sprites/red.png');
@@ -32,8 +33,11 @@ var Stage1 ={};
     }
 
     Stage1.create=function(){
+        Stage1.sfx = {};
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
-        Stage1.playSound('hammer');
+        //Stage1.playSound('hammer');
+        Stage1.sfx.cowboyDeath = Stage1.scene.sound.add('cowboyDeath');
+        Stage1.playSound('cowboyDeath');
 
         Stage1.myTurn = true;
         Stage1.pathed = false;

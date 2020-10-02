@@ -101,7 +101,7 @@ var Stage1 ={};
             }
             Stage1.terrainGrid.push(col);
         }
-        //console.log(Stage1.terrainGrid)
+        console.log(Stage1.terrainGrid)
         //place men (male cowboys)
         Stage1.man = Stage1.map.getObjectLayer('man')['objects'];
         Stage1.mans = this.add.group();
@@ -110,8 +110,7 @@ var Stage1 ={};
             obj.name = "man";
             obj.setDepth(1);
             obj.setOrigin(0);
-            //console.log(Stage1.terrainGrid[Math.floor(object.x/object.height)]);
-            //Stage1.terrainGrid[Math.floor(object.x/object.width)][Math.floor(object.y - object.height)]=1;
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=9;
         });
         //place girls (female cowgirls)
         Stage1.girl = Stage1.map.getObjectLayer('girl')['objects'];
@@ -121,6 +120,7 @@ var Stage1 ={};
             obj.name = "girl";
             obj.setDepth(1);
             obj.setOrigin(0);
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
         Stage1.finder.setGrid(Stage1.terrainGrid);
         var tileset = Stage1.map.tilesets[0];
@@ -180,7 +180,6 @@ var Stage1 ={};
         obj.setInteractive();
         obj.setOrigin(0);
         Stage1.paths.push(path);
-        Stage1.paths.clear();
     }
 
     Stage1.moveBug = function(path){
@@ -199,6 +198,8 @@ var Stage1 ={};
 
         Stage1.scene.tweens.timeline({tweens: tweens});
         Stage1.moveTiles.clear(true);
+        tweens = [];
+        Stage1.paths = [];
     }
 
     Stage1.update=function(time ,delta){

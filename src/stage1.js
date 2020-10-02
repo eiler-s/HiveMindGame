@@ -155,7 +155,7 @@ var Stage1 ={};
                         }
                         else{
                             //console.log(path);
-                            if (path.length <= 5){
+                            if (path.length <= 5 && path.length != 0){
                                 Stage1.pathStorage(path)
                             }
                         }

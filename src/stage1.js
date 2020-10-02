@@ -111,7 +111,7 @@ var Stage1 ={};
             obj.setDepth(1);
             obj.setOrigin(0);
             //console.log(Stage1.terrainGrid[Math.floor(object.x/object.height)]);
-            Stage1.terrainGrid[Math.floor(object.x/object.width)][Math.floor(object.y - object.height)]=1;
+            //Stage1.terrainGrid[Math.floor(object.x/object.width)][Math.floor(object.y - object.height)]=1;
         });
         //place girls (female cowgirls)
         Stage1.girl = Stage1.map.getObjectLayer('girl')['objects'];

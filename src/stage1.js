@@ -37,7 +37,7 @@ var Stage1 ={};
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
         Stage1.sfx.cowboyDeath = Stage1.scene.sound.add('cowboyDeath');
         Stage1.playSound('cowboyDeath');
-        Stage1.playSound('hammer');
+        //Stage1.playSound('hammer');
 
         Stage1.myTurn = true;
         Stage1.pathed = false;
@@ -59,28 +59,13 @@ var Stage1 ={};
         Stage1.bug.forEach(object => {
             let obj = Stage1.bugs.create(object.x, object.y - object.height, "bug");
             obj.name = "bug";
+            obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
             obj.spent = false;
         });
         //movement tiles group
         Stage1.moveTiles = this.add.group();
-        //place men (male cowboys)
-        Stage1.man = Stage1.map.getObjectLayer('man')['objects'];
-        Stage1.mans = this.add.group();
-        Stage1.man.forEach(object => {
-            let obj = Stage1.mans.create(object.x, object.y - object.height, "man");
-            obj.name = "man";
-            obj.setOrigin(0);
-        });
-        //place girls (female cowgirls)
-        Stage1.girl = Stage1.map.getObjectLayer('girl')['objects'];
-        Stage1.girls = this.add.group();
-        Stage1.girl.forEach(object => {
-            let obj = Stage1.girls.create(object.x, object.y - object.height, "girl");
-            obj.name = "girl";
-            obj.setOrigin(0);
-        });
         //makes assigns arrow keys to cursors
         Stage1.cursors = this.input.keyboard.createCursorKeys();
         //makes main camera move with cursors
@@ -116,6 +101,27 @@ var Stage1 ={};
             }
             Stage1.terrainGrid.push(col);
         }
+        //console.log(Stage1.terrainGrid)
+        //place men (male cowboys)
+        Stage1.man = Stage1.map.getObjectLayer('man')['objects'];
+        Stage1.mans = this.add.group();
+        Stage1.man.forEach(object => {
+            let obj = Stage1.mans.create(object.x, object.y - object.height, "man");
+            obj.name = "man";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            //console.log(Stage1.terrainGrid[Math.floor(object.x/object.height)]);
+            Stage1.terrainGrid[Math.floor(object.x/object.width)][Math.floor(object.y - object.height)]=1;
+        });
+        //place girls (female cowgirls)
+        Stage1.girl = Stage1.map.getObjectLayer('girl')['objects'];
+        Stage1.girls = this.add.group();
+        Stage1.girl.forEach(object => {
+            let obj = Stage1.girls.create(object.x, object.y - object.height, "girl");
+            obj.name = "girl";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+        });
         Stage1.finder.setGrid(Stage1.terrainGrid);
         var tileset = Stage1.map.tilesets[0];
         var properties = tileset.tileProperties;
@@ -137,7 +143,7 @@ var Stage1 ={};
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
                 Stage1.originX = Math.floor(gameObject.x/32);
-                Stage1.originY = Math.floor((gameObject.y)/32) + 1;
+                Stage1.originY = Math.floor((gameObject.y)/32);
                 console.log(gameObject.x+" "+gameObject.y)
                 console.log(Stage1.originX+" "+Stage1.originY)
                 var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
@@ -172,13 +178,15 @@ var Stage1 ={};
         let obj = Stage1.moveTiles.create(path[path.length-1].x*32,(path[path.length-1].y)*32, 'red');
         obj.name = 'red';
         obj.setInteractive();
-        obj.setOrigin(0,1);
+        obj.setOrigin(0);
         Stage1.paths.push(path);
+        Stage1.paths.clear();
     }
 
     Stage1.moveBug = function(path){
         // Sets up a list of tweens
         var tweens = [];
+        console.log(Stage1.currentBug.height)
         for (var i = 0; i < path.length-1; i++){
             var ex = path[i+1].x;
             var ey = path[i+1].y;
@@ -201,7 +209,6 @@ var Stage1 ={};
         var pointerTileY = Stage1.map.worldToTileY(worldPoint.y);
         Stage1.marker.x = Stage1.map.tileToWorldX(pointerTileX);
         Stage1.marker.y = Stage1.map.tileToWorldY(pointerTileY);
-        //Stage1.marker.setVisible(!Stage1.checkCollision(pointerTileX,pointerTileY));
     }
 
     Stage1.getTileID=function(x,y){

@@ -287,7 +287,7 @@ var Stage1 ={};
         var timeline = Stage1.scene.tweens.createTimeline();
 
         //var tween_list = [];
-
+        var animQueue=[];
         //Creates a tween for each step of the bugs movement
         for (var i = 0; i < path.length-1; i++){
             //Get location of current tile in the path
@@ -316,8 +316,8 @@ var Stage1 ={};
             } else if (ydir < 0) {
                 dirKey = 'down';
             }
-            console.log('dirKey:',dirKey)
-            
+            console.log('dirKey:',dirKey);
+            animQueue.push(""+dirKey);
             //Create timeline of tween movements on path
             //Following does not incorporate animations
             /*
@@ -329,16 +329,17 @@ var Stage1 ={};
             console.log(tween_list);
             */
             //Following is not great because only shows last animation in path??
+
             timeline.add({
                 targets: Stage1.currentBug,
                 x: xf*Stage1.map.tileWidth,
                 y: yf*Stage1.map.tileHeight,
-                dir: dirKey,
                 duration: 1000,
                 onStart: function move() {  //play the anim when the tween starts
-                    console.log('   internal dir:', dirKey);
+                    tempDir=animQueue.shift();
+                    console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.stop();
-                    Stage1.currentBug.anims.play(dirKey);
+                    Stage1.currentBug.anims.play(tempDir);
                     //set a timer to keep track of how long the animation has been running
                     /*
                     while (timer.now < 1000){console.log(timer.now)}
@@ -353,7 +354,7 @@ var Stage1 ={};
         }
         timeline.play();
         Stage1.moveTiles.clear(true);
-        tween_list = [];
+        //tween_list = [];
         Stage1.paths = [];
     }
 

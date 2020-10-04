@@ -15,6 +15,8 @@ var Stage1 ={};
         Stage1.scene.load.audio('music', './src/sound/Crowd Hammer.mp3');
         Stage1.scene.load.audio('cowboyDeath', './src/sound/death.mp3');
 
+        //places background
+        Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
@@ -38,6 +40,8 @@ var Stage1 ={};
     }
 
     Stage1.create=function(){
+
+        var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
         Stage1.sfx = {};
@@ -324,14 +328,13 @@ var Stage1 ={};
             });
             console.log(tween_list);
             */
-
             //Following is not great because only shows last animation in path??
             timeline.add({
                 targets: Stage1.currentBug,
                 x: xf*Stage1.map.tileWidth,
                 y: yf*Stage1.map.tileHeight,
+                dir: dirKey,
                 duration: 1000,
-
                 onStart: function move() {  //play the anim when the tween starts
                     console.log('   internal dir:', dirKey);
                     Stage1.currentBug.anims.stop();
@@ -349,7 +352,6 @@ var Stage1 ={};
             });
         }
         timeline.play();
-
         Stage1.moveTiles.clear(true);
         tween_list = [];
         Stage1.paths = [];

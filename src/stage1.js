@@ -15,7 +15,7 @@ var Stage1 ={};
         Stage1.scene.load.audio('music', './src/sound/Crowd Hammer.mp3');
         Stage1.scene.load.audio('cowboyDeath', './src/sound/death.mp3');
 
-        //places background
+        //loads background
         Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");

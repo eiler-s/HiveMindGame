@@ -10,39 +10,32 @@ var Stage1 ={};
     
     Stage1.preload=function(){
         Stage1.scene = this;
-        Stage1.scene.load.audio('music', 'src/sound/Crowd Hammer.mp3');
-        Stage1.scene.load.audio('cowboyDeath', 'src/sound/death.mp3');
-        Stage1.scene.load.image('tilemap', "src/sprites/tilemap.png");
-        Stage1.scene.load.image('Backgrounds', "src/sprites/bgSheet1.png");
-        Stage1.scene.load.tilemapTiledJSON('map', 'src/tilemaps/map.JSON');
-        Stage1.scene.load.image('red', 'src/sprites/red.png');
-        /*Stage1.scene.load.spritesheet('bug', 'Sprites/hunter.png',{
-            frameWidth:32,
-            frameHeight:32,
-        });*/
+
         //Load audio files
         Stage1.scene.load.audio('music', './src/sound/Crowd Hammer.mp3');
         Stage1.scene.load.audio('cowboyDeath', './src/sound/death.mp3');
 
         //loads background
+        Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
         Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
+
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
         Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.JSON');
 
         //Load character spritesheets
-        Stage1.scene.load.spritesheet('bug', './Sprites/arrows.png',{
+        Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{
             frameWidth: 32,
             frameHeight: 32,
             margin: 1,
             spacing: 2
         });
-        Stage1.scene.load.spritesheet('man', './Sprites/cowboy.png',{
+        Stage1.scene.load.spritesheet('cowboy', './Sprites/cowhands/cowboy.png',{
             frameWidth:32,
             frameHeight:32,
         });
-        Stage1.scene.load.spritesheet('girl', './Sprites/cowgirl.png',{
+        Stage1.scene.load.spritesheet('cowgirl', './Sprites/cowhands/cowgirl.png',{
             frameWidth:32,
             frameHeight:32,
         });
@@ -85,36 +78,36 @@ var Stage1 ={};
 
         //Create animations for bug movement
         this.anims.create({
-            key: 'up',
-            frames: this.anims.generateFrameNumbers('bug', { start: 0, end: 1 }),
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('bug', { start: 1, end: 2 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
 
         this.anims.create({
             key: 'left',
-            frames: this.anims.generateFrameNumbers('bug', { start: 2, end: 3 }),
+            frames: this.anims.generateFrameNumbers('bug', { start: 3, end: 4 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
 
         this.anims.create({
             key: 'right',
-            frames: this.anims.generateFrameNumbers('bug', { start: 4, end: 5 }),
+            frames: this.anims.generateFrameNumbers('bug', { start: 5, end: 6 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
 
         this.anims.create({
-            key: 'down',
-            frames: this.anims.generateFrameNumbers('bug', { start: 6, end: 7 }),
+            key: 'up',
+            frames: this.anims.generateFrameNumbers('bug', { start: 7, end: 8 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
 
         this.anims.create({
             key: 'idle',
-            frames: [{ key: 'bug', frame: 8 }],
+            frames: [{ key: 'bug', frame: 0 }],
             frameRate: 20,
             repeat: -1  //consider removing repeats depending on implementation?
         });
@@ -177,26 +170,26 @@ var Stage1 ={};
         console.log(Stage1.terrainGrid)
         
         //Create cowboys objectlayer from JSON then corresponding sprite group
-        Stage1.man = Stage1.map.getObjectLayer('man')['objects'];
-        Stage1.mans = this.add.group();
+        Stage1.cowboy = Stage1.map.getObjectLayer('man')['objects'];
+        Stage1.cowboys = this.add.group();
 
         //Instantiate the cowboys on the map
-        Stage1.man.forEach(object => {
-            let obj = Stage1.mans.create(object.x, object.y - object.height, "man");
-            obj.name = "man";
+        Stage1.cowboy.forEach(object => {
+            let obj = Stage1.cowboys.create(object.x, object.y - object.height, "cowboy");
+            obj.name = "cowboy";
             obj.setDepth(1);
             obj.setOrigin(0);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=9;
         });
 
         //Create cowgirl objectlayer from JSON then corresponding sprite group
-        Stage1.girl = Stage1.map.getObjectLayer('girl')['objects'];
-        Stage1.girls = this.add.group();
+        Stage1.cowgirl = Stage1.map.getObjectLayer('girl')['objects'];
+        Stage1.cowgirls = this.add.group();
 
         //Instantiate the cowgirls on the map
-        Stage1.girl.forEach(object => {
-            let obj = Stage1.girls.create(object.x, object.y - object.height, "girl");
-            obj.name = "girl";
+        Stage1.cowgirl.forEach(object => {
+            let obj = Stage1.cowgirls.create(object.x, object.y - object.height, "cowgirl");
+            obj.name = "cowgirl";
             obj.setDepth(1);
             obj.setOrigin(0);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
@@ -268,7 +261,7 @@ var Stage1 ={};
             }
             /*
             //If the player moves the bug to a human then it will be eaten
-            else if (gameObject.name == 'man' || gameObject.name == 'girl'){
+            else if (gameObject.name == 'cowboy' || gameObject.name == 'cowgirl'){
                 for (var i = 0; i < Stage1.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
                     if (Stage1.paths[i][Stage1.paths[i].length - 1].x == (gameObject.x/32) && Stage1.paths[i][Stage1.paths[i].length - 1].y == (gameObject.y/32)){
@@ -326,17 +319,6 @@ var Stage1 ={};
             }
             console.log('dirKey:',dirKey);
             animQueue.push(""+dirKey);
-            //Create timeline of tween movements on path
-            //Following does not incorporate animations
-            /*
-            tween_list.push({
-                targets: Stage1.currentBug,
-                x: {value: ex*Stage1.map.tileWidth, duration: 1000},
-                y: {value: ey*Stage1.map.tileHeight, duration: 1000}
-            });
-            console.log(tween_list);
-            */
-            //Following is not great because only shows last animation in path??
 
             timeline.add({
                 targets: Stage1.currentBug,
@@ -344,7 +326,7 @@ var Stage1 ={};
                 y: yf*Stage1.map.tileHeight,
                 duration: 1000,
                 onStart: function move() {  //play the anim when the tween starts
-                    console.log('here')
+                    console.log('here');
                     tempDir=animQueue.shift();
                     console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.stop();

@@ -10,11 +10,22 @@ var Stage1 ={};
     
     Stage1.preload=function(){
         Stage1.scene = this;
-
+        Stage1.scene.load.audio('music', 'src/sound/Crowd Hammer.mp3');
+        Stage1.scene.load.audio('cowboyDeath', 'src/sound/death.mp3');
+        Stage1.scene.load.image('tilemap', "src/sprites/tilemap.png");
+        Stage1.scene.load.image('Backgrounds', "src/sprites/bgSheet1.png");
+        Stage1.scene.load.tilemapTiledJSON('map', 'src/tilemaps/map.JSON');
+        Stage1.scene.load.image('red', 'src/sprites/red.png');
+        /*Stage1.scene.load.spritesheet('bug', 'Sprites/hunter.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });*/
         //Load audio files
         Stage1.scene.load.audio('music', './src/sound/Crowd Hammer.mp3');
         Stage1.scene.load.audio('cowboyDeath', './src/sound/death.mp3');
 
+        //loads background
+        Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
@@ -38,6 +49,8 @@ var Stage1 ={};
     }
 
     Stage1.create=function(){
+
+        var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
         Stage1.sfx = {};
@@ -61,9 +74,9 @@ var Stage1 ={};
         }
         Stage1.map = this.make.tilemap(config);
         Stage1.tiles = Stage1.map.addTilesetImage('tilemap');
-
-        //Why are dynamic layers used instead of static layers in next two lines?
-        Stage1.terrain = Stage1.map.createDynamicLayer('terrain', Stage1.tiles, 0, 0);
+        Stage1.bgTiles = Stage1.map.addTilesetImage('Backgrounds');
+        Stage1.background = Stage1.map.createStaticLayer('background', Stage1.bgTiles, 0, 0);
+        Stage1.terrain = Stage1.map.createStaticLayer('terrain', Stage1.tiles, 0, 0);
         Stage1.top = Stage1.map.createBlankDynamicLayer('tilemap', Stage1.tiles, 0, 0);
         
         //Create bug objectlayer from JSON then corresponding sprite group
@@ -225,9 +238,8 @@ var Stage1 ={};
 
                 //Identify tiles in the unit's move range
                 var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
-                var squares = Stage1.map.getTilesWithinShape(shape);
-
-                //Find a path for each tile in the unit's move range
+                //need to specify the terrain layer for getting the tiles
+                var squares = Stage1.map.getTilesWithinShape(shape, null, Stage1.cam, 'terrain');
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
@@ -283,7 +295,7 @@ var Stage1 ={};
         var timeline = Stage1.scene.tweens.createTimeline();
 
         //var tween_list = [];
-
+        var animQueue=[];
         //Creates a tween for each step of the bugs movement
         for (var i = 0; i < path.length-1; i++){
             //Get location of current tile in the path
@@ -312,8 +324,8 @@ var Stage1 ={};
             } else if (ydir < 0) {
                 dirKey = 'down';
             }
-            console.log('dirKey:',dirKey)
-            
+            console.log('dirKey:',dirKey);
+            animQueue.push(""+dirKey);
             //Create timeline of tween movements on path
             //Following does not incorporate animations
             /*
@@ -324,18 +336,20 @@ var Stage1 ={};
             });
             console.log(tween_list);
             */
-
             //Following is not great because only shows last animation in path??
+
             timeline.add({
                 targets: Stage1.currentBug,
                 x: xf*Stage1.map.tileWidth,
                 y: yf*Stage1.map.tileHeight,
                 duration: 1000,
-
                 onStart: function move() {  //play the anim when the tween starts
-                    console.log('   internal dir:', dirKey);
+                    console.log('here')
+                    tempDir=animQueue.shift();
+                    console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.stop();
-                    Stage1.currentBug.anims.play(dirKey);
+                    Stage1.currentBug.anims.play(tempDir);
+                    
                     //set a timer to keep track of how long the animation has been running
                     /*
                     while (timer.now < 1000){console.log(timer.now)}
@@ -349,9 +363,8 @@ var Stage1 ={};
             });
         }
         timeline.play();
-
         Stage1.moveTiles.clear(true);
-        tween_list = [];
+        //tween_list = [];
         Stage1.paths = [];
     }
 

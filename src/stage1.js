@@ -190,6 +190,8 @@ var Stage1 ={};
         Stage1.cowgirl.forEach(object => {
             let obj = Stage1.cowgirls.create(object.x, object.y - object.height, "cowgirl");
             obj.name = "cowgirl";
+            //set interactive to test spawn
+            //obj.setInteractive();
             obj.setDepth(1);
             obj.setOrigin(0);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
@@ -259,6 +261,10 @@ var Stage1 ={};
                     }
                 }
             }
+            //debug code for spawn
+            /*else if (gameObject.name == 'cowgirl'){
+                Stage1.spawn(gameObject);
+            }*/
             /*
             //If the player moves the bug to a human then it will be eaten
             else if (gameObject.name == 'cowboy' || gameObject.name == 'cowgirl'){
@@ -380,4 +386,14 @@ var Stage1 ={};
         return tile.properties.collide == true;
     }
 
+    Stage1.spawn = function(enemyTarget){
+        let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
+        obj.name = "bug";
+        obj.setDepth(1);
+        obj.setOrigin(0);
+        obj.setInteractive();
+        obj.anims.play('idle');
+        obj.spent = true;
+        enemyTarget.destroy();
+    }
 

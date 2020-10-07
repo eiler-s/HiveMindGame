@@ -22,7 +22,7 @@ var Stage1 ={};
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
-        Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.JSON');
+        Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.json');
 
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{

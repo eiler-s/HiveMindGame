@@ -167,7 +167,6 @@ var Stage1 ={};
             }
             Stage1.terrainGrid.push(col);
         }
-        console.log(Stage1.terrainGrid)
         
         //Create cowboys objectlayer from JSON then corresponding sprite group
         Stage1.cowboy = Stage1.map.getObjectLayer('man')['objects'];
@@ -179,6 +178,7 @@ var Stage1 ={};
             obj.name = "cowboy";
             obj.setDepth(1);
             obj.setOrigin(0);
+            obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=9;
         });
 
@@ -192,6 +192,7 @@ var Stage1 ={};
             obj.name = "cowgirl";
             obj.setDepth(1);
             obj.setOrigin(0);
+            obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
@@ -218,6 +219,8 @@ var Stage1 ={};
         //CLICK LISTNER
         //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
+
+
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true){
                 Stage1.currentBug = gameObject;
@@ -226,8 +229,8 @@ var Stage1 ={};
                 //Determine origin of unit's move range
                 Stage1.originX = Math.floor(gameObject.x/32);
                 Stage1.originY = Math.floor((gameObject.y)/32);
-                console.log(gameObject.x+" "+gameObject.y)
-                console.log(Stage1.originX+" "+Stage1.originY)
+                //console.log(gameObject.x+" "+gameObject.y)
+                //console.log(Stage1.originX+" "+Stage1.originY)
 
                 //Identify tiles in the unit's move range
                 var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
@@ -237,7 +240,7 @@ var Stage1 ={};
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
                         if (path === null){ //Some tiles are simply not available destinations?
-                            console.log("path not found")
+                            //console.log("path not found")
                         }
                         else{
                             //console.log(path);
@@ -267,19 +270,23 @@ var Stage1 ={};
             //  Hivemind had blundered.
             //  Theirs not to make reply,
             //  Theirs not to reason why,
-            //  Theirs but to eat and die
+            //  Theirs but to spawn and die
             //  Into the valley of Texas
             //  Swarmed the six hundred
-
         
-            //If the player moves the bug to a human then it will be eaten
-            else if (gameObject.name == 'cowboy' || gameObject.name == 'cowgirl'){
-                for (var i = 0; i < Stage1.paths.length; i++){
+            //If the player moves the bug to a human then it will be killed
+            else if ((gameObject.name == 'cowboy' || gameObject.name == 'cowgirl') && Stage1.myTurn && Stage1.currentBug != null){
+                let bug = Stage1.currentBug;
+                //let distance = 
+                console.log(bug.x);
+                
+                
+                /*for (var i = 0; i < Stage1.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
                     if (Stage1.paths[i][Stage1.paths[i].length - 1].x == (gameObject.x/32) && Stage1.paths[i][Stage1.paths[i].length - 1].y == (gameObject.y/32)){
                         Stage1.killHuman(Stage1.paths[i]);
                     }
-                }
+                }*/
             }
 
             
@@ -300,6 +307,9 @@ var Stage1 ={};
     Stage1.moveBug = function(path){
         var timeline = Stage1.scene.tweens.createTimeline();
 
+        //let other functions know if the bug is moving
+        Stage1.currentBug.inMotion = true;
+        timeline.setCallback("onComplete", () => Stage1.currentBug.inMotion = false);
         //var tween_list = [];
         var animQueue=[];
         //Creates a tween for each step of the bugs movement
@@ -307,17 +317,17 @@ var Stage1 ={};
             //Get location of current tile in the path
             var xo = path[i].x;
             var yo = path[i].y;
-            console.log('(external) xo:',xo,'yo:',yo);
+            //console.log('(external) xo:',xo,'yo:',yo);
 
             //Get location of next tile in the path
             var xf = path[i+1].x;
             var yf = path[i+1].y;
-            console.log('(external) xf:',xf,'xf:',yf);
+            //console.log('(external) xf:',xf,'xf:',yf);
 
             //Get direction of next movement
             var xdir = xf - xo;
             var ydir = yf - yo;
-            console.log('xdir:',xdir,'ydir:',ydir);
+            //console.log('xdir:',xdir,'ydir:',ydir);
 
             //Set animation frames to direction
             var dirKey;
@@ -330,7 +340,7 @@ var Stage1 ={};
             } else if (ydir < 0) {
                 dirKey = 'down';
             }
-            console.log('dirKey:',dirKey);
+            //console.log('dirKey:',dirKey);
             animQueue.push(""+dirKey);
 
             timeline.add({
@@ -339,9 +349,9 @@ var Stage1 ={};
                 y: yf*Stage1.map.tileHeight,
                 duration: 1000,
                 onStart: function move() {  //play the anim when the tween starts
-                    console.log('here');
+                    //console.log('here');
                     tempDir=animQueue.shift();
-                    console.log('   internal dir:', tempDir);
+                    //console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.stop();
                     Stage1.currentBug.anims.play(tempDir);
                     
@@ -351,7 +361,7 @@ var Stage1 ={};
                     */
                 },
                 onComplete: function iddle() {   //stop anim when tween ends
-                    console.log('   stopping');
+                   // console.log('   stopping');
                     Stage1.currentBug.anims.stop();
                     Stage1.currentBug.anims.play('idle');
                 }

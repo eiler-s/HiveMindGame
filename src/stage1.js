@@ -190,6 +190,8 @@ var Stage1 ={};
         Stage1.cowgirl.forEach(object => {
             let obj = Stage1.cowgirls.create(object.x, object.y - object.height, "cowgirl");
             obj.name = "cowgirl";
+            //set interactive to test spawn
+            //obj.setInteractive();
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
@@ -262,7 +264,6 @@ var Stage1 ={};
                     }
                 }
             }
-
             //ATTACK!
             //"Forward the Hive Brigade!"
             //Was there a bug dismayed?
@@ -403,4 +404,14 @@ var Stage1 ={};
         return tile.properties.collide == true;
     }
 
+    Stage1.spawn = function(enemyTarget){
+        let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
+        obj.name = "bug";
+        obj.setDepth(1);
+        obj.setOrigin(0);
+        obj.setInteractive();
+        obj.anims.play('idle');
+        obj.spent = true;
+        enemyTarget.destroy();
+    }
 

@@ -197,7 +197,6 @@ var Stage1 ={};
 
         Stage1.finder.setGrid(Stage1.terrainGrid);
 
-        //What is the pupose of these two lines?
         var tileset = Stage1.map.tilesets[0];
         var properties = tileset.tileProperties;
 
@@ -216,6 +215,7 @@ var Stage1 ={};
 
         //Stage1.graphics =Stage1.add.graphics();
 
+        //CLICK LISTNER
         //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
@@ -259,7 +259,19 @@ var Stage1 ={};
                     }
                 }
             }
-            /*
+
+            //ATTACK!
+            //"Forward the Hive Brigade!"
+            //Was there a bug dismayed?
+            //Not though the hunter knew
+            //  Hivemind had blundered.
+            //  Theirs not to make reply,
+            //  Theirs not to reason why,
+            //  Theirs but to eat and die
+            //  Into the valley of Texas
+            //  Swarmed the six hundred
+
+        
             //If the player moves the bug to a human then it will be eaten
             else if (gameObject.name == 'cowboy' || gameObject.name == 'cowgirl'){
                 for (var i = 0; i < Stage1.paths.length; i++){
@@ -269,7 +281,8 @@ var Stage1 ={};
                     }
                 }
             }
-            */
+
+            
         }, Stage1);
         
     }

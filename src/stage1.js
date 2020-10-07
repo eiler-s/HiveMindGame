@@ -22,7 +22,7 @@ var Stage1 ={};
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
-        Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.JSON');
+        Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.json');
 
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{
@@ -275,18 +275,18 @@ var Stage1 ={};
             //  Swarmed the six hundred
         
             //If the player moves the bug to a human then it will be killed
-            else if ((gameObject.name == 'cowboy' || gameObject.name == 'cowgirl') && Stage1.myTurn && Stage1.currentBug != null){
+            else if ((gameObject.name == 'cowboy' || gameObject.name == 'cowgirl') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
                 let bug = Stage1.currentBug;
-                //let distance = 
-                console.log(bug.x);
+
+                let attackRange = 1.8;
+                //square of the range. Faster to compute
+                let attackRangeS = Math.pow(attackRange, 2);
+                let distanceS = Math.pow(bug.x/32 - gameObject.x/32, 2) + Math.pow(bug.y/32 - gameObject.y/32, 2)
                 
-                
-                /*for (var i = 0; i < Stage1.paths.length; i++){
-                    //If a selected tile is a path destination, move the bug to that destination
-                    if (Stage1.paths[i][Stage1.paths[i].length - 1].x == (gameObject.x/32) && Stage1.paths[i][Stage1.paths[i].length - 1].y == (gameObject.y/32)){
-                        Stage1.killHuman(Stage1.paths[i]);
-                    }
-                }*/
+                //Check if target is in range
+                if (distanceS < attackRangeS){
+                    console.log("attack");
+                }
             }
 
             

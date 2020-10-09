@@ -286,7 +286,7 @@ var Stage1 ={};
                 
                 //Check if target is in range
                 if (distanceS < attackRangeS){
-                    console.log("attack");
+                    Stage1.spawn(gameObject);
                 }
             }
 

@@ -37,7 +37,7 @@
         {
          "draworder":"topdown",
          "id":7,
-         "name":"girl",
+         "name":"farmer",
          "objects":[
                 {
                  "gid":10,
@@ -528,7 +528,7 @@
         {
          "draworder":"topdown",
          "id":8,
-         "name":"man",
+         "name":"cowhand",
          "objects":[
                 {
                  "gid":9,

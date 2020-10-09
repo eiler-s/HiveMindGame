@@ -3,8 +3,8 @@ var Stage1 ={};
     Stage1.playSound=function(name){
         if (name == 'hammer'){
             Stage1.music.play();
-        } else if (name == 'cowboyDeath'){
-            Stage1.sfx.cowboyDeath.play();
+        } else if (name == 'cowhandDeath'){
+            Stage1.sfx.cowhandDeath.play();
         }
     }
     
@@ -13,7 +13,7 @@ var Stage1 ={};
 
         //Load audio files
         Stage1.scene.load.audio('music', './src/sound/Crowd Hammer.mp3');
-        Stage1.scene.load.audio('cowboyDeath', './src/sound/death.mp3');
+        Stage1.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
 
         //loads background
         Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
@@ -22,7 +22,7 @@ var Stage1 ={};
         //Load tilemap images and map layout files
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
-        Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.JSON');
+        Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.json');
 
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{
@@ -39,24 +39,33 @@ var Stage1 ={};
             frameWidth:32,
             frameHeight:32,
         });
+        Stage1.scene.load.spritesheet('farmer', './Sprites/farmers/farmer.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('farmwoman', './Sprites/farmers/farmwoman.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
     }
 
     Stage1.create=function(){
 
         var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
+
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
         Stage1.sfx = {};
-        Stage1.sfx.cowboyDeath = Stage1.scene.sound.add('cowboyDeath');
+        Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
 
         //Are these two lines just for testing purposes?
-        Stage1.playSound('cowboyDeath');
+        Stage1.playSound('cowhandDeath');
         //Stage1.playSound('hammer');
 
         //Defing user turn, selected unit, and path storage
         Stage1.myTurn = true;
         Stage1.currentBug = null;
-        Stage1.pathed = false;  //?
+        Stage1.pathed = false;  //when is this used?
         Stage1.paths = [];
 
         //Create game map and tileset
@@ -158,6 +167,7 @@ var Stage1 ={};
 
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
+
         //Make a matrix that corresponds each terrain map pixel to a tile ID
         Stage1.terrainGrid =[];
         for (var y=0; y < Stage1.map.height; y++){
@@ -169,27 +179,45 @@ var Stage1 ={};
         }
         console.log(Stage1.terrainGrid)
         
-        //Create cowboys objectlayer from JSON then corresponding sprite group
-        Stage1.cowboy = Stage1.map.getObjectLayer('man')['objects'];
-        Stage1.cowboys = this.add.group();
+        //Create cowhands objectlayer from JSON then corresponding sprite group
+        Stage1.cowhandLayer = Stage1.map.getObjectLayer('cowhand')['objects'];
+        Stage1.cowhands = this.add.group();
 
-        //Instantiate the cowboys on the map
-        Stage1.cowboy.forEach(object => {
-            let obj = Stage1.cowboys.create(object.x, object.y - object.height, "cowboy");
-            obj.name = "cowboy";
+        //Instantiate the cowhands on the map
+        Stage1.cowhandLayer.forEach(object => {
+            //Randomly select the gender of the cowhands
+            var gender;
+            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
+            if (randInt == 1){
+                gender = "cowboy";
+            } else {
+                gender = "cowgirl";
+            }
+
+            let obj = Stage1.cowhands.create(object.x, object.y - object.height, gender);
+            obj.name = "cowhand";
             obj.setDepth(1);
             obj.setOrigin(0);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=9;
         });
 
-        //Create cowgirl objectlayer from JSON then corresponding sprite group
-        Stage1.cowgirl = Stage1.map.getObjectLayer('girl')['objects'];
-        Stage1.cowgirls = this.add.group();
+        //Create farmer objectlayer from JSON then corresponding sprite group
+        Stage1.farmerLayer = Stage1.map.getObjectLayer('farmer')['objects'];
+        Stage1.farmers = this.add.group();
 
-        //Instantiate the cowgirls on the map
-        Stage1.cowgirl.forEach(object => {
-            let obj = Stage1.cowgirls.create(object.x, object.y - object.height, "cowgirl");
-            obj.name = "cowgirl";
+        //Instantiate the farmers on the map
+        Stage1.farmerLayer.forEach(object => {
+            //Randomly select the gender of the farmers
+            var gender;
+            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
+            if (randInt == 1){
+                gender = "farmer";
+            } else {
+                gender = "farmwoman";
+            }
+
+            let obj = Stage1.farmers.create(object.x, object.y - object.height, gender);
+            obj.name = "farmer";
             obj.setDepth(1);
             obj.setOrigin(0);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
@@ -261,7 +289,7 @@ var Stage1 ={};
             }
             /*
             //If the player moves the bug to a human then it will be eaten
-            else if (gameObject.name == 'cowboy' || gameObject.name == 'cowgirl'){
+            else if (gameObject.name == 'cowhand' || gameObject.name == 'farmer'){
                 for (var i = 0; i < Stage1.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
                     if (Stage1.paths[i][Stage1.paths[i].length - 1].x == (gameObject.x/32) && Stage1.paths[i][Stage1.paths[i].length - 1].y == (gameObject.y/32)){

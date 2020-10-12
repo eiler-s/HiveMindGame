@@ -47,7 +47,7 @@ var Stage1 ={};
     Stage1.create=function(){
 
         //make the next turn button
-        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive();     
+        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
 
         //I forgot what this line is for
         var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
@@ -225,12 +225,13 @@ var Stage1 ={};
         //Stage1.graphics =Stage1.add.graphics();
 
         //CLICK LISTNER
+        //We really should extract this function
         //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
 
 
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true){
+            if (gameObject.spent == false && Stage1.myTurn == true && gameObject.inMotion != true){
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -270,6 +271,14 @@ var Stage1 ={};
                     }
                 }
             }
+
+            //end turn
+            else if (gameObject.name == 'nextTurn'){
+                Stage1.bugs.getChildren().forEach(bug =>{
+                    bug.spent = false;
+                });
+            }
+
             //ATTACK!
             //"Forward the Hive Brigade!"
             //Was there a bug dismayed?
@@ -290,8 +299,9 @@ var Stage1 ={};
                 let attackRangeS = Math.pow(attackRange, 2);
                 let distanceS = Math.pow(bug.x/32 - gameObject.x/32, 2) + Math.pow(bug.y/32 - gameObject.y/32, 2)
                 
-                //Check if target is in range
-                if (distanceS < attackRangeS){
+                //Check attack can go ahead
+                if (distanceS < attackRangeS && bug.spent != true){
+                    bug.spent = true;
                     Stage1.playSound('cowboyDeath');
                     Stage1.spawn(gameObject);
                 }
@@ -314,6 +324,9 @@ var Stage1 ={};
     //Moves the bug to a destination tile
     Stage1.moveBug = function(path){
         var timeline = Stage1.scene.tweens.createTimeline();
+
+        //don't let the bug do anything else
+        Stage1.currentBug.spent = true;
 
         //let other functions know if the bug is moving
         Stage1.currentBug.inMotion = true;

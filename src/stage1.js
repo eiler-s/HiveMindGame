@@ -12,7 +12,8 @@ var Stage1 ={};
         Stage1.scene = this;
 
         //Load audio files
-        Stage1.scene.load.audio('music', './src/sound/Crowd Hammer.mp3');
+        //Thank you to Fesliyan Studios for background music.
+        Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         Stage1.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
 
         //loads background
@@ -28,19 +29,23 @@ var Stage1 ={};
         Stage1.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
 
         //Load character spritesheets
-        Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{
+        Stage1.scene.load.spritesheet('bug', './Sprites/hunters/huntersheet.png',{
             frameWidth: 32,
             frameHeight: 32,
             margin: 1,
             spacing: 2
         });
-        Stage1.scene.load.spritesheet('cowboy', './Sprites/cowhands/cowboy.png',{
-            frameWidth:32,
-            frameHeight:32,
+        Stage1.scene.load.spritesheet('cowboy', './Sprites/cowhands/cowboysheet.png',{
+            frameWidth: 32,
+            frameHeight: 32,
+            margin: 1,
+            spacing: 2
         });
-        Stage1.scene.load.spritesheet('cowgirl', './Sprites/cowhands/cowgirl.png',{
-            frameWidth:32,
-            frameHeight:32,
+        Stage1.scene.load.spritesheet('cowgirl', './Sprites/cowhands/cowgirlsheet.png',{
+            frameWidth: 32,
+            frameHeight: 32,
+            margin: 1,
+            spacing: 2
         });
         Stage1.scene.load.spritesheet('farmer', './Sprites/farmers/farmer.png',{
             frameWidth:32,
@@ -61,7 +66,8 @@ var Stage1 ={};
         var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
         
         //Create the music and sound effects using loaded audio
-        Stage1.music = Stage1.scene.sound.add('music', { loop: true});
+        Stage1.music = Stage1.scene.sound.add('music', { volume: 0.5, loop: true });
+        Stage1.music.play();
         Stage1.sfx = {};
         Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
         
@@ -86,55 +92,167 @@ var Stage1 ={};
         Stage1.terrain = Stage1.map.createStaticLayer('terrain', Stage1.tiles, 0, 0);
         Stage1.top = Stage1.map.createBlankDynamicLayer('tilemap', Stage1.tiles, 0, 0);
         
+        //Makes sure terrain layer is selected so that obstacles can be found
+        Stage1.map.setLayer('terrain');
+
+        //Make a matrix that corresponds each terrain map pixel to a tile ID
+        Stage1.terrainGrid =[];
+        for (var y=0; y < Stage1.map.height; y++){
+            var col = [];
+            for (var x = 0; x < Stage1.map.width; x++){
+                col.push(Stage1.getTileID(x, y));
+            }
+            Stage1.terrainGrid.push(col);
+        }
+        //console.log(Stage1.terrainGrid)
+        
         //Create bug objectlayer from JSON then corresponding sprite group
-        Stage1.bug = Stage1.map.getObjectLayer('bug')['objects'];
+        Stage1.bugLayer = Stage1.map.getObjectLayer('bug')['objects'];
         Stage1.bugs = this.add.group();
 
         //Create animations for bug movement
         this.anims.create({
-            key: 'down',
+            key: 'bDown',
             frames: this.anims.generateFrameNumbers('bug', { start: 1, end: 2 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
-
         this.anims.create({
-            key: 'left',
+            key: 'bLeft',
             frames: this.anims.generateFrameNumbers('bug', { start: 3, end: 4 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
-
         this.anims.create({
-            key: 'right',
+            key: 'bRight',
             frames: this.anims.generateFrameNumbers('bug', { start: 5, end: 6 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
-
         this.anims.create({
-            key: 'up',
+            key: 'bUp',
             frames: this.anims.generateFrameNumbers('bug', { start: 7, end: 8 }),
             frameRate: 10,
             repeat: -1  //consider removing repeats depending on implementation?
         });
-
         this.anims.create({
-            key: 'idle',
-            frames: [{ key: 'bug', frame: 0 }],
-            frameRate: 20,
-            repeat: -1  //consider removing repeats depending on implementation?
+            key: 'bIdle',
+            frames: [{ key: 'bug', frame: 0 }]
         });
 
         //Instantiate the bugs on the map
-        Stage1.bug.forEach(object => {
+        Stage1.bugLayer.forEach(object => {
             let obj = Stage1.bugs.create(object.x, object.y - object.height, "bug");
             obj.name = "bug";
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
-            obj.anims.play('idle');
+            obj.anims.play('bIdle');
             obj.spent = false;
+        });
+        
+        //Create cowhands objectlayer from JSON then corresponding sprite group
+        Stage1.cowhandLayer = Stage1.map.getObjectLayer('cowhand')['objects'];
+        Stage1.cowhands = this.add.group();
+
+        //Create animations for cowboy movement
+        this.anims.create({
+            key: 'cbDown',
+            frames: [{ key: 'cowboy', frame: 3 }]
+        });
+        this.anims.create({
+            key: 'cbLeft', 
+            frames: [{ key: 'cowboy', frame: 1 }] 
+        });
+        this.anims.create({
+            key: 'cbRight',
+            frames: [{ key: 'cowboy', frame: 2 }]
+        });
+        this.anims.create({
+            key: 'cbUp',
+            frames: [{ key: 'cowboy', frame: 0 }]
+        });
+
+        //Create animations for cowgirl movement
+        this.anims.create({
+            key: 'cgDown',
+            frames: [{ key: 'cowgirl', frame: 3 }]
+        });
+        this.anims.create({
+            key: 'cgLeft',
+            frames: [{ key: 'cowgirl', frame: 1 }]
+        });
+        this.anims.create({
+            key: 'cgRight',
+            frames: [{ key: 'cowgirl', frame: 2 }]
+        });
+        this.anims.create({
+            key: 'cgUp',
+            frames: [{ key: 'cowgirl', frame: 0 }]
+        });
+
+        //Instantiate the cowhands on the map
+        Stage1.cowhandLayer.forEach(object => {
+            //Randomly select the gender of the cowhands
+            var gender;
+            var prefix;
+            var randInt01 = Math.floor(Math.random()*2); //Randomly selects 0 or 1
+            if (randInt01 == 1){
+                gender = "cowboy";
+                prefix = "cb";
+            } else {
+                gender = "cowgirl";
+                prefix = "cg";
+            }
+            
+            //create cowhand and identify position on grid
+            let obj = Stage1.cowhands.create(object.x, object.y - object.height, gender);
+            obj.name = "cowhand";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.setInteractive();
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
+
+            //Randomly select the orientation of the cowhands
+            var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+            switch (randInt03){
+                case 0:
+                    obj.anims.play(prefix+"Up");
+                    break;
+                case 1:
+                    obj.anims.play(prefix+"Left");
+                    break;
+                case 2:
+                    obj.anims.play(prefix+"Right");
+                    break;
+                case 3:
+                    obj.anims.play(prefix+"Down");
+                    break;
+            }
+        });
+
+        //Create farmer objectlayer from JSON then corresponding sprite group
+        Stage1.farmerLayer = Stage1.map.getObjectLayer('farmer')['objects'];
+        Stage1.farmers = this.add.group();
+
+        //Instantiate the farmers on the map
+        Stage1.farmerLayer.forEach(object => {
+            //Randomly select the gender of the farmers
+            var gender;
+            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
+            if (randInt == 1){
+                gender = "farmer";
+            } else {
+                gender = "farmwoman";
+            }
+
+            //create farmer and identify position on grid
+            let obj = Stage1.farmers.create(object.x, object.y - object.height, gender);
+            obj.name = "farmer";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.setInteractive();
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
         //Create movement tile group
@@ -167,74 +285,13 @@ var Stage1 ={};
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);
 
-        //Makes sure terrain layer is selected so that obstacles can be found
-        Stage1.map.setLayer('terrain');
-
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
-
-        //Make a matrix that corresponds each terrain map pixel to a tile ID
-        Stage1.terrainGrid =[];
-        for (var y=0; y < Stage1.map.height; y++){
-            var col = [];
-            for (var x = 0; x < Stage1.map.width; x++){
-                col.push(Stage1.getTileID(x, y));
-            }
-            Stage1.terrainGrid.push(col);
-        }
-        
-        //Create cowhands objectlayer from JSON then corresponding sprite group
-        Stage1.cowhandLayer = Stage1.map.getObjectLayer('cowhand')['objects'];
-        Stage1.cowhands = this.add.group();
-
-        //Instantiate the cowhands on the map
-        Stage1.cowhandLayer.forEach(object => {
-            //Randomly select the gender of the cowhands
-            var gender;
-            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
-            if (randInt == 1){
-                gender = "cowboy";
-            } else {
-                gender = "cowgirl";
-            }
-
-            let obj = Stage1.cowhands.create(object.x, object.y - object.height, gender);
-            obj.name = "cowhand";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=9;
-        });
-
-        //Create farmer objectlayer from JSON then corresponding sprite group
-        Stage1.farmerLayer = Stage1.map.getObjectLayer('farmer')['objects'];
-        Stage1.farmers = this.add.group();
-
-        //Instantiate the farmers on the map
-        Stage1.farmerLayer.forEach(object => {
-            //Randomly select the gender of the farmers
-            var gender;
-            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
-            if (randInt == 1){
-                gender = "farmer";
-            } else {
-                gender = "farmwoman";
-            }
-
-            let obj = Stage1.farmers.create(object.x, object.y - object.height, gender);
-            obj.name = "farmer";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
-        });
-
         Stage1.finder.setGrid(Stage1.terrainGrid);
 
+        //Check each tile to see if it can be moved on
         var tileset = Stage1.map.tilesets[0];
         var properties = tileset.tileProperties;
-
-        //Check each tile to see if it can be moved on
         Stage1.acceptableTiles=[];
         for (var i = tileset.firstgid-1; i < Stage1.tiles.total; i++){
             // tiles without any properties are assumed to be acceptable
@@ -271,6 +328,7 @@ var Stage1 ={};
                 var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
                 //need to specify the terrain layer for getting the tiles
                 var squares = Stage1.map.getTilesWithinShape(shape, null, Stage1.cam, 'terrain');
+
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
@@ -293,6 +351,7 @@ var Stage1 ={};
                     //If a selected tile is a path destination, move the bug to that destination
                     if (Stage1.paths[i][Stage1.paths[i].length - 1].x == (gameObject.x/32) && Stage1.paths[i][Stage1.paths[i].length - 1].y == (gameObject.y/32)){
                         Stage1.moveBug(Stage1.paths[i]);
+                        Stage1.paths = [];
                     }
                 }
             }
@@ -371,6 +430,7 @@ var Stage1 ={};
             Stage1.currentBug = null;
         });
         var animQueue=[];
+
         //Creates a tween for each step of the bugs movement
         for (var i = 0; i < path.length-1; i++){
             //Get location of current tile in the path
@@ -391,13 +451,13 @@ var Stage1 ={};
             //Set animation frames to direction
             var dirKey;
             if (xdir > 0) {
-                dirKey = 'right';
+                dirKey = 'bRight';
             } else if (xdir < 0) {
-                dirKey = 'left';
+                dirKey = 'bLeft';
             } else if (ydir > 0) {
-                dirKey = 'up';
+                dirKey = 'bUp';
             } else if (ydir < 0) {
-                dirKey = 'down';
+                dirKey = 'bDown';
             }
             //console.log('dirKey:',dirKey);
             animQueue.push(""+dirKey);
@@ -411,7 +471,6 @@ var Stage1 ={};
                     //console.log('here');
                     tempDir=animQueue.shift();
                     //console.log('   internal dir:', tempDir);
-                    Stage1.currentBug.anims.stop();
                     Stage1.currentBug.anims.play(tempDir);
                     
                     //set a timer to keep track of how long the animation has been running
@@ -419,16 +478,15 @@ var Stage1 ={};
                     while (timer.now < 1000){console.log(timer.now)}
                     */
                 },
+
                 onComplete: function iddle() {   //stop anim when tween ends
                    // console.log('   stopping');
-                    Stage1.currentBug.anims.stop();
-                    Stage1.currentBug.anims.play('idle');
+                    Stage1.currentBug.anims.play('bIdle');
                 }
             });
         }
         timeline.play();
         Stage1.moveTiles.clear(true);
-        Stage1.paths = [];
     }
 
     Stage1.update=function(time, delta){
@@ -481,7 +539,7 @@ var Stage1 ={};
         obj.setDepth(1);
         obj.setOrigin(0);
         obj.setInteractive();
-        obj.anims.play('idle');
+        obj.anims.play('bIdle');
         obj.spent = true;
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);

@@ -24,6 +24,9 @@ var Stage1 ={};
         Stage1.scene.load.image('red', './src/sprites/red.png');
         Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.json');
 
+        //Load next turn utton
+        Stage1.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
+
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{
             frameWidth: 32,
@@ -43,14 +46,19 @@ var Stage1 ={};
 
     Stage1.create=function(){
 
+        //make the next turn button
+        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive();     
+
+        //I forgot what this line is for
         var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
+        
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
         Stage1.sfx = {};
         Stage1.sfx.cowboyDeath = Stage1.scene.sound.add('cowboyDeath');
 
-        //Are these two lines just for testing purposes?
-        Stage1.playSound('cowboyDeath');
+        
+        //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 
         //Defing user turn, selected unit, and path storage
@@ -190,8 +198,6 @@ var Stage1 ={};
         Stage1.cowgirl.forEach(object => {
             let obj = Stage1.cowgirls.create(object.x, object.y - object.height, "cowgirl");
             obj.name = "cowgirl";
-            //set interactive to test spawn
-            //obj.setInteractive();
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
@@ -286,6 +292,7 @@ var Stage1 ={};
                 
                 //Check if target is in range
                 if (distanceS < attackRangeS){
+                    Stage1.playSound('cowboyDeath');
                     Stage1.spawn(gameObject);
                 }
             }

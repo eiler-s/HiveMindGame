@@ -310,8 +310,7 @@ var Stage1 ={};
         //We really should extract this function
         //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
-
-
+            
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true){
                 console.log("test");
@@ -375,7 +374,7 @@ var Stage1 ={};
             //  Swarmed the six hundred
         
             //If the player moves the bug to a human then it will be killed
-            else if ((gameObject.name == 'cowboy' || gameObject.name == 'cowgirl') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
+            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
                 let bug = Stage1.currentBug;
 
                 let attackRange = 1.8;

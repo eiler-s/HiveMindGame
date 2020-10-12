@@ -388,7 +388,7 @@ var Stage1 ={};
                     Stage1.paths = [];
         
                     bug.spent = true;
-                    Stage1.playSound('cowboyDeath');
+                    Stage1.playSound('cowhandDeath');
                     Stage1.spawn(gameObject);
                 }
             }

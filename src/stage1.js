@@ -24,6 +24,9 @@ var Stage1 ={};
         Stage1.scene.load.image('red', './src/sprites/red.png');
         Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.json');
 
+        //Load next turn utton
+        Stage1.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
+
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/huntersheet.png',{
             frameWidth: 32,
@@ -51,21 +54,23 @@ var Stage1 ={};
 
     Stage1.create=function(){
 
-        var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
+        //make the next turn button
+        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
 
+        //I forgot what this line is for
+        var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
+        
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { loop: true});
         Stage1.sfx = {};
         Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
-
-        //Are these two lines just for testing purposes?
-        Stage1.playSound('cowhandDeath');
+        
+        //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 
         //Defing user turn, selected unit, and path storage
         Stage1.myTurn = true;
         Stage1.currentBug = null;
-        Stage1.pathed = false;  //when is this used?
         Stage1.paths = [];
 
         //Create game map and tileset
@@ -177,7 +182,6 @@ var Stage1 ={};
             }
             Stage1.terrainGrid.push(col);
         }
-        console.log(Stage1.terrainGrid)
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
         Stage1.cowhandLayer = Stage1.map.getObjectLayer('cowhand')['objects'];
@@ -198,6 +202,7 @@ var Stage1 ={};
             obj.name = "cowhand";
             obj.setDepth(1);
             obj.setOrigin(0);
+            obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=9;
         });
 
@@ -220,12 +225,12 @@ var Stage1 ={};
             obj.name = "farmer";
             obj.setDepth(1);
             obj.setOrigin(0);
+            obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
         Stage1.finder.setGrid(Stage1.terrainGrid);
 
-        //What is the pupose of these two lines?
         var tileset = Stage1.map.tilesets[0];
         var properties = tileset.tileProperties;
 
@@ -244,18 +249,23 @@ var Stage1 ={};
 
         //Stage1.graphics =Stage1.add.graphics();
 
+        //CLICK LISTNER
+        //We really should extract this function
         //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
+
+
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true){
+                console.log("test");
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
                 //Determine origin of unit's move range
                 Stage1.originX = Math.floor(gameObject.x/32);
                 Stage1.originY = Math.floor((gameObject.y)/32);
-                console.log(gameObject.x+" "+gameObject.y)
-                console.log(Stage1.originX+" "+Stage1.originY)
+                //console.log(gameObject.x+" "+gameObject.y)
+                //console.log(Stage1.originX+" "+Stage1.originY)
 
                 //Identify tiles in the unit's move range
                 var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
@@ -264,12 +274,11 @@ var Stage1 ={};
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
-                        if (path === null){ //Some tiles are simply not available destinations?
-                            console.log("path not found")
+                        if (path === null){ //Some tiles are simply not available destinations? Kevin here, if there is a tile that's chosen that's impossible to get to, path would be null.
+                            //console.log("path not found")
                         }
                         else{
-                            //console.log(path);
-                            //If a path is longer than 5 then there is a more direct path available
+                            //If a path is longer than 5 then there is a more direct path available. Kevin here, the path given at this poin is the most direct path. If the most direct path is greater than 5, then it won't be displayed.
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 Stage1.pathStorage(path)
                             }
@@ -287,52 +296,97 @@ var Stage1 ={};
                     }
                 }
             }
-            /*
-            //If the player moves the bug to a human then it will be eaten
-            else if (gameObject.name == 'cowhand' || gameObject.name == 'farmer'){
-                for (var i = 0; i < Stage1.paths.length; i++){
-                    //If a selected tile is a path destination, move the bug to that destination
-                    if (Stage1.paths[i][Stage1.paths[i].length - 1].x == (gameObject.x/32) && Stage1.paths[i][Stage1.paths[i].length - 1].y == (gameObject.y/32)){
-                        Stage1.killHuman(Stage1.paths[i]);
-                    }
+
+            //end turn
+            else if (gameObject.name == 'nextTurn'){
+                Stage1.bugs.getChildren().forEach(bug =>{
+                    bug.spent = false;
+                });
+            }
+
+            //ATTACK!
+            //"Forward the Hive Brigade!"
+            //Was there a bug dismayed?
+            //Not though the hunter knew
+            //  Hivemind had blundered.
+            //  Theirs not to make reply,
+            //  Theirs not to reason why,
+            //  Theirs but to spawn and die
+            //  Into the valley of Texas
+            //  Swarmed the six hundred
+        
+            //If the player moves the bug to a human then it will be killed
+            else if ((gameObject.name == 'cowboy' || gameObject.name == 'cowgirl') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
+                let bug = Stage1.currentBug;
+
+                let attackRange = 1.8;
+                //square of the range. Faster to compute
+                let attackRangeS = Math.pow(attackRange, 2);
+                let distanceS = Math.pow(bug.x/32 - gameObject.x/32, 2) + Math.pow(bug.y/32 - gameObject.y/32, 2)
+                
+                //Check attack can go ahead
+                if (distanceS < attackRangeS && bug.spent != true){
+                    Stage1.moveTiles.clear(true); //get rid of move tiles
+                    Stage1.paths = [];
+        
+                    bug.spent = true;
+                    Stage1.playSound('cowboyDeath');
+                    Stage1.spawn(gameObject);
                 }
             }
-            */
+            
         }, Stage1);
         
     }
 
     //Create a movement tile at a path's destination
     Stage1.pathStorage = function(path){
+        /**
+         * input path is a possible path to take
+         * output shows available paths as red squares
+         */
         let obj = Stage1.moveTiles.create(path[path.length-1].x*32, path[path.length-1].y*32, 'red');
         obj.name = 'red';
         obj.setInteractive();
         obj.setOrigin(0);
+        obj.setAlpha(.5);
         Stage1.paths.push(path);
     }
 
     //Moves the bug to a destination tile
     Stage1.moveBug = function(path){
-        var timeline = Stage1.scene.tweens.createTimeline();
+        /**
+         * input path is the chosen path
+         * output moves the currentBug to destination
+         */
+        var timeline = Stage1.scene.tweens.createTimeline({useFrames:true});
 
-        //var tween_list = [];
+        //don't let the bug do anything else
+        Stage1.currentBug.spent = true;
+
+        //let other functions know if the bug is moving
+        Stage1.currentBug.inMotion = true;
+        timeline.setCallback("onComplete", () => {
+            Stage1.currentBug.inMotion = false;
+            Stage1.currentBug = null;
+        });
         var animQueue=[];
         //Creates a tween for each step of the bugs movement
         for (var i = 0; i < path.length-1; i++){
             //Get location of current tile in the path
             var xo = path[i].x;
             var yo = path[i].y;
-            console.log('(external) xo:',xo,'yo:',yo);
+            //console.log('(external) xo:',xo,'yo:',yo);
 
             //Get location of next tile in the path
             var xf = path[i+1].x;
             var yf = path[i+1].y;
-            console.log('(external) xf:',xf,'xf:',yf);
+            //console.log('(external) xf:',xf,'xf:',yf);
 
             //Get direction of next movement
             var xdir = xf - xo;
             var ydir = yf - yo;
-            console.log('xdir:',xdir,'ydir:',ydir);
+            //console.log('xdir:',xdir,'ydir:',ydir);
 
             //Set animation frames to direction
             var dirKey;
@@ -345,18 +399,18 @@ var Stage1 ={};
             } else if (ydir < 0) {
                 dirKey = 'down';
             }
-            console.log('dirKey:',dirKey);
+            //console.log('dirKey:',dirKey);
             animQueue.push(""+dirKey);
 
             timeline.add({
                 targets: Stage1.currentBug,
                 x: xf*Stage1.map.tileWidth,
                 y: yf*Stage1.map.tileHeight,
-                duration: 1000,
+                duration: 10,
                 onStart: function move() {  //play the anim when the tween starts
-                    console.log('here');
+                    //console.log('here');
                     tempDir=animQueue.shift();
-                    console.log('   internal dir:', tempDir);
+                    //console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.stop();
                     Stage1.currentBug.anims.play(tempDir);
                     
@@ -366,7 +420,7 @@ var Stage1 ={};
                     */
                 },
                 onComplete: function iddle() {   //stop anim when tween ends
-                    console.log('   stopping');
+                   // console.log('   stopping');
                     Stage1.currentBug.anims.stop();
                     Stage1.currentBug.anims.play('idle');
                 }
@@ -374,7 +428,6 @@ var Stage1 ={};
         }
         timeline.play();
         Stage1.moveTiles.clear(true);
-        //tween_list = [];
         Stage1.paths = [];
     }
 
@@ -393,19 +446,45 @@ var Stage1 ={};
 
     //Returns the ID of a tile at a given coordinate
     Stage1.getTileID=function(x,y){
-        if (Stage1.map.hasTileAt(x,y)){ //why would there not be a tile?
+        /**
+         * input x is the x coord given
+         * input y is the y coord given
+         * output gives the tile id of the tile at coords, if there isn't a tile, then it is assumed to be ground
+         */
+        if (Stage1.map.hasTileAt(x,y)){ //why would there not be a tile? Kevin Here, originally there wasn't a tile defined for ground
             var tile = Stage1.map.getTileAt(x,y);
             return tile.index;          //returns the tile ID
         }
         else{
-            return 0;
+            return 1;
         }
     }
     
     //Returns boolean for whether a tile is collidable
     Stage1.checkCollision=function(x,y){
+        /**
+         * input x is the x coord given
+         * input y is the y coord given
+         * output is whether the tile at x, y is collidable
+         */
         var tile = Stage1.map.getTileAt(x, y);
         return tile.properties.collide == true;
     }
 
+    Stage1.spawn = function(enemyTarget){
+        /***
+         * input enemyTarget is the enemy that was just attacked
+         * output destroys target and spawns a new bug, also updates the grid
+         */
+        let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
+        obj.name = "bug";
+        obj.setDepth(1);
+        obj.setOrigin(0);
+        obj.setInteractive();
+        obj.anims.play('idle');
+        obj.spent = true;
+        Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+        Stage1.finder.setGrid(Stage1.terrainGrid);
+        enemyTarget.destroy();
+    }
 

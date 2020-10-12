@@ -1,9 +1,7 @@
 var Stage1 ={};
 
     Stage1.playSound=function(name){
-        if (name == 'hammer'){
-            Stage1.music.play();
-        } else if (name == 'cowhandDeath'){
+        if (name == 'cowhandDeath'){
             Stage1.sfx.cowhandDeath.play();
         }
     }

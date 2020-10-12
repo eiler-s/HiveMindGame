@@ -230,7 +230,8 @@ var Stage1 ={};
 
 
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
+            if (gameObject.spent == false && Stage1.myTurn == true){
+                console.log("test");
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -299,6 +300,9 @@ var Stage1 ={};
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
+                    Stage1.moveTiles.clear(true); //get rid of move tiles
+                    Stage1.paths = [];
+        
                     bug.spent = true;
                     Stage1.playSound('cowboyDeath');
                     Stage1.spawn(gameObject);

@@ -64,7 +64,6 @@ var Stage1 ={};
         //Defing user turn, selected unit, and path storage
         Stage1.myTurn = true;
         Stage1.currentBug = null;
-        Stage1.pathed = false;  //?
         Stage1.paths = [];
 
         //Create game map and tileset
@@ -231,7 +230,7 @@ var Stage1 ={};
 
 
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true && gameObject.inMotion != true){
+            if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -248,12 +247,11 @@ var Stage1 ={};
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
-                        if (path === null){ //Some tiles are simply not available destinations?
+                        if (path === null){ //Some tiles are simply not available destinations? Kevin here, if there is a tile that's chosen that's impossible to get to, path would be null.
                             //console.log("path not found")
                         }
                         else{
-                            //console.log(path);
-                            //If a path is longer than 5 then there is a more direct path available
+                            //If a path is longer than 5 then there is a more direct path available. Kevin here, the path given at this poin is the most direct path. If the most direct path is greater than 5, then it won't be displayed.
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 Stage1.pathStorage(path)
                             }
@@ -306,7 +304,6 @@ var Stage1 ={};
                     Stage1.spawn(gameObject);
                 }
             }
-
             
         }, Stage1);
         
@@ -314,24 +311,35 @@ var Stage1 ={};
 
     //Create a movement tile at a path's destination
     Stage1.pathStorage = function(path){
+        /**
+         * input path is a possible path to take
+         * output shows available paths as red squares
+         */
         let obj = Stage1.moveTiles.create(path[path.length-1].x*32, path[path.length-1].y*32, 'red');
         obj.name = 'red';
         obj.setInteractive();
         obj.setOrigin(0);
+        obj.setAlpha(.5);
         Stage1.paths.push(path);
     }
 
     //Moves the bug to a destination tile
     Stage1.moveBug = function(path){
-        var timeline = Stage1.scene.tweens.createTimeline();
+        /**
+         * input path is the chosen path
+         * output moves the currentBug to destination
+         */
+        var timeline = Stage1.scene.tweens.createTimeline({useFrames:true});
 
         //don't let the bug do anything else
         Stage1.currentBug.spent = true;
 
         //let other functions know if the bug is moving
         Stage1.currentBug.inMotion = true;
-        timeline.setCallback("onComplete", () => Stage1.currentBug.inMotion = false);
-        //var tween_list = [];
+        timeline.setCallback("onComplete", () => {
+            Stage1.currentBug.inMotion = false;
+            Stage1.currentBug = null;
+        });
         var animQueue=[];
         //Creates a tween for each step of the bugs movement
         for (var i = 0; i < path.length-1; i++){
@@ -368,7 +376,7 @@ var Stage1 ={};
                 targets: Stage1.currentBug,
                 x: xf*Stage1.map.tileWidth,
                 y: yf*Stage1.map.tileHeight,
-                duration: 1000,
+                duration: 10,
                 onStart: function move() {  //play the anim when the tween starts
                     //console.log('here');
                     tempDir=animQueue.shift();
@@ -390,7 +398,6 @@ var Stage1 ={};
         }
         timeline.play();
         Stage1.moveTiles.clear(true);
-        //tween_list = [];
         Stage1.paths = [];
     }
 
@@ -409,22 +416,36 @@ var Stage1 ={};
 
     //Returns the ID of a tile at a given coordinate
     Stage1.getTileID=function(x,y){
-        if (Stage1.map.hasTileAt(x,y)){ //why would there not be a tile?
+        /**
+         * input x is the x coord given
+         * input y is the y coord given
+         * output gives the tile id of the tile at coords, if there isn't a tile, then it is assumed to be ground
+         */
+        if (Stage1.map.hasTileAt(x,y)){ //why would there not be a tile? Kevin Here, originally there wasn't a tile defined for ground
             var tile = Stage1.map.getTileAt(x,y);
             return tile.index;          //returns the tile ID
         }
         else{
-            return 0;
+            return 1;
         }
     }
     
     //Returns boolean for whether a tile is collidable
     Stage1.checkCollision=function(x,y){
+        /**
+         * input x is the x coord given
+         * input y is the y coord given
+         * output is whether the tile at x, y is collidable
+         */
         var tile = Stage1.map.getTileAt(x, y);
         return tile.properties.collide == true;
     }
 
     Stage1.spawn = function(enemyTarget){
+        /***
+         * input enemyTarget is the enemy that was just attacked
+         * output destroys target and spawns a new bug, also updates the grid
+         */
         let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
         obj.name = "bug";
         obj.setDepth(1);
@@ -432,6 +453,8 @@ var Stage1 ={};
         obj.setInteractive();
         obj.anims.play('idle');
         obj.spent = true;
+        Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+        Stage1.finder.setGrid(Stage1.terrainGrid);
         enemyTarget.destroy();
     }
 

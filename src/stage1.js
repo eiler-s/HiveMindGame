@@ -149,6 +149,7 @@ var Stage1 ={};
             obj.setInteractive();
             obj.anims.play('bIdle');
             obj.spent = false;
+            obj.health = 3;
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -358,9 +359,7 @@ var Stage1 ={};
 
             //end turn
             else if (gameObject.name == 'nextTurn'){
-                Stage1.bugs.getChildren().forEach(bug =>{
-                    bug.spent = false;
-                });
+                Stage1.endTurn();
             }
 
             //ATTACK!
@@ -541,8 +540,39 @@ var Stage1 ={};
         obj.setInteractive();
         obj.anims.play('bIdle');
         obj.spent = true;
+        obj.health = 1;
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
         enemyTarget.destroy();
+    }
+
+    Stage1.endTurn = function(){
+        Stage1.returnFire();
+
+        Stage1.bugs.getChildren().forEach(bug =>{
+            bug.spent = false;
+        });
+
+    }
+
+    Stage1.returnFire = function(){
+        Stage1.cowhands.getChildren().forEach(cowhand =>{
+            let targets1 = Stage1.bugs.getChildren();
+            let targets2 = [];
+            targets1.forEach(tar => {
+                let attackRange = 3.01
+                let attackRangeS = Math.pow(attackRange, 2);
+                let distanceS = Math.pow(cowhand.x/32 - tar.x/32, 2) + Math.pow(cowhand.y/32 - tar.y/32, 2)
+                if(distanceS < attackRangeS){targets2.push(tar);}
+            })
+            if (targets2.length == 0)return; //return if no targets found
+            let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+            //damage that target
+            tar = targets2[rand];
+            tar.health -= 1;
+            if (tar.health < 1){
+                tar.destroy();
+            }
+        });
     }
 

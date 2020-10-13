@@ -378,9 +378,13 @@ var Stage1 ={};
                 let bug = Stage1.currentBug;
 
                 let attackRange = 1.8;
-                //square of the range. Faster to compute
-                let attackRangeS = Math.pow(attackRange, 2);
-                let distanceS = Math.pow(bug.x/32 - gameObject.x/32, 2) + Math.pow(bug.y/32 - gameObject.y/32, 2)
+                //square of the range. Faster to compute. 32 added to make it match the pixel count
+                let attackRangeS = Math.pow(attackRange*32, 2);
+                //let distX = bug.x-gameObject.x;
+                //let distY = bug.y-gameObject.y;
+
+                //might be able to strip the /32 out of this
+                let distanceS = Math.pow(bug.x - gameObject.x, 2) + Math.pow(bug.y - gameObject.y, 2)
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){

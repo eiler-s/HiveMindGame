@@ -214,7 +214,7 @@ var Stage1 ={};
             obj.setOrigin(0);
             obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
-
+            
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
             switch (randInt03){
@@ -380,11 +380,10 @@ var Stage1 ={};
                 let attackRange = 1.8;
                 //square of the range. Faster to compute. 32 added to make it match the pixel count
                 let attackRangeS = Math.pow(attackRange*32, 2);
-                //let distX = bug.x-gameObject.x;
-                //let distY = bug.y-gameObject.y;
+                let distX = bug.x-gameObject.x;
+                let distY = bug.y-gameObject.y;
 
-                //might be able to strip the /32 out of this
-                let distanceS = Math.pow(bug.x - gameObject.x, 2) + Math.pow(bug.y - gameObject.y, 2)
+                let distanceS = Math.pow(distX, 2) + Math.pow(bug.y - gameObject.y, 2)
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
@@ -569,9 +568,14 @@ var Stage1 ={};
             let targets2 = [];
             targets1.forEach(tar => {
                 let attackRange = 3.01
-                let attackRangeS = Math.pow(attackRange, 2);
-                let distanceS = Math.pow(cowhand.x/32 - tar.x/32, 2) + Math.pow(cowhand.y/32 - tar.y/32, 2)
-                if(distanceS < attackRangeS){targets2.push(tar);}
+                let attackRangeS = Math.pow(attackRange*32, 2); //see the bug's attack for documentation
+                let distX = tar.x-cowhand.x;
+                let distY = tar.y-cowhand.y;
+                let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
+                if(distanceS < attackRangeS){
+                    //now check if the cowhand is facing the right way
+                    targets2.push(tar);
+                }
             })
             if (targets2.length == 0)return; //return if no targets found
             let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target

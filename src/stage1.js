@@ -215,22 +215,28 @@ var Stage1 ={};
             obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
             
+            obj.rotate = function(dir) {
+                switch (randInt03){
+                    case 0:
+                        obj.anims.play(prefix+"Up");
+                        break;
+                    case 1:
+                        obj.anims.play(prefix+"Left");
+                        break;
+                    case 2:
+                        obj.anims.play(prefix+"Right");
+                        break;
+                    case 3:
+                        obj.anims.play(prefix+"Down");
+                        break;
+                }
+            }
+            
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            switch (randInt03){
-                case 0:
-                    obj.anims.play(prefix+"Up");
-                    break;
-                case 1:
-                    obj.anims.play(prefix+"Left");
-                    break;
-                case 2:
-                    obj.anims.play(prefix+"Right");
-                    break;
-                case 3:
-                    obj.anims.play(prefix+"Down");
-                    break;
-            }
+            obj.rotate(randInt03);
+            
+            
         });
 
         //Create farmer objectlayer from JSON then corresponding sprite group

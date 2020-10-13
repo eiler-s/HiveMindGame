@@ -60,6 +60,9 @@ var Stage1 ={};
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
 
+        //end turn on space
+        this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
+
         //I forgot what this line is for
         var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
         
@@ -313,7 +316,6 @@ var Stage1 ={};
 
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true){
-                console.log("test");
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -497,6 +499,10 @@ var Stage1 ={};
         //Places the marker around the selected tile
         Stage1.marker.x = Stage1.map.tileToWorldX(pointerTileX);
         Stage1.marker.y = Stage1.map.tileToWorldY(pointerTileY);
+
+        //checks if space has been pressed, if so ends turn
+        
+
     }
 
     //Returns the ID of a tile at a given coordinate

@@ -216,7 +216,8 @@ var Stage1 ={};
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
             
             obj.rotate = function(dir) {
-                switch (randInt03){
+                obj.direction = dir;
+                switch (dir){
                     case 0:
                         obj.anims.play(prefix+"Up");
                         break;
@@ -583,14 +584,18 @@ var Stage1 ={};
                     targets2.push(tar);
                 }
             })
-            if (targets2.length == 0)return; //return if no targets found
-            let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
-            //damage that target
-            tar = targets2[rand];
-            tar.health -= 1;
-            if (tar.health < 1){
-                tar.destroy();
-            }
+            if (targets2.length != 0){//if targets found
+                let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                //damage that target
+                tar = targets2[rand];
+                tar.health -= 1;
+                if (tar.health < 1){
+                    tar.destroy();
+                }
+            } 
+            //Lets rotate the cowhands
+            var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+            cowhand.rotate(randInt03);
         });
     }
 

@@ -216,10 +216,10 @@ var Stage1 ={};
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
             
             obj.rotate = function(dir) {
-                obj.direction = dir;
+                obj.dir = dir;
                 switch (dir){
                     case 0:
-                        obj.anims.play(prefix+"Up");
+                        obj.anims.play(prefix+"Up"); //LIAR! actually plays the Down animation
                         break;
                     case 1:
                         obj.anims.play(prefix+"Left");
@@ -228,7 +228,7 @@ var Stage1 ={};
                         obj.anims.play(prefix+"Right");
                         break;
                     case 3:
-                        obj.anims.play(prefix+"Down");
+                        obj.anims.play(prefix+"Down"); //plays the up animation
                         break;
                 }
             }
@@ -581,7 +581,13 @@ var Stage1 ={};
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
-                    targets2.push(tar);
+                    //0,1,2,3 | down, left, right, up
+                    //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
+
+                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 1)){
+                        //console.log("you are one ugly motherfucker")
+                        targets2.push(tar);
+                    }
                 }
             })
             if (targets2.length != 0){//if targets found
@@ -593,9 +599,10 @@ var Stage1 ={};
                     tar.destroy();
                 }
             } 
-            //Lets rotate the cowhands
-            var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            cowhand.rotate(randInt03);
+            else{ //Only rotate if no contacts
+                var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+                cowhand.rotate(randInt03);
+            }
         });
     }
 

@@ -1,8 +1,31 @@
 var Stage1 ={};
 
     Stage1.playSound=function(name){
-        if (name == 'cowhandDeath'){
-            Stage1.sfx.cowhandDeath.play();
+        /*if (name == 'cowhandDeath'){
+            
+        }*/
+        switch (name){
+            case 'cowhandDeath':
+                Stage1.sfx.cowhandDeath.play();
+                break;
+            case 'run':
+                Stage1.sfx.run.play();
+                break;
+            case 'shoot':
+                Stage1.sfx.shoot.play();
+                break;
+            case 'hawk':
+                Stage1.sfx.hawk.play();
+                break;
+            case 'train':
+                Stage1.sfx.train.play();
+        }
+    }
+
+    Stage1.stopSound = function(name){
+        switch (name){
+            case 'run':
+                Stage1.sfx.run.stop();
         }
     }
     
@@ -14,6 +37,10 @@ var Stage1 ={};
         Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         Stage1.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
 
+        Stage1.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
+        Stage1.scene.load.audio('shoot', './Sound/shoot.mp3')
+        Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
+        Stage1.scene.load.audio('train', './Sound/train.mp3')
         //loads background
         Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
         Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
@@ -62,16 +89,17 @@ var Stage1 ={};
 
         //end turn on space
         this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
-
-        //I forgot what this line is for
-        var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
         
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { volume: 0.5, loop: true });
+        //Stage1.run = Stage1.scene.sound.add('run', {volume: 0.5});
         Stage1.music.play();
         Stage1.sfx = {};
         Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
-        
+        Stage1.sfx.run = Stage1.scene.sound.add('run');
+        Stage1.sfx.shoot = Stage1.scene.sound.add('shoot');
+        Stage1.sfx.hawk = Stage1.scene.sound.add('hawk');
+        Stage1.sfx.train = Stage1.scene.sound.add('train');
         //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 
@@ -264,6 +292,17 @@ var Stage1 ={};
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
+        Stage1.objectiveLayer = Stage1.map.getObjectLayer('objective')['objects'];
+        Stage1.objectives = this.add.group();
+        Stage1.objectiveLayer.forEach(object=>{
+            let obj = Stage1.objectives.create(object.x, object.y - object.height, 'red');
+            obj.name = 'objective';
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.setInteractive();
+            obj.setTint(0x00FFFF);
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10
+        })
         //Create movement tile group
         Stage1.moveTiles = this.add.group();
 
@@ -390,7 +429,7 @@ var Stage1 ={};
                 let distX = bug.x-gameObject.x;
                 let distY = bug.y-gameObject.y;
 
-                let distanceS = Math.pow(distX, 2) + Math.pow(bug.y - gameObject.y, 2)
+                let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2)
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
@@ -400,11 +439,21 @@ var Stage1 ={};
                     bug.spent = true;
                     Stage1.playSound('cowhandDeath');
                     Stage1.spawn(gameObject);
+                    gameObject.destroy();
+                    //objectives check
+                    if (Stage1.objectives.children.length == 0){
+                        alert('You Win');
+                    }
                 }
             }
-            
         }, Stage1);
-        
+        setInterval(function(){
+            if (Math.random() < .7){
+                Stage1.playSound('hawk');
+            }
+            else{
+                Stage1.playSound('train');
+            }}, 100000)
     }
 
     //Create a movement tile at a path's destination
@@ -477,7 +526,7 @@ var Stage1 ={};
                 y: yf*Stage1.map.tileHeight,
                 duration: 10,
                 onStart: function move() {  //play the anim when the tween starts
-                    //console.log('here');
+                    Stage1.playSound('run');
                     tempDir=animQueue.shift();
                     //console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.play(tempDir);
@@ -490,6 +539,7 @@ var Stage1 ={};
 
                 onComplete: function iddle() {   //stop anim when tween ends
                    // console.log('   stopping');
+                    Stage1.stopSound('run');
                     Stage1.currentBug.anims.play('bIdle');
                 }
             });
@@ -557,7 +607,6 @@ var Stage1 ={};
         obj.health = 1;
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
-        enemyTarget.destroy();
     }
 
     Stage1.endTurn = function(){
@@ -595,6 +644,8 @@ var Stage1 ={};
                 //damage that target
                 tar = targets2[rand];
                 tar.health -= 1;
+                tar.setTint(0xe36d59);
+                Stage1.playSound('shoot');
                 if (tar.health < 1){
                     tar.destroy();
                 }

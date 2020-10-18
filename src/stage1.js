@@ -420,7 +420,7 @@ var Stage1 ={};
             //  Swarmed the six hundred
         
             //If the player moves the bug to a human then it will be killed
-            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
+            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
                 let bug = Stage1.currentBug;
 
                 let attackRange = 1.8;

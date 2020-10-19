@@ -437,9 +437,8 @@ var Stage1 ={};
         
                     bug.spent = true;
                     Stage1.playSound('cowhandDeath');
-                    if (Math.random() > .5){
-                        Stage1.spawn(gameObject);
-                    }
+                    Stage1.spawn(gameObject);
+                    
                     gameObject.destroy();
                     //objectives check
                     if (Stage1.objectives.children.length == 0){
@@ -599,14 +598,17 @@ var Stage1 ={};
          * output destroys target and spawns a new bug, also updates the grid
          */
 
-        let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
-        obj.name = "bug";
-        obj.setDepth(1);
-        obj.setOrigin(0);
-        obj.setInteractive();
-        obj.anims.play('bIdle');
-        obj.spent = true;
-        obj.health = 1;
+        if (Math.random() > .5){
+
+            let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
+            obj.name = "bug";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.setInteractive();
+            obj.anims.play('bIdle');
+            obj.spent = true;
+            obj.health = 1;
+        }
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
     }

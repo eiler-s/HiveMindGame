@@ -1,10 +1,31 @@
 var Stage1 ={};
 
     Stage1.playSound=function(name){
-        if (name == 'hammer'){
-            Stage1.music.play();
-        } else if (name == 'cowhandDeath'){
-            Stage1.sfx.cowhandDeath.play();
+        /*if (name == 'cowhandDeath'){
+            
+        }*/
+        switch (name){
+            case 'cowhandDeath':
+                Stage1.sfx.cowhandDeath.play();
+                break;
+            case 'run':
+                Stage1.sfx.run.play();
+                break;
+            case 'shoot':
+                Stage1.sfx.shoot.play();
+                break;
+            case 'hawk':
+                Stage1.sfx.hawk.play();
+                break;
+            case 'train':
+                Stage1.sfx.train.play();
+        }
+    }
+
+    Stage1.stopSound = function(name){
+        switch (name){
+            case 'run':
+                Stage1.sfx.run.stop();
         }
     }
     
@@ -16,6 +37,10 @@ var Stage1 ={};
         Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         Stage1.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
 
+        Stage1.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
+        Stage1.scene.load.audio('shoot', './Sound/shoot.mp3')
+        Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
+        Stage1.scene.load.audio('train', './Sound/train.mp3')
         //loads background
         Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
         Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
@@ -62,15 +87,19 @@ var Stage1 ={};
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
 
-        //I forgot what this line is for
-        var bg = Stage1.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
+        //end turn on space
+        this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
         
         //Create the music and sound effects using loaded audio
         Stage1.music = Stage1.scene.sound.add('music', { volume: 0.5, loop: true });
+        //Stage1.run = Stage1.scene.sound.add('run', {volume: 0.5});
         Stage1.music.play();
         Stage1.sfx = {};
         Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
-        
+        Stage1.sfx.run = Stage1.scene.sound.add('run');
+        Stage1.sfx.shoot = Stage1.scene.sound.add('shoot');
+        Stage1.sfx.hawk = Stage1.scene.sound.add('hawk');
+        Stage1.sfx.train = Stage1.scene.sound.add('train');
         //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 
@@ -149,6 +178,7 @@ var Stage1 ={};
             obj.setInteractive();
             obj.anims.play('bIdle');
             obj.spent = false;
+            obj.health = 3;
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -212,23 +242,30 @@ var Stage1 ={};
             obj.setOrigin(0);
             obj.setInteractive();
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
-
+            
+            obj.rotate = function(dir) {
+                obj.dir = dir;
+                switch (dir){
+                    case 0:
+                        obj.anims.play(prefix+"Up"); //LIAR! actually plays the Down animation
+                        break;
+                    case 1:
+                        obj.anims.play(prefix+"Left");
+                        break;
+                    case 2:
+                        obj.anims.play(prefix+"Right");
+                        break;
+                    case 3:
+                        obj.anims.play(prefix+"Down"); //plays the up animation
+                        break;
+                }
+            }
+            
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            switch (randInt03){
-                case 0:
-                    obj.anims.play(prefix+"Up");
-                    break;
-                case 1:
-                    obj.anims.play(prefix+"Left");
-                    break;
-                case 2:
-                    obj.anims.play(prefix+"Right");
-                    break;
-                case 3:
-                    obj.anims.play(prefix+"Down");
-                    break;
-            }
+            obj.rotate(randInt03);
+            
+            
         });
 
         //Create farmer objectlayer from JSON then corresponding sprite group
@@ -255,6 +292,17 @@ var Stage1 ={};
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
+        Stage1.objectiveLayer = Stage1.map.getObjectLayer('objective')['objects'];
+        Stage1.objectives = this.add.group();
+        Stage1.objectiveLayer.forEach(object=>{
+            let obj = Stage1.objectives.create(object.x, object.y - object.height, 'red');
+            obj.name = 'objective';
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.setInteractive();
+            obj.setTint(0x00FFFF);
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10
+        })
         //Create movement tile group
         Stage1.moveTiles = this.add.group();
 
@@ -313,7 +361,6 @@ var Stage1 ={};
             
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true){
-                console.log("test");
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -357,9 +404,7 @@ var Stage1 ={};
 
             //end turn
             else if (gameObject.name == 'nextTurn'){
-                Stage1.bugs.getChildren().forEach(bug =>{
-                    bug.spent = false;
-                });
+                Stage1.endTurn();
             }
 
             //ATTACK!
@@ -374,13 +419,16 @@ var Stage1 ={};
             //  Swarmed the six hundred
         
             //If the player moves the bug to a human then it will be killed
-            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
+            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
                 let bug = Stage1.currentBug;
 
                 let attackRange = 1.8;
-                //square of the range. Faster to compute
-                let attackRangeS = Math.pow(attackRange, 2);
-                let distanceS = Math.pow(bug.x/32 - gameObject.x/32, 2) + Math.pow(bug.y/32 - gameObject.y/32, 2)
+                //square of the range. Faster to compute. 32 added to make it match the pixel count
+                let attackRangeS = Math.pow(attackRange*32, 2);
+                let distX = bug.x-gameObject.x;
+                let distY = bug.y-gameObject.y;
+
+                let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2)
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
@@ -390,11 +438,21 @@ var Stage1 ={};
                     bug.spent = true;
                     Stage1.playSound('cowhandDeath');
                     Stage1.spawn(gameObject);
+                    gameObject.destroy();
+                    //objectives check
+                    if (Stage1.objectives.children.length == 0){
+                        alert('You Win');
+                    }
                 }
             }
-            
         }, Stage1);
-        
+        setInterval(function(){
+            if (Math.random() < .7){
+                Stage1.playSound('hawk');
+            }
+            else{
+                Stage1.playSound('train');
+            }}, 100000)
     }
 
     //Create a movement tile at a path's destination
@@ -467,7 +525,7 @@ var Stage1 ={};
                 y: yf*Stage1.map.tileHeight,
                 duration: 10,
                 onStart: function move() {  //play the anim when the tween starts
-                    //console.log('here');
+                    Stage1.playSound('run');
                     tempDir=animQueue.shift();
                     //console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.play(tempDir);
@@ -480,6 +538,7 @@ var Stage1 ={};
 
                 onComplete: function iddle() {   //stop anim when tween ends
                    // console.log('   stopping');
+                    Stage1.stopSound('run');
                     Stage1.currentBug.anims.play('bIdle');
                 }
             });
@@ -499,6 +558,10 @@ var Stage1 ={};
         //Places the marker around the selected tile
         Stage1.marker.x = Stage1.map.tileToWorldX(pointerTileX);
         Stage1.marker.y = Stage1.map.tileToWorldY(pointerTileY);
+
+        //checks if space has been pressed, if so ends turn
+        
+
     }
 
     //Returns the ID of a tile at a given coordinate
@@ -540,8 +603,56 @@ var Stage1 ={};
         obj.setInteractive();
         obj.anims.play('bIdle');
         obj.spent = true;
+        obj.health = 1;
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
-        enemyTarget.destroy();
+    }
+
+    Stage1.endTurn = function(){
+        Stage1.returnFire();
+
+        Stage1.bugs.getChildren().forEach(bug =>{
+            bug.spent = false;
+        });
+
+    }
+
+    Stage1.returnFire = function(){
+        Stage1.cowhands.getChildren().forEach(cowhand =>{
+            let targets1 = Stage1.bugs.getChildren();
+            let targets2 = [];
+            targets1.forEach(tar => {
+                let attackRange = 3.01
+                let attackRangeS = Math.pow(attackRange*32, 2); //see the bug's attack for documentation
+                let distX = tar.x-cowhand.x;
+                let distY = tar.y-cowhand.y;
+                let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
+                if(distanceS < attackRangeS){
+                    //now check if the cowhand is facing the right way
+                    //0,1,2,3 | down, left, right, up
+                    //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
+
+                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 1)){
+                        //console.log("you are one ugly motherfucker")
+                        targets2.push(tar);
+                    }
+                }
+            })
+            if (targets2.length != 0){//if targets found
+                let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                //damage that target
+                tar = targets2[rand];
+                tar.health -= 1;
+                tar.setTint(0xe36d59);
+                Stage1.playSound('shoot');
+                if (tar.health < 1){
+                    tar.destroy();
+                }
+            } 
+            else{ //Only rotate if no contacts
+                var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+                cowhand.rotate(randInt03);
+            }
+        });
     }
 

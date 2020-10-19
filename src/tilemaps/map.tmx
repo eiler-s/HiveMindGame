@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="12" nextobjectid="206">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="13" nextobjectid="210">
  <editorsettings>
   <export target="map.json" format="json"/>
  </editorsettings>
@@ -106,7 +106,7 @@
 1,1,1,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1
 </data>
  </layer>
- <objectgroup id="7" name="girl">
+ <objectgroup id="7" name="farmer">
   <object id="105" gid="10" x="320" y="256" width="32" height="32"/>
   <object id="106" gid="10" x="384" y="256" width="32" height="32"/>
   <object id="107" gid="10" x="544" y="96" width="32" height="32"/>
@@ -148,7 +148,7 @@
   <object id="143" gid="10" x="1312" y="576" width="32" height="32"/>
   <object id="144" gid="10" x="1312" y="512" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="8" name="man">
+ <objectgroup id="8" name="cowhand">
   <object id="145" gid="9" x="352" y="256" width="32" height="32"/>
   <object id="146" gid="9" x="576" y="96" width="32" height="32"/>
   <object id="147" gid="9" x="576" y="128" width="32" height="32"/>
@@ -205,6 +205,12 @@
   <object id="198" gid="9" x="1280" y="608" width="32" height="32"/>
   <object id="199" gid="9" x="1248" y="608" width="32" height="32"/>
   <object id="200" gid="9" x="1216" y="576" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup id="12" name="objective">
+  <object id="206" gid="12" x="1440" y="416" width="32" height="32"/>
+  <object id="207" gid="12" x="1408" y="416" width="32" height="32"/>
+  <object id="208" gid="12" x="1408" y="384" width="32" height="32"/>
+  <object id="209" gid="12" x="1440" y="384" width="32" height="32"/>
  </objectgroup>
  <layer id="9" name="top" width="48" height="22" opacity="0.31">
   <data encoding="csv">

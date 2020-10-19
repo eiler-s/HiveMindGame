@@ -437,7 +437,9 @@ var Stage1 ={};
         
                     bug.spent = true;
                     Stage1.playSound('cowhandDeath');
-                    Stage1.spawn(gameObject);
+                    if (Math.random() > .5){
+                        Stage1.spawn(gameObject);
+                    }
                     gameObject.destroy();
                     //objectives check
                     if (Stage1.objectives.children.length == 0){
@@ -596,6 +598,7 @@ var Stage1 ={};
          * input enemyTarget is the enemy that was just attacked
          * output destroys target and spawns a new bug, also updates the grid
          */
+
         let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
         obj.name = "bug";
         obj.setDepth(1);

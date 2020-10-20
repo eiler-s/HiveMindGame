@@ -41,6 +41,7 @@ var Stage1 ={};
         Stage1.scene.load.audio('shoot', './Sound/shoot.mp3')
         Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
         Stage1.scene.load.audio('train', './Sound/train.mp3')
+
         //loads background
         Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
         Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');
@@ -103,7 +104,7 @@ var Stage1 ={};
         //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 
-        //Defing user turn, selected unit, and path storage
+        //Define user turn, selected unit, and path storage
         Stage1.myTurn = true;
         Stage1.currentBug = null;
         Stage1.paths = [];
@@ -241,13 +242,13 @@ var Stage1 ={};
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
-            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
+            Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)] = 9;
             
             obj.rotate = function(dir) {
                 obj.dir = dir;
                 switch (dir){
                     case 0:
-                        obj.anims.play(prefix+"Up"); //LIAR! actually plays the Down animation
+                        obj.anims.play(prefix+"Up");
                         break;
                     case 1:
                         obj.anims.play(prefix+"Left");
@@ -256,7 +257,7 @@ var Stage1 ={};
                         obj.anims.play(prefix+"Right");
                         break;
                     case 3:
-                        obj.anims.play(prefix+"Down"); //plays the up animation
+                        obj.anims.play(prefix+"Down");
                         break;
                 }
             }
@@ -292,8 +293,11 @@ var Stage1 ={};
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
+        //Create a group for the objects representing the game objective
         Stage1.objectiveLayer = Stage1.map.getObjectLayer('objective')['objects'];
         Stage1.objectives = this.add.group();
+
+        //Instantiate objectives on the map
         Stage1.objectiveLayer.forEach(object=>{
             let obj = Stage1.objectives.create(object.x, object.y - object.height, 'red');
             obj.name = 'objective';
@@ -303,6 +307,7 @@ var Stage1 ={};
             obj.setTint(0x00FFFF);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10
         })
+
         //Create movement tile group
         Stage1.moveTiles = this.add.group();
 
@@ -352,8 +357,6 @@ var Stage1 ={};
         }
         Stage1.finder.setAcceptableTiles(Stage1.acceptableTiles);
 
-        //Stage1.graphics =Stage1.add.graphics();
-
         //CLICK LISTNER
         //We really should extract this function
         //Handles click events on units or on available move tiles
@@ -367,8 +370,6 @@ var Stage1 ={};
                 //Determine origin of unit's move range
                 Stage1.originX = Math.floor(gameObject.x/32);
                 Stage1.originY = Math.floor((gameObject.y)/32);
-                //console.log(gameObject.x+" "+gameObject.y)
-                //console.log(Stage1.originX+" "+Stage1.originY)
 
                 //Identify tiles in the unit's move range
                 var shape = new Phaser.Geom.Circle(Stage1.originX*32, Stage1.originY*32, 5*32);
@@ -378,11 +379,11 @@ var Stage1 ={};
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
-                        if (path === null){ //Some tiles are simply not available destinations? Kevin here, if there is a tile that's chosen that's impossible to get to, path would be null.
+                        if (path === null){ //If there is a tile that's chosen that's impossible to get to, path would be null.
                             //console.log("path not found")
                         }
                         else{
-                            //If a path is longer than 5 then there is a more direct path available. Kevin here, the path given at this poin is the most direct path. If the most direct path is greater than 5, then it won't be displayed.
+                            //If the most direct path is greater than 5, then it won't be displayed
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 Stage1.pathStorage(path)
                             }
@@ -418,15 +419,15 @@ var Stage1 ={};
             //  Into the valley of Texas
             //  Swarmed the six hundred
         
-            //If the player moves the bug to a human then it will be killed
+            //If the player moves the bug to a human then the human will be killed
             else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
                 let bug = Stage1.currentBug;
 
                 let attackRange = 1.8;
                 //square of the range. Faster to compute. 32 added to make it match the pixel count
                 let attackRangeS = Math.pow(attackRange*32, 2);
-                let distX = bug.x-gameObject.x;
-                let distY = bug.y-gameObject.y;
+                let distX = bug.x - gameObject.x;
+                let distY = bug.y - gameObject.y;
 
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2)
                 
@@ -447,13 +448,16 @@ var Stage1 ={};
                 }
             }
         }, Stage1);
+
+        //Periodically play environmental noises
         setInterval(function(){
             if (Math.random() < .7){
                 Stage1.playSound('hawk');
             }
             else{
                 Stage1.playSound('train');
-            }}, 100000)
+            }
+        }, 100000)
     }
 
     //Create a movement tile at a path's destination
@@ -487,6 +491,7 @@ var Stage1 ={};
             Stage1.currentBug.inMotion = false;
             Stage1.currentBug = null;
         });
+
         var animQueue=[];
 
         //Creates a tween for each step of the bugs movement
@@ -494,17 +499,14 @@ var Stage1 ={};
             //Get location of current tile in the path
             var xo = path[i].x;
             var yo = path[i].y;
-            //console.log('(external) xo:',xo,'yo:',yo);
 
             //Get location of next tile in the path
             var xf = path[i+1].x;
             var yf = path[i+1].y;
-            //console.log('(external) xf:',xf,'xf:',yf);
 
             //Get direction of next movement
             var xdir = xf - xo;
             var ydir = yf - yo;
-            //console.log('xdir:',xdir,'ydir:',ydir);
 
             //Set animation frames to direction
             var dirKey;
@@ -517,7 +519,6 @@ var Stage1 ={};
             } else if (ydir < 0) {
                 dirKey = 'bDown';
             }
-            //console.log('dirKey:',dirKey);
             animQueue.push(""+dirKey);
 
             timeline.add({
@@ -525,20 +526,14 @@ var Stage1 ={};
                 x: xf*Stage1.map.tileWidth,
                 y: yf*Stage1.map.tileHeight,
                 duration: 10,
+
                 onStart: function move() {  //play the anim when the tween starts
                     Stage1.playSound('run');
                     tempDir=animQueue.shift();
-                    //console.log('   internal dir:', tempDir);
                     Stage1.currentBug.anims.play(tempDir);
-                    
-                    //set a timer to keep track of how long the animation has been running
-                    /*
-                    while (timer.now < 1000){console.log(timer.now)}
-                    */
                 },
 
                 onComplete: function iddle() {   //stop anim when tween ends
-                   // console.log('   stopping');
                     Stage1.stopSound('run');
                     Stage1.currentBug.anims.play('bIdle');
                 }
@@ -548,7 +543,7 @@ var Stage1 ={};
         Stage1.moveTiles.clear(true);
     }
 
-    Stage1.update=function(time, delta){
+    Stage1.update = function(time, delta){
         Stage1.controls.update(delta)
         var worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
 
@@ -566,13 +561,13 @@ var Stage1 ={};
     }
 
     //Returns the ID of a tile at a given coordinate
-    Stage1.getTileID=function(x,y){
+    Stage1.getTileID = function(x,y){
         /**
          * input x is the x coord given
          * input y is the y coord given
          * output gives the tile id of the tile at coords, if there isn't a tile, then it is assumed to be ground
          */
-        if (Stage1.map.hasTileAt(x,y)){ //why would there not be a tile? Kevin Here, originally there wasn't a tile defined for ground
+        if (Stage1.map.hasTileAt(x,y)){ //Originally there wasn't a tile defined for ground
             var tile = Stage1.map.getTileAt(x,y);
             return tile.index;          //returns the tile ID
         }
@@ -582,7 +577,7 @@ var Stage1 ={};
     }
     
     //Returns boolean for whether a tile is collidable
-    Stage1.checkCollision=function(x,y){
+    Stage1.checkCollision = function(x,y){
         /**
          * input x is the x coord given
          * input y is the y coord given
@@ -619,7 +614,6 @@ var Stage1 ={};
         Stage1.bugs.getChildren().forEach(bug =>{
             bug.spent = false;
         });
-
     }
 
     Stage1.returnFire = function(){
@@ -629,12 +623,12 @@ var Stage1 ={};
             targets1.forEach(tar => {
                 let attackRange = 3.01
                 let attackRangeS = Math.pow(attackRange*32, 2); //see the bug's attack for documentation
-                let distX = tar.x-cowhand.x;
-                let distY = tar.y-cowhand.y;
+                let distX = tar.x - cowhand.x;
+                let distY = tar.y - cowhand.y;
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
-                    //0,1,2,3 | down, left, right, up
+                    //0,1,2,3 | up, left, right, down
                     //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
 
                     if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 1)){
@@ -642,7 +636,7 @@ var Stage1 ={};
                         targets2.push(tar);
                     }
                 }
-            })
+            });
             if (targets2.length != 0){//if targets found
                 let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
                 //damage that target

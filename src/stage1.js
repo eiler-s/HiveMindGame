@@ -92,15 +92,14 @@ var Stage1 ={};
         this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
         
         //Create the music and sound effects using loaded audio
-        Stage1.music = Stage1.scene.sound.add('music', { volume: 0.5, loop: true });
-        //Stage1.run = Stage1.scene.sound.add('run', {volume: 0.5});
+        Stage1.music = Stage1.scene.sound.add('music', { volume: 0.1, loop: true });
         Stage1.music.play();
         Stage1.sfx = {};
-        Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
-        Stage1.sfx.run = Stage1.scene.sound.add('run');
-        Stage1.sfx.shoot = Stage1.scene.sound.add('shoot');
-        Stage1.sfx.hawk = Stage1.scene.sound.add('hawk');
-        Stage1.sfx.train = Stage1.scene.sound.add('train');
+        Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath', {volume: 0.1});
+        Stage1.sfx.run = Stage1.scene.sound.add('run', {volume: 0.1});
+        Stage1.sfx.shoot = Stage1.scene.sound.add('shoot', {volume: 0.1});
+        Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
+        Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
         //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 

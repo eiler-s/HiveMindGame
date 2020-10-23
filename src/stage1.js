@@ -333,10 +333,13 @@ var Stage1 ={};
         Stage1.marker.strokeRect(0,0, Stage1.map.tileWidth, Stage1.map.tileHeight);
 
         //Camera moves when marker is outside dead zone
+        
         Stage1.cam = this.cameras.main;
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);
+        //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zon for camera
+        //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
 
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
@@ -363,7 +366,7 @@ var Stage1 ={};
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true){
+            if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -446,6 +449,7 @@ var Stage1 ={};
                         alert('You Win');
                     }
                 }
+                Stage1.currentBug = null;
             }
         }, Stage1);
 

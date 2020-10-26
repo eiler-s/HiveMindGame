@@ -85,6 +85,10 @@ var Stage1 ={};
 
     Stage1.create=function(){
 
+        //used for consume function
+        Stage1.eatMode = false;
+        this.input.keyboard.on('keydown-E', () => Stage1.eatMode = true);
+
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
 
@@ -440,9 +444,15 @@ var Stage1 ={};
         
                     bug.spent = true;
                     Stage1.playSound('cowhandDeath');
-                    Stage1.spawn(gameObject);
+
+                    if (Stage1.eatMode){
+                        Stage1.consume(gameObject, bug);
+                    }
+                    else{
+                        Stage1.spawn(gameObject);
+                        gameObject.destroy();
+                    }
                     
-                    gameObject.destroy();
                     //objectives check
                     if (Stage1.objectives.children.length == 0){
                         alert('You Win');
@@ -450,6 +460,8 @@ var Stage1 ={};
                 }
                 Stage1.currentBug = null;
             }
+
+            Stage1.eatMode = false; //resets eatMode after a click
         }, Stage1);
 
         //Periodically play environmental noises
@@ -658,3 +670,9 @@ var Stage1 ={};
         });
     }
 
+    Stage1.consume = function(enemyTarget, bug){
+        bug.health++;
+        Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+        Stage1.finder.setGrid(Stage1.terrainGrid);
+        enemyTarget.destroy();
+    }

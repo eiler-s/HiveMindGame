@@ -92,15 +92,14 @@ var Stage1 ={};
         this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
         
         //Create the music and sound effects using loaded audio
-        Stage1.music = Stage1.scene.sound.add('music', { volume: 0.5, loop: true });
-        //Stage1.run = Stage1.scene.sound.add('run', {volume: 0.5});
+        Stage1.music = Stage1.scene.sound.add('music', { volume: 0.1, loop: true });
         Stage1.music.play();
         Stage1.sfx = {};
-        Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath');
-        Stage1.sfx.run = Stage1.scene.sound.add('run');
-        Stage1.sfx.shoot = Stage1.scene.sound.add('shoot');
-        Stage1.sfx.hawk = Stage1.scene.sound.add('hawk');
-        Stage1.sfx.train = Stage1.scene.sound.add('train');
+        Stage1.sfx.cowhandDeath = Stage1.scene.sound.add('cowhandDeath', {volume: 0.1});
+        Stage1.sfx.run = Stage1.scene.sound.add('run', {volume: 0.1});
+        Stage1.sfx.shoot = Stage1.scene.sound.add('shoot', {volume: 0.1});
+        Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
+        Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
         //Stage1.playSound('cowboyDeath');
         //Stage1.playSound('hammer');
 
@@ -333,10 +332,13 @@ var Stage1 ={};
         Stage1.marker.strokeRect(0,0, Stage1.map.tileWidth, Stage1.map.tileHeight);
 
         //Camera moves when marker is outside dead zone
+        
         Stage1.cam = this.cameras.main;
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);
+        //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zon for camera
+        //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
 
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
@@ -363,7 +365,7 @@ var Stage1 ={};
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true){
+            if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -446,6 +448,7 @@ var Stage1 ={};
                         alert('You Win');
                     }
                 }
+                Stage1.currentBug = null;
             }
         }, Stage1);
 

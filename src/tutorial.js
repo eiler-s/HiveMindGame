@@ -189,77 +189,16 @@
             obj.anims.play('bIdle');
             obj.spent = false;
         });
-
-        var introNar = [
-            {
-                speaker: 'instructions',
-                orientation: 'left',
-                text: "Hive Queen:\n"+
-                "Howdy y'all! Ah know what y'all must be thinkin': why in high hell \n"+
-                "did we hafta land on this dustbowl of a planet? Well, ah'll have \n"+
-                "ya'll know that our interstella' hiveminds been running low on rations \n"+
-                "this season and we need fixins fast. Now conquer this backwater and \n"+
-                "see what y'all can rustle up!"
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Ah'll be damned, this planet is so dry ah'm spitting cotton!"
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'right',
-                text: "Alien2:\n"+
-                "And its hot enough to fry eggs on the sidewalk too, ah reckon."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Word around the galaxy has it that the locals here are some sort \n"+
-                "of bovine primeapes. Dumb as boxes of rocks too. Ah've heard that \n"+
-                "they fry up real good though."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'right',
-                text: "Alien2:\n"+
-                "Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up medium-rare."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Ah know just what yer thinkin'; afterall we are a hivemind specie. Welp, \n"+
-                "we're burnin daylight, lets get to it."
-            },
-            {
-                speaker: 'instructions',
-                orientation: 'left',
-                end = true,
-                text: "Instructions:\n"+
-                "Use the cursor keys or move your touchpad pointer near the ege of the \n"+
-                "game's screen to move the camera around the map. Left-click on one of \n"+
-                "the aliens to see how far they can move. Available destinations are \n"+
-                "indicated with red tiles. Click on a red tile to move the alien to the \n"+
-                "destination. After moving one alien towards the two farmers, move the \n"+
-                "other alien. Each of alien can only perform one action each turn."
-            }
-        ];
         
-        var speech = introNar.shift();
+        //Start tutorial narative
+        var curNar = narQueue.shift();
+        var speech = curNar.shift();
         tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text);
 
         var bugsMoved = false;
-        foreach 
-        tutorial.bugs.getChildren().forEach(bug =>{
-            if (bug.spent == false){
-                bugsMoved
-            }
-        });
-        
         if (bugsMoved == true){
+            curNar = narQueue.shift();
+
             //Create farmer objectlayer from JSON then corresponding sprite group
             tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
             tutorial.farmers = this.add.group();
@@ -285,151 +224,91 @@
             });
         }
 
-        var introNar = [
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Why, we must be riding a gravy train with biscuit wheels! Lucky fer us, \n"+
-                "theres some primeape cattle nearby."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'right',
-                text: "Alien2:\n"+
-                "Lets get huntin'!"
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Ah'll be damned, this planet is so dry ah'm spitting cotton!"
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'right',
-                text: "Alien2:\n"+
-                "And its hot enough to fry eggs on the sidewalk too, ah reckon."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Word around the galaxy has it that the locals here are some sort \n"+
-                "of bovine primeapes. Dumb as boxes of rocks too. Ah've heard that \n"+
-                "they fry up real good though."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'right',
-                text: "Alien2:\n"+
-                "Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up medium-rare."
-            },
-            {
-                speaker: 'alienBig',
-                orientation: 'left',
-                text: "Alien1:\n"+
-                "Ah know just what yer thinkin'; afterall we are a hivemind specie. Welp, \n"+
-                "we're burnin daylight, lets get to it."
-            },
-            {
-                speaker: 'instructions',
-                orientation: 'left',
-                end = true,
-                text: "Instructions:\n"+
-                "Use the cursor keys or move your touchpad pointer near the ege of the \n"+
-                "game's screen to move the camera around the map. Left-click on one of \n"+
-                "the aliens to see how far they can move. Available destinations are \n"+
-                "indicated with red tiles. Click on a red tile to move the alien to the \n"+
-                "destination. After moving one alien towards the two farmers, move the \n"+
-                "other alien. Each of alien can only perform one action each turn."
-            }
-        ];
-
-        var farmersAlive = true;
-        if (){
-
-        }
-        
-        //Create cowhands objectlayer from JSON then corresponding sprite group
-        tutorial.cowhandLayer = tutorial.map.getObjectLayer('cowhand')['objects'];
-        tutorial.cowhands = this.add.group();
-
-        //Create animations for cowboy movement
-        this.anims.create({
-            key: 'cbDown',
-            frames: [{ key: 'cowboy', frame: 3 }]
-        });
-        this.anims.create({
-            key: 'cbLeft', 
-            frames: [{ key: 'cowboy', frame: 1 }] 
-        });
-        this.anims.create({
-            key: 'cbRight',
-            frames: [{ key: 'cowboy', frame: 2 }]
-        });
-        this.anims.create({
-            key: 'cbUp',
-            frames: [{ key: 'cowboy', frame: 0 }]
-        });
-
-        //Create animations for cowgirl movement
-        this.anims.create({
-            key: 'cgDown',
-            frames: [{ key: 'cowgirl', frame: 3 }]
-        });
-        this.anims.create({
-            key: 'cgLeft',
-            frames: [{ key: 'cowgirl', frame: 1 }]
-        });
-        this.anims.create({
-            key: 'cgRight',
-            frames: [{ key: 'cowgirl', frame: 2 }]
-        });
-        this.anims.create({
-            key: 'cgUp',
-            frames: [{ key: 'cowgirl', frame: 0 }]
-        });
-
-        //Instantiate the cowhands on the map
-        tutorial.cowhandLayer.forEach(object => {
-            //Randomly select the gender of the cowhands
-            var gender;
-            var prefix;
-            var randInt01 = Math.floor(Math.random()*2); //Randomly selects 0 or 1
-            if (randInt01 == 1){
-                gender = "cowboy";
-                prefix = "cb";
-            } else {
-                gender = "cowgirl";
-                prefix = "cg";
-            }
+        //Once all the farmers are dead, introduce the cowhands
+        var farmersDead = false;
+        if (farmersDead == true){
+            curNar = narQueue.shift();
             
-            //create cowhand and identify position on grid
-            let obj = tutorial.cowhands.create(object.x, object.y - object.height, gender);
-            obj.name = "cowhand";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
+            //Create cowhands objectlayer from JSON then corresponding sprite group
+            tutorial.cowhandLayer = tutorial.map.getObjectLayer('cowhand')['objects'];
+            tutorial.cowhands = this.add.group();
 
-            //Randomly select the orientation of the cowhands
-            var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            switch (randInt03){
-                case 0:
-                    obj.anims.play(prefix+"Up");
-                    break;
-                case 1:
-                    obj.anims.play(prefix+"Left");
-                    break;
-                case 2:
-                    obj.anims.play(prefix+"Right");
-                    break;
-                case 3:
-                    obj.anims.play(prefix+"Down");
-                    break;
-            }
-        });
+            //Create animations for cowboy movement
+            this.anims.create({
+                key: 'cbDown',
+                frames: [{ key: 'cowboy', frame: 3 }]
+            });
+            this.anims.create({
+                key: 'cbLeft', 
+                frames: [{ key: 'cowboy', frame: 1 }] 
+            });
+            this.anims.create({
+                key: 'cbRight',
+                frames: [{ key: 'cowboy', frame: 2 }]
+            });
+            this.anims.create({
+                key: 'cbUp',
+                frames: [{ key: 'cowboy', frame: 0 }]
+            });
+
+            //Create animations for cowgirl movement
+            this.anims.create({
+                key: 'cgDown',
+                frames: [{ key: 'cowgirl', frame: 3 }]
+            });
+            this.anims.create({
+                key: 'cgLeft',
+                frames: [{ key: 'cowgirl', frame: 1 }]
+            });
+            this.anims.create({
+                key: 'cgRight',
+                frames: [{ key: 'cowgirl', frame: 2 }]
+            });
+            this.anims.create({
+                key: 'cgUp',
+                frames: [{ key: 'cowgirl', frame: 0 }]
+            });
+
+            //Instantiate the cowhands on the map
+            tutorial.cowhandLayer.forEach(object => {
+                //Randomly select the gender of the cowhands
+                var gender;
+                var prefix;
+                var randInt01 = Math.floor(Math.random()*2); //Randomly selects 0 or 1
+                if (randInt01 == 1){
+                    gender = "cowboy";
+                    prefix = "cb";
+                } else {
+                    gender = "cowgirl";
+                    prefix = "cg";
+                }
+                
+                //create cowhand and identify position on grid
+                let obj = tutorial.cowhands.create(object.x, object.y - object.height, gender);
+                obj.name = "cowhand";
+                obj.setDepth(1);
+                obj.setOrigin(0);
+                obj.setInteractive();
+                tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
+
+                //Randomly select the orientation of the cowhands
+                var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+                switch (randInt03){
+                    case 0:
+                        obj.anims.play(prefix+"Up");
+                        break;
+                    case 1:
+                        obj.anims.play(prefix+"Left");
+                        break;
+                    case 2:
+                        obj.anims.play(prefix+"Right");
+                        break;
+                    case 3:
+                        obj.anims.play(prefix+"Down");
+                        break;
+                }
+            });
+        }
 
         //Create movement tile group
         tutorial.moveTiles = this.add.group();
@@ -453,8 +332,6 @@
         }
         tutorial.finder.setAcceptableTiles(tutorial.acceptableTiles);
 
-        //tutorial.graphics =tutorial.add.graphics();
-
         //CLICK LISTNER
         //We really should extract this function
         //Handles click events on units or on available move tiles
@@ -469,8 +346,6 @@
                 //Determine origin of unit's move range
                 tutorial.originX = Math.floor(gameObject.x/32);
                 tutorial.originY = Math.floor((gameObject.y)/32);
-                //console.log(gameObject.x+" "+gameObject.y)
-                //console.log(tutorial.originX+" "+tutorial.originY)
 
                 //Identify tiles in the unit's move range
                 var shape = new Phaser.Geom.Circle(tutorial.originX*32, tutorial.originY*32, 5*32);
@@ -480,11 +355,11 @@
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     tutorial.finder.findPath(tutorial.originX, tutorial.originY, squares[i].x, squares[i].y, function(path){
-                        if (path === null){ //Some tiles are simply not available destinations? Kevin here, if there is a tile that's chosen that's impossible to get to, path would be null.
+                        if (path === null){ //If there is a tile that's chosen that's impossible to get to, path would be null.
                             //console.log("path not found")
                         }
                         else{
-                            //If a path is longer than 5 then there is a more direct path available. Kevin here, the path given at this poin is the most direct path. If the most direct path is greater than 5, then it won't be displayed.
+                            //the path given at this poin is the most direct path. If the most direct path is greater than 5, then it won't be displayed.
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 tutorial.pathStorage(path)
                             }
@@ -500,6 +375,17 @@
                     if (tutorial.paths[i][tutorial.paths[i].length - 1].x == (gameObject.x/32) && tutorial.paths[i][tutorial.paths[i].length - 1].y == (gameObject.y/32)){
                         tutorial.moveBug(tutorial.paths[i]);
                         tutorial.paths = [];
+
+                        //Check if all of the bugs have moved
+                        var allMoved = true;
+                        tutorial.bugs.getChildren().forEach(bug =>{
+                            if (bug.spent == false){
+                                allMoved = false;
+                            }
+                        });
+                        if (allMoved == true){  //If all the bugs have moved, trigger instantiation of farmers
+                            bugsMoved = true;
+                        }
                     }
                 }
             }
@@ -541,7 +427,11 @@
                     tutorial.spawn(gameObject);
                 }
             }
-            
+
+            else if (gameObject.name = 'arrows'){
+                speech = curNar.shift();
+                tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text);
+            }
         }, tutorial);
         
     }
@@ -577,8 +467,8 @@
             tutorial.currentBug.inMotion = false;
             tutorial.currentBug = null;
         });
-        var animQueue=[];
 
+        var animQueue=[];
         //Creates a tween for each step of the bugs movement
         for (var i = 0; i < path.length-1; i++){
             //Get location of current tile in the path
@@ -615,6 +505,7 @@
                 x: xf*tutorial.map.tileWidth,
                 y: yf*tutorial.map.tileHeight,
                 duration: 10,
+
                 onStart: function move() {  //play the anim when the tween starts
                     //console.log('here');
                     tempDir = animQueue.shift();
@@ -710,8 +601,11 @@
 
         if (end == true){
             tutorial.text = this.add.text(128, 472, text).setDepth(3).setScrollFactor(0);
+            tutorial.txtBtn.visible = false;
+            tutorial.txtBtn.disableInteractive();
         } else {
             tutorial.text = this.add.text(128, 472, text).setDepth(3).setScrollFactor(0);
+            tutorial.txtBtn.visible = true;
             this.anims.create({
                 key: 'aDown',
                 frames: this.anims.generateFrameNumbers('arrows', { start: 0, end: 1 }),
@@ -721,3 +615,229 @@
             textBtn.anims.play('aDown');
         }
     }
+
+    var introBugNar = [
+        {
+            speaker: 'instructions',
+            orientation: 'left',
+            text: "Hive Queen:\n"+
+            "Howdy y'all! Ah know what y'all must be thinkin': why in high hell \n"+
+            "did we hafta land on this dustbowl of a planet? Well, ah'll have \n"+
+            "ya'll know that our interstella' hiveminds been running low on rations \n"+
+            "this season and we need fixins fast. Now conquer this backwater and \n"+
+            "see what y'all can rustle up!"
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Ah'll be damned, this planet is so dry ah'm spitting cotton!"
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'right',
+            text: "Alien2:\n"+
+            "And its hot enough to fry eggs on the sidewalk too, ah reckon."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Word around the galaxy has it that the locals here are some sort \n"+
+            "of bovine primeapes. Dumb as boxes of rocks too. Ah've heard that \n"+
+            "they fry up real good though."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'right',
+            text: "Alien2:\n"+
+            "Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up medium-rare."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Ah know just what yer thinkin'; afterall we are a hivemind specie. Welp, \n"+
+            "we're burnin daylight, lets get to it."
+        },
+        {
+            speaker: 'instructions',
+            orientation: 'left',
+            end = true,
+            text: "Instructions:\n"+
+            "Use the cursor keys or move your touchpad pointer near the ege of the \n"+
+            "game's screen to move the camera around the map. Left-click on one of \n"+
+            "the aliens to see how far they can move. Available destinations are \n"+
+            "indicated with red tiles. Click on a red tile to move the alien to the \n"+
+            "destination. After moving one alien towards the two farmers, move the \n"+
+            "other alien. Each of alien can only perform one action each turn."
+        }
+    ];
+
+    var introFarmerNar = [
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Why, we must be riding a gravy train with biscuit wheels! Lucky fer us, \n"+
+            "theres some primeape cattle nearby."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'right',
+            text: "Alien2:\n"+
+            "Lets get huntin'!"
+        },
+        {
+            speaker: 'farmerBig',
+            orientation: 'left',
+            text: "Farmer:\n"+
+            "I'll be, Marge! Those look like some Yankees or something over yonder. \n"+
+            "I'll have them know that they're as welcome here as an outhouse breeze. \n"+
+            "Quick, get the kids back to the homestead."
+        },
+        {
+            speaker: 'farmwomanBig',
+            orientation: 'right',
+            text: "Farmwoman:\n"+
+            "Were you raised in a barn, Bill? Sure, they look about as friendly as \n"+
+            "fire ants but thats no way to treat newcomers. Come hell or high water, \n"+
+            "we're going to give them some southern hospitality."
+        },
+        {
+            speaker: 'FarmerBig',
+            orientation: 'left',
+            text: "Farmer:\n"+
+            "Bless your heart, Marge. Its may be rough living out here on the range \n"+
+            "but you've never been nothing but sweetness and light. Kids, company’s \n"+
+            "coming; add a cup of water to the soup."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'right',
+            text: "Alien2:\n"+
+            "Would ya look at that? If that primeape steer's brain was dynamite he \n"+
+            "wouldn't even be able to blow his own nose. This is goin' to be easy \n"+
+            "as pie."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Say, Ah've been doin' some thinkin'..."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'right',
+            text: "Alien2:\n"+
+            "And ah know just what yer've thunk and ah suppose that yer right. \n"+
+            "If we've gotsta round up so many primeape cattle we're goin' to  \n"+
+            "need more help."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Damn straight. Once we slaughter the adults, lets lay some eggs in \n"+
+            "their hides to make some more of us. Thata way we can gets ourselves \n"+
+            "a regular ranching team. Let the primeape calves run off though; \n"+
+            "they're as thin as fiddle strings, just ain't no meat on 'em."
+        },
+        {
+            speaker: 'instructions',
+            orientation: 'left',
+            end = true,
+            text: "Instructions:\n"+
+            "Move the aliens so that the farmers are within their movement range. \n"+
+            "An alien can only perform one of two actions in their turn: move or \n"+
+            "kill. If possible, left-click on a human within a selected alien's \n"+
+            "range to kill the human. A new alien will spawn in the dead human's \n"+
+            "place. New aliens cannot move until the next turn. Eliminate the two \n"+
+            "farmers."
+        }
+    ];
+
+    var introCowhandNar = [
+        {
+            speaker: 'cowboyBig',
+            orientation: 'left',
+            text: "Cowboy:\n"+
+            "Those kids came running into town faster than greased lightnin'! \n"+
+            "Bill may have been a snot-slinging drunk and Marge as dull as a \n"+
+            "mashed-potato sandwich, but thems were damned good people. I'll show \n"+
+            "whicheva' revolving sons of *****s that ate those kids parents some \n"+
+            "real Texas justice. Mmmhm yep, Ima string them up by a strong oak tree."
+        },
+        {
+            speaker: 'cowgirlBig',
+            orientation: 'right',
+            text: "Cowgirl:\n"+
+            "Hey now, Sheriff, don't be getting as dark as the devil's riding \n"+
+            "boots. We're gonna carry those vagabonds back to town and give them \n"+
+            "a fair trial...THEN we'll have ourselves a hangin'!"
+        },
+        {
+            speaker: 'cowboyBig',
+            orientation: 'left',
+            text: "Cowboy:\n"+
+            "Well would'ya look at that, I can see them right over that there gully. \n"+
+            "gully. 'In lookit them, they're ugly as sin. Lets go show them not to \n"+
+            "mess with Texas!"
+        },
+        {
+            speaker: 'cowgirlBig',
+            orientation: 'right',
+            text: "Cowgirl:\n"+
+            "Yee-haw!!!"
+        },
+        {
+            speaker: 'instructions',
+            orientation: 'left',
+            end = true,
+            text: "Instructions:\n"+
+            "Kill the remaining humans. Be careful when approaching cowhands. \n"+
+            "Moving an alien into a cowhand's attack range will result in the \n"+
+            "alien being killed. Cowhands will sometimes also rotate to look \n"+
+            "in another direction, so having patience can be advantagous. Be \n"+
+            "aware of terrain tiles. Aliens cannot move through trees or over \n"+
+            "trenches. However, placing an alien behind a tree will protect \n"+
+            "from an opposite cowhands shooting. Also, cowhands can shoot over \n"+
+            "trenches."
+        }
+    ];
+
+    var introFlagNar = [
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Fer a moment there, ah though that we'd get ourselves caught in \n"+
+            "our own loop. Heck, ah was sweatin' like a whore in church!"
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'right',
+            text: "Alien2:\n"+
+            "Bah, ah reckon we whipped 'em like a redheaded stepchild. These \n"+
+            "ones were tastier too, nice an' tender bites. Ah think we should \n"+
+            "set up a ranch in these parts."
+        },
+        {
+            speaker: 'alienBig',
+            orientation: 'left',
+            text: "Alien1:\n"+
+            "Sho' thin', its been a hulluva time. We gotsta do somethin' about \n"+
+            "that flag over there, ah'll be damned it we fly someone else's brand \n"+
+            "on our land."
+        },
+        {
+            speaker: 'instructions',
+            orientation: 'left',
+            end = true,
+            text: "Instructions:\n"+
+            "Move the aliens over the Texas flag to tear it down. The objective \n"+
+            "of the game is to remove all the Texas flags in a game level."
+        }
+    ];
+
+    var narQueue = [introBugNar, introFarmerNar, introCowhandNar, introFlagNar];

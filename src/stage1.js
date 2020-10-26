@@ -42,6 +42,14 @@ var Stage1 ={};
         Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
         Stage1.scene.load.audio('train', './Sound/train.mp3')
 
+        
+
+        //Loads healthbars
+        Stage1.scene.load.image('health1','./Sprites/health1.png');
+        Stage1.scene.load.image('health2','./Sprites/health2.png');
+        Stage1.scene.load.image('health3','./Sprites/health3.png');
+        Stage1.scene.load.image('health4','./Sprites/health4.png');
+
         //loads background
         Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
         Stage1.scene.load.image('bg','./Sprites/bgSheet2.png');

@@ -1,4 +1,4 @@
-    var tutorial ={};
+    var tutorial = {};
 
     tutorial.playSound=function(name){
         if (name == 'hammer'){
@@ -56,12 +56,12 @@
             frameHeight:32,
         });
 
-        //Load character images for textboxes
+        //Load images for textboxes
         tutorial.scene.load.image('farmerBig','./Sprites/farmers/farmer2.png');
-        tutorial.scene.load.image('farmwBig','./Sprites/farmers/farmwoman2.png');
+        tutorial.scene.load.image('farmwomanBig','./Sprites/farmers/farmwoman2.png');
         tutorial.scene.load.image('cowboyBig','./Sprites/cowhands/cowboy2.png');
         tutorial.scene.load.image('cowgirlBig','./Sprites/cowhands/cowgirl2.png');
-        tutorial.scene.load.image('alienBig','./Sprites/cowhands/farmer2.png');
+        tutorial.scene.load.image('alienBig','./Sprites/hunters/hunter2.png');
         tutorial.scene.load.spritesheet('arrows','./Sprites/arrows/arrows.png',{
             frameWidth:32,
             frameHeight:32,
@@ -71,7 +71,8 @@
     tutorial.create=function(){
 
         //make the next turn button
-        tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(2).setScrollFactor(0).setInteractive().setName("nextTurn");     
+        tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(4).setScrollFactor(0).setName("nextTurn").setOrigin(0,0);
+        tutorial.nextTurn.visible = false;   
 
         //I forgot what this line is for?
         var bg = tutorial.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
@@ -141,9 +142,9 @@
         //Camera moves when marker is outside dead zone
         tutorial.cam = this.cameras.main;
         tutorial.cam.setPosition(0, 0);
-        tutorial.cam.setDeadzone(700,500);
-        tutorial.cam.startFollow(tutorial.marker, true);
-        tutorial.cam.setBounds(0,0, (48)*32, 22*32);
+        //tutorial.cam.setDeadzone(700,500);
+        //tutorial.cam.startFollow(tutorial.marker, true);
+        tutorial.cam.setBounds(0,0, 48*32, 22*32);
 
         //Create bug objectlayer from JSON then corresponding sprite group
         tutorial.bugLayer = tutorial.map.getObjectLayer('bug')['objects'];
@@ -189,126 +190,146 @@
             obj.anims.play('bIdle');
             obj.spent = false;
         });
-        
+
         //Start tutorial narative
         var curNar = narQueue.shift();
         var speech = curNar.shift();
-        tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text);
 
+        //Create textbox images ###
+        tutorial.textbox = this.add.rectangle(0, 472, 800, 228, 0x696969).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+
+        tutorial.speaker = this.add.image(0, 472, speech.speaker).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+        tutorial.speaker.visible = false;
+
+        tutorial.text = this.add.text(128, 472, speech.text).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+
+        tutorial.textBtn = this.add.image(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive().setOrigin(0,0);
+        tutorial.textBtn.name = 'textBtn';
+
+        //Create animation for narration button
+        this.anims.create({
+            key: 'aDown',
+            frames: this.anims.generateFrameNumbers('arrows', { start: 0, end: 1 }),
+            frameRate: 2,
+            repeat: -1
+        });
+        //tutorial.textBtn.anims.play('aDown');//?
+
+        //Variables that activate tutorial events (make sets of characters visible/interactive)
         var bugsMoved = false;
-        if (bugsMoved == true){
-            curNar = narQueue.shift();
-
-            //Create farmer objectlayer from JSON then corresponding sprite group
-            tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
-            tutorial.farmers = this.add.group();
-
-            //Instantiate the farmers on the map
-            tutorial.farmerLayer.forEach(object => {
-                //Randomly select the gender of the farmers
-                var gender;
-                var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
-                if (randInt == 1){
-                    gender = "farmer";
-                } else {
-                    gender = "farmwoman";
-                }
-
-                //create farmer and identify position on grid
-                let obj = tutorial.farmers.create(object.x, object.y - object.height, gender);
-                obj.name = "farmer";
-                obj.setDepth(1);
-                obj.setOrigin(0);
-                obj.setInteractive();
-                tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
-            });
-        }
-
-        //Once all the farmers are dead, introduce the cowhands
         var farmersDead = false;
-        if (farmersDead == true){
-            curNar = narQueue.shift();
+        var cowhandsDead = false;
+        var flagStands = true;
+
+        //Create farmer objectlayer from JSON then corresponding sprite group
+        tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
+        tutorial.farmers = this.add.group();
+
+        //Instantiate the farmers on the map
+        tutorial.farmerLayer.forEach(object => {
+            //Randomly select the gender of the farmers
+            var gender;
+            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
+            if (randInt == 1){
+                gender = "farmer";
+            } else {
+                gender = "farmwoman";
+            }
+
+            //create farmer and identify position on grid
+            let obj = tutorial.farmers.create(object.x, object.y - object.height, gender);
+            obj.name = "farmer";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+
+            obj.disableInteractive();
+            obj.visible = false;
+
+            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
+        });
+
+        //Create cowhands objectlayer from JSON then corresponding sprite group
+        tutorial.cowhandLayer = tutorial.map.getObjectLayer('cowhand')['objects'];
+        tutorial.cowhands = this.add.group();
+
+        //Create animations for cowboy movement
+        this.anims.create({
+            key: 'cbDown',
+            frames: [{ key: 'cowboy', frame: 3 }]
+        });
+        this.anims.create({
+            key: 'cbLeft', 
+            frames: [{ key: 'cowboy', frame: 1 }] 
+        });
+        this.anims.create({
+            key: 'cbRight',
+            frames: [{ key: 'cowboy', frame: 2 }]
+        });
+        this.anims.create({
+            key: 'cbUp',
+            frames: [{ key: 'cowboy', frame: 0 }]
+        });
+
+        //Create animations for cowgirl movement
+        this.anims.create({
+            key: 'cgDown',
+            frames: [{ key: 'cowgirl', frame: 3 }]
+        });
+        this.anims.create({
+            key: 'cgLeft',
+            frames: [{ key: 'cowgirl', frame: 1 }]
+        });
+        this.anims.create({
+            key: 'cgRight',
+            frames: [{ key: 'cowgirl', frame: 2 }]
+        });
+        this.anims.create({
+            key: 'cgUp',
+            frames: [{ key: 'cowgirl', frame: 0 }]
+        });
+
+        //Instantiate the cowhands on the map
+        tutorial.cowhandLayer.forEach(object => {
+            //Randomly select the gender of the cowhands
+            var gender;
+            var prefix;
+            var randInt01 = Math.floor(Math.random()*2); //Randomly selects 0 or 1
+            if (randInt01 == 1){
+                gender = "cowboy";
+                prefix = "cb";
+            } else {
+                gender = "cowgirl";
+                prefix = "cg";
+            }
             
-            //Create cowhands objectlayer from JSON then corresponding sprite group
-            tutorial.cowhandLayer = tutorial.map.getObjectLayer('cowhand')['objects'];
-            tutorial.cowhands = this.add.group();
+            //create cowhand and identify position on grid
+            let obj = tutorial.cowhands.create(object.x, object.y - object.height, gender);
+            obj.name = "cowhand";
+            obj.setDepth(1);
+            obj.setOrigin(0);
 
-            //Create animations for cowboy movement
-            this.anims.create({
-                key: 'cbDown',
-                frames: [{ key: 'cowboy', frame: 3 }]
-            });
-            this.anims.create({
-                key: 'cbLeft', 
-                frames: [{ key: 'cowboy', frame: 1 }] 
-            });
-            this.anims.create({
-                key: 'cbRight',
-                frames: [{ key: 'cowboy', frame: 2 }]
-            });
-            this.anims.create({
-                key: 'cbUp',
-                frames: [{ key: 'cowboy', frame: 0 }]
-            });
+            obj.disableInteractive();
+            obj.visible = false;
 
-            //Create animations for cowgirl movement
-            this.anims.create({
-                key: 'cgDown',
-                frames: [{ key: 'cowgirl', frame: 3 }]
-            });
-            this.anims.create({
-                key: 'cgLeft',
-                frames: [{ key: 'cowgirl', frame: 1 }]
-            });
-            this.anims.create({
-                key: 'cgRight',
-                frames: [{ key: 'cowgirl', frame: 2 }]
-            });
-            this.anims.create({
-                key: 'cgUp',
-                frames: [{ key: 'cowgirl', frame: 0 }]
-            });
+            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
 
-            //Instantiate the cowhands on the map
-            tutorial.cowhandLayer.forEach(object => {
-                //Randomly select the gender of the cowhands
-                var gender;
-                var prefix;
-                var randInt01 = Math.floor(Math.random()*2); //Randomly selects 0 or 1
-                if (randInt01 == 1){
-                    gender = "cowboy";
-                    prefix = "cb";
-                } else {
-                    gender = "cowgirl";
-                    prefix = "cg";
-                }
-                
-                //create cowhand and identify position on grid
-                let obj = tutorial.cowhands.create(object.x, object.y - object.height, gender);
-                obj.name = "cowhand";
-                obj.setDepth(1);
-                obj.setOrigin(0);
-                obj.setInteractive();
-                tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
-
-                //Randomly select the orientation of the cowhands
-                var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-                switch (randInt03){
-                    case 0:
-                        obj.anims.play(prefix+"Up");
-                        break;
-                    case 1:
-                        obj.anims.play(prefix+"Left");
-                        break;
-                    case 2:
-                        obj.anims.play(prefix+"Right");
-                        break;
-                    case 3:
-                        obj.anims.play(prefix+"Down");
-                        break;
-                }
-            });
-        }
+            //Randomly select the orientation of the cowhands
+            var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+            switch (randInt03){
+                case 0:
+                    obj.anims.play(prefix+"Up");
+                    break;
+                case 1:
+                    obj.anims.play(prefix+"Left");
+                    break;
+                case 2:
+                    obj.anims.play(prefix+"Right");
+                    break;
+                case 3:
+                    obj.anims.play(prefix+"Down");
+                    break;
+            }
+        });
 
         //Create movement tile group
         tutorial.moveTiles = this.add.group();
@@ -376,15 +397,9 @@
                         tutorial.moveBug(tutorial.paths[i]);
                         tutorial.paths = [];
 
-                        //Check if all of the bugs have moved
-                        var allMoved = true;
-                        tutorial.bugs.getChildren().forEach(bug =>{
-                            if (bug.spent == false){
-                                allMoved = false;
-                            }
-                        });
-                        if (allMoved == true){  //If all the bugs have moved, trigger instantiation of farmers
-                            bugsMoved = true;
+                        //If all of the bugs have moved, activate the farmers
+                        if (bugsMoved == false){
+                            tutorial.checkActFarmers();
                         }
                     }
                 }
@@ -426,14 +441,89 @@
                     tutorial.playSound('cowhandDeath');
                     tutorial.spawn(gameObject);
                 }
+
+                //If all the farmers/cowhands are dead, activate the cowhands/flags
+                if (farmersDead == false){
+                    tutorial.checkActCowhands();
+                } else if (cowhandsDead == false){
+                    tutorial.checkActFlag();
+                }
             }
 
-            else if (gameObject.name = 'arrows'){
-                speech = curNar.shift();
-                tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text);
+            else if (gameObject.name = 'textBtn'){   //###
+                if (curNar.length != 0){
+                    speech = curNar.shift();
+                    tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                }
             }
         }, tutorial);
         
+    }
+
+    tutorial.checkActFarmers() = function(){
+        //Check for any unmoved bugs
+        var allMoved = true;
+        tutorial.bugs.getChildren().forEach(bug =>{
+            if (bug.spent == false){
+                allMoved = false;
+                console.log('allMoved false');//?
+            }
+        });
+
+        if (allMoved == true) //activate farmers
+        {
+            bugsMoved = true;
+            console.log('allbugs moved');//?
+            curNar = narQueue.shift();
+            speech = curNar.shift();
+            tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+
+            tutorial.farmers.getChildren().forEach(farmer =>{
+                farmer.setInteractive();
+                farmer.visible = true;
+            });
+        }
+    }
+
+    tutorial.checkActCowhands() = function(){
+        var numFarmersAlive = tutorial.farmers.getChildren().length;
+        if (numFarmersAlive == 0){
+            farmersDead = true;
+
+            console.log('all farmers killed');//?
+            curNar = narQueue.shift();
+            speech = curNar.shift();
+            tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+
+            tutorial.cowhands.getChildren().forEach(cowhand =>{
+                cowhand.setInteractive();
+                cowhand.visible = true;
+            });
+        }
+        else {
+            console.log('a farmer is still alive');//?
+        }
+    }
+
+    tutorial.checkActFlags() = function(){
+        var numCowhandsAlive = tutorial.cowhands.getChildren().length;
+        if (numCowhandsAlive == 0){
+            cowhandsDead = true;
+
+            console.log('all cowhands killed');//?
+            curNar = narQueue.shift();
+            speech = curNar.shift();
+            tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+            /*
+            tutorial.flags.getChildren().forEach(flag =>{
+                flag.setInteractive();
+                flag.visible = true;
+            });
+            */
+        }
+        else {
+            console.log('a cowhand is still alive');//?
+        }
     }
 
     //Create a movement tile at a path's destination
@@ -542,7 +632,7 @@
     }
 
     //Returns the ID of a tile at a given coordinate
-    tutorial.getTileID=function(x,y){
+    tutorial.getTileID = function(x,y){
         /**
          * input x is the x coord given
          * input y is the y coord given
@@ -585,34 +675,44 @@
         enemyTarget.destroy();
     }
 
-    tutorial.makeTextBox = function (imageName, orientation = 'left', end = false, text){
-        tutorial.textbox = this.add.rectangle(0, 472, 800, 228, 0x696969).setDepth(3).setScrollFactor(0);
+    //Makes a text box with progression button and image of speaker ###
+    tutorial.makeTextBox = function (imageName, orientation = 'left', text, end = false){
+        console.log('imagename:', imageName, '\norientation:', orientation, '\ntext', '\nend:', end);//?
 
         if (orientation == 'left'){
-            tutorial.speaker = this.add.image(0, 472, imageName).setDepth(3).setScrollFactor(0);
-            tutorial.textBtn = this.add.image(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive();
+            tutorial.speaker.setPosition(0, 472).setFlipX(false);
+            tutorial.textBtn.setPosition(768, 568).setInteractive();
+            tutorial.text.setPosition(128, 472);
             tutorial.nextTurn.setPosition(0, 504);
         } 
         else if (orientation == 'right'){
-            tutorial.speaker = this.add.image(672, 472, imageName).setDepth(3).setScrollFactor(0).flipX(true);
-            tutorial.textBtn = this.add.image(640, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive();
+            tutorial.speaker.setPosition(672, 472).setFlipX(true);
+            tutorial.textBtn.setPosition(640, 568);
+            tutorial.text.setPosition(0, 472);
             tutorial.nextTurn.setPosition(672, 504);
         }
 
-        if (end == true){
-            tutorial.text = this.add.text(128, 472, text).setDepth(3).setScrollFactor(0);
-            tutorial.txtBtn.visible = false;
-            tutorial.txtBtn.disableInteractive();
-        } else {
-            tutorial.text = this.add.text(128, 472, text).setDepth(3).setScrollFactor(0);
-            tutorial.txtBtn.visible = true;
-            this.anims.create({
-                key: 'aDown',
-                frames: this.anims.generateFrameNumbers('arrows', { start: 0, end: 1 }),
-                frameRate: 2,
-                repeat: -1
-            });
-            textBtn.anims.play('aDown');
+        tutorial.speaker.visible = true;
+        tutorial.speaker.setTexture(imageName);
+
+        tutorial.textBtn.visible = true;
+        tutorial.textBtn.setInteractive();
+
+        tutorial.text.setText(text);
+
+        tutorial.nextTurn.visible = false;
+        tutorial.nextTurn.disableInteractive();
+
+        if (imageName == 'instructions'){
+            tutorial.speaker.visible = false;
+            
+            if (end == true){
+                tutorial.textBtn.visible = false;
+                tutorial.textBtn.disableInteractive();
+
+                tutorial.nextTurn.visible = true;
+                tutorial.nextTurn.setInteractive();
+            }
         }
     }
 
@@ -620,28 +720,32 @@
         {
             speaker: 'instructions',
             orientation: 'left',
+            end: false,
             text: "Hive Queen:\n"+
             "Howdy y'all! Ah know what y'all must be thinkin': why in high hell \n"+
             "did we hafta land on this dustbowl of a planet? Well, ah'll have \n"+
             "ya'll know that our interstella' hiveminds been running low on rations \n"+
             "this season and we need fixins fast. Now conquer this backwater and \n"+
-            "see what y'all can rustle up!"
+            "see what y'all can rustle up! (Left-click the arrow to continue...)"
         },
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
             "Ah'll be damned, this planet is so dry ah'm spitting cotton!"
         },
         {
             speaker: 'alienBig',
             orientation: 'right',
+            end: false,
             text: "Alien2:\n"+
             "And its hot enough to fry eggs on the sidewalk too, ah reckon."
         },
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
             "Word around the galaxy has it that the locals here are some sort \n"+
             "of bovine primeapes. Dumb as boxes of rocks too. Ah've heard that \n"+
@@ -650,27 +754,31 @@
         {
             speaker: 'alienBig',
             orientation: 'right',
+            end: false,
             text: "Alien2:\n"+
-            "Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up medium-rare."
+            "Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up \n"+
+            "medium-rare."
         },
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
-            "Ah know just what yer thinkin'; afterall we are a hivemind specie. Welp, \n"+
-            "we're burnin daylight, lets get to it."
+            "Ah know just what yer thinkin'; afterall we are a hivemind specie. \n"+
+            "Whelp, we're burnin daylight, lets get to it."
         },
         {
             speaker: 'instructions',
             orientation: 'left',
-            end = true,
+            end: true,
             text: "Instructions:\n"+
             "Use the cursor keys or move your touchpad pointer near the ege of the \n"+
             "game's screen to move the camera around the map. Left-click on one of \n"+
             "the aliens to see how far they can move. Available destinations are \n"+
-            "indicated with red tiles. Click on a red tile to move the alien to the \n"+
-            "destination. After moving one alien towards the two farmers, move the \n"+
-            "other alien. Each of alien can only perform one action each turn."
+            "indicated with red tiles. Left-click on a red tile to move the alien \n"+
+            "to the destination. After moving one alien towards the two farmers, \n"+
+            "move the other alien. Each of alien can only perform one action each \n"+
+            "turn."
         }
     ];
 
@@ -678,57 +786,65 @@
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
-            "Why, we must be riding a gravy train with biscuit wheels! Lucky fer us, \n"+
-            "theres some primeape cattle nearby."
+            "Why, we must be riding a gravy train with biscuit wheels! Lucky fer \n"+
+            "us theres some primeape cattle nearby."
         },
         {
             speaker: 'alienBig',
             orientation: 'right',
+            end: false,
             text: "Alien2:\n"+
             "Lets get huntin'!"
         },
         {
             speaker: 'farmerBig',
             orientation: 'left',
+            end: false,
             text: "Farmer:\n"+
-            "I'll be, Marge! Those look like some Yankees or something over yonder. \n"+
-            "I'll have them know that they're as welcome here as an outhouse breeze. \n"+
-            "Quick, get the kids back to the homestead."
+            "I'll be, Marge! Those look like some Yankees or something over \n"+
+            "yonder. I'll have them know that they're as welcome here as an \n"+
+            "outhouse breeze. Quick, get the kids back to the homestead."
         },
         {
             speaker: 'farmwomanBig',
             orientation: 'right',
+            end: false,
             text: "Farmwoman:\n"+
-            "Were you raised in a barn, Bill? Sure, they look about as friendly as \n"+
-            "fire ants but thats no way to treat newcomers. Come hell or high water, \n"+
-            "we're going to give them some southern hospitality."
+            "Were you raised in a barn, Bill? Sure, they look about as friendly \n"+
+            "as fire ants but thats no way to treat newcomers. Come hell or high \n"+
+            "water, we're going to give them some southern hospitality."
         },
         {
-            speaker: 'FarmerBig',
+            speaker: 'farmerBig',
             orientation: 'left',
+            end: false,
             text: "Farmer:\n"+
-            "Bless your heart, Marge. Its may be rough living out here on the range \n"+
-            "but you've never been nothing but sweetness and light. Kids, company’s \n"+
-            "coming; add a cup of water to the soup."
+            "Bless your heart, Marge. Its may be rough living out here on the \n"+
+            "range but you've never been nothing but sweetness and light. Kids, \n"+
+            "companys coming; add a cup of water to the soup."
         },
         {
             speaker: 'alienBig',
             orientation: 'right',
+            end: false,
             text: "Alien2:\n"+
-            "Would ya look at that? If that primeape steer's brain was dynamite he \n"+
-            "wouldn't even be able to blow his own nose. This is goin' to be easy \n"+
-            "as pie."
+            "Would ya look at that? If that primeape steer's brain was dynamite \n"+
+            "he wouldn't even be able to blow his own nose. This is goin' to be \n"+
+            "easy as pie."
         },
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
             "Say, Ah've been doin' some thinkin'..."
         },
         {
             speaker: 'alienBig',
             orientation: 'right',
+            end: false,
             text: "Alien2:\n"+
             "And ah know just what yer've thunk and ah suppose that yer right. \n"+
             "If we've gotsta round up so many primeape cattle we're goin' to  \n"+
@@ -737,6 +853,7 @@
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
             "Damn straight. Once we slaughter the adults, lets lay some eggs in \n"+
             "their hides to make some more of us. Thata way we can gets ourselves \n"+
@@ -746,12 +863,13 @@
         {
             speaker: 'instructions',
             orientation: 'left',
-            end = true,
+            end: true,
             text: "Instructions:\n"+
-            "Move the aliens so that the farmers are within their movement range. \n"+
+            "First, click next turn to be able to move the aliens again. Then, \n"+
+            "move the aliens so that the farmers are within their movement range. \n"+
             "An alien can only perform one of two actions in their turn: move or \n"+
             "kill. If possible, left-click on a human within a selected alien's \n"+
-            "range to kill the human. A new alien will spawn in the dead human's \n"+
+            "range to kill that human. A new alien may spawn in the dead human's \n"+
             "place. New aliens cannot move until the next turn. Eliminate the two \n"+
             "farmers."
         }
@@ -761,16 +879,19 @@
         {
             speaker: 'cowboyBig',
             orientation: 'left',
+            end: false,
             text: "Cowboy:\n"+
             "Those kids came running into town faster than greased lightnin'! \n"+
             "Bill may have been a snot-slinging drunk and Marge as dull as a \n"+
             "mashed-potato sandwich, but thems were damned good people. I'll show \n"+
             "whicheva' revolving sons of *****s that ate those kids parents some \n"+
-            "real Texas justice. Mmmhm yep, Ima string them up by a strong oak tree."
+            "real Texas justice. Mmmhm yep, Ima string them up by a strong oak \n"+
+            "tree."
         },
         {
             speaker: 'cowgirlBig',
             orientation: 'right',
+            end: false,
             text: "Cowgirl:\n"+
             "Hey now, Sheriff, don't be getting as dark as the devil's riding \n"+
             "boots. We're gonna carry those vagabonds back to town and give them \n"+
@@ -779,21 +900,23 @@
         {
             speaker: 'cowboyBig',
             orientation: 'left',
+            end: false,
             text: "Cowboy:\n"+
-            "Well would'ya look at that, I can see them right over that there gully. \n"+
-            "gully. 'In lookit them, they're ugly as sin. Lets go show them not to \n"+
-            "mess with Texas!"
+            "Well would'ya look at that, I can see them right over that there \n"+
+            "gully. 'In lookit them, they're ugly as sin. Lets go teach them not \n"+
+            "to mess with Texas!"
         },
         {
             speaker: 'cowgirlBig',
             orientation: 'right',
+            end: false,
             text: "Cowgirl:\n"+
             "Yee-haw!!!"
         },
         {
             speaker: 'instructions',
             orientation: 'left',
-            end = true,
+            end: true,
             text: "Instructions:\n"+
             "Kill the remaining humans. Be careful when approaching cowhands. \n"+
             "Moving an alien into a cowhand's attack range will result in the \n"+
@@ -810,6 +933,7 @@
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
             "Fer a moment there, ah though that we'd get ourselves caught in \n"+
             "our own loop. Heck, ah was sweatin' like a whore in church!"
@@ -817,6 +941,7 @@
         {
             speaker: 'alienBig',
             orientation: 'right',
+            end: false,
             text: "Alien2:\n"+
             "Bah, ah reckon we whipped 'em like a redheaded stepchild. These \n"+
             "ones were tastier too, nice an' tender bites. Ah think we should \n"+
@@ -825,15 +950,16 @@
         {
             speaker: 'alienBig',
             orientation: 'left',
+            end: false,
             text: "Alien1:\n"+
             "Sho' thin', its been a hulluva time. We gotsta do somethin' about \n"+
-            "that flag over there, ah'll be damned it we fly someone else's brand \n"+
-            "on our land."
+            "that flag over there, ah'll be damned it we fly someone else's \n"+
+            "brand on our land."
         },
         {
             speaker: 'instructions',
             orientation: 'left',
-            end = true,
+            end: true,
             text: "Instructions:\n"+
             "Move the aliens over the Texas flag to tear it down. The objective \n"+
             "of the game is to remove all the Texas flags in a game level."

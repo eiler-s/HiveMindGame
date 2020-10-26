@@ -608,7 +608,7 @@ var Stage1 ={};
          * output destroys target and spawns a new bug, also updates the grid
          */
 
-        if (Math.random() > .5){
+        if (Math.random() > .7){
 
             let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
             obj.name = "bug";

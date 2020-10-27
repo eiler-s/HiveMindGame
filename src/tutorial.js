@@ -192,7 +192,7 @@
         });
 
         //Start tutorial narative
-        var curNar = narQueue.shift();
+        var curNar = narQueue[0];
         var speech = curNar.shift();
 
         //Create textbox images ###
@@ -216,10 +216,10 @@
         //tutorial.textBtn.anims.play('aDown');//?
 
         //Variables that activate tutorial events (make sets of characters visible/interactive)
-        var bugsMoved = false;
-        var farmersDead = false;
-        var cowhandsDead = false;
-        var flagStands = true;
+        tutorial.bugsMoved = false;
+        tutorial.farmersDead = false;
+        tutorial.cowhandsDead = false;
+        tutorial.flagDestroyed = false;
 
         //Create farmer objectlayer from JSON then corresponding sprite group
         tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
@@ -398,8 +398,15 @@
                         tutorial.paths = [];
 
                         //If all of the bugs have moved, activate the farmers
-                        if (bugsMoved == false){
+                        if (tutorial.bugsMoved == false){
                             tutorial.checkActFarmers();
+                            console.log('bugsMoved2:', tutorial.bugsMoved);
+                            if (tutorial.bugsMoved == true){ //once bugs have moved, go to next narrative phase
+                                curNar = narQueue[1];
+                                speech = curNar.shift();
+                                tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                                console.log('shifted narrative to 1')//?
+                            }
                         }
                     }
                 }
@@ -442,11 +449,24 @@
                     tutorial.spawn(gameObject);
                 }
 
-                //If all the farmers/cowhands are dead, activate the cowhands/flags
-                if (farmersDead == false){
+                //check if farmers/cowhands with corresponding method
+                if (tutorial.farmersDead == false){
                     tutorial.checkActCowhands();
-                } else if (cowhandsDead == false){
-                    tutorial.checkActFlag();
+
+                    if (tutorial.farmersDead == true){   //move along narrative if last farmer just killed
+                        curNar = narQueue[2];
+                        speech = curNar.shift();
+                        tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                    }
+                } 
+                else if (tutorial.cowhandsDead == false){
+                    tutorial.checkActFlags();
+
+                    if (tutorial.cowhandsDead == true){
+                        curNar = narQueue[3];
+                        speech = curNar.shift();
+                        tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                    }
                 }
             }
 
@@ -460,23 +480,18 @@
         
     }
 
-    tutorial.checkActFarmers() = function(){
+    tutorial.checkActFarmers = function(){
         //Check for any unmoved bugs
         var allMoved = true;
         tutorial.bugs.getChildren().forEach(bug =>{
             if (bug.spent == false){
                 allMoved = false;
-                console.log('allMoved false');//?
             }
         });
 
         if (allMoved == true) //activate farmers
         {
-            bugsMoved = true;
-            console.log('allbugs moved');//?
-            curNar = narQueue.shift();
-            speech = curNar.shift();
-            tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+            tutorial.bugsMoved = true;
 
             tutorial.farmers.getChildren().forEach(farmer =>{
                 farmer.setInteractive();
@@ -485,15 +500,10 @@
         }
     }
 
-    tutorial.checkActCowhands() = function(){
+    tutorial.checkActCowhands = function(){
         var numFarmersAlive = tutorial.farmers.getChildren().length;
         if (numFarmersAlive == 0){
-            farmersDead = true;
-
-            console.log('all farmers killed');//?
-            curNar = narQueue.shift();
-            speech = curNar.shift();
-            tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+            tutorial.farmersDead = true;
 
             tutorial.cowhands.getChildren().forEach(cowhand =>{
                 cowhand.setInteractive();
@@ -505,21 +515,16 @@
         }
     }
 
-    tutorial.checkActFlags() = function(){
+    tutorial.checkActFlags = function(){
         var numCowhandsAlive = tutorial.cowhands.getChildren().length;
         if (numCowhandsAlive == 0){
-            cowhandsDead = true;
-
-            console.log('all cowhands killed');//?
-            curNar = narQueue.shift();
-            speech = curNar.shift();
-            tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+            tutorial.cowhandsDead = true;
             /*
             tutorial.flags.getChildren().forEach(flag =>{
                 flag.setInteractive();
                 flag.visible = true;
             });
-            */
+            */ 
         }
         else {
             console.log('a cowhand is still alive');//?
@@ -710,8 +715,10 @@
                 tutorial.textBtn.visible = false;
                 tutorial.textBtn.disableInteractive();
 
-                tutorial.nextTurn.visible = true;
-                tutorial.nextTurn.setInteractive();
+                if (tutorial.bugsMoved == true){
+                    tutorial.nextTurn.visible = true;
+                    tutorial.nextTurn.setInteractive();
+                }
             }
         }
     }
@@ -776,9 +783,8 @@
             "game's screen to move the camera around the map. Left-click on one of \n"+
             "the aliens to see how far they can move. Available destinations are \n"+
             "indicated with red tiles. Left-click on a red tile to move the alien \n"+
-            "to the destination. After moving one alien towards the two farmers, \n"+
-            "move the other alien. Each of alien can only perform one action each \n"+
-            "turn."
+            "to the destination. After moving one alien, move the other alien. \n"+
+            "Each of alien can only perform one action each turn."
         }
     ];
 

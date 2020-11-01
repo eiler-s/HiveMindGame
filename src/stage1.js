@@ -1,5 +1,5 @@
 var Stage1 ={};
-
+Stage1.key = 'stage1'
     Stage1.playSound=function(name){
         /*if (name == 'cowhandDeath'){
             
@@ -31,7 +31,6 @@ var Stage1 ={};
     
     Stage1.preload=function(){
         Stage1.scene = this;
-
         //Load audio files
         //Thank you to Fesliyan Studios for background music.
         Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');

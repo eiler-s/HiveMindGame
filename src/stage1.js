@@ -1,4 +1,4 @@
-var Stage1 ={};
+var Stage1 = {};
 
     Stage1.playSound=function(name){
         /*if (name == 'cowhandDeath'){
@@ -104,8 +104,6 @@ var Stage1 ={};
         Stage1.sfx.shoot = Stage1.scene.sound.add('shoot', {volume: 0.1});
         Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
         Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
-        //Stage1.playSound('cowboyDeath');
-        //Stage1.playSound('hammer');
 
         //Define user turn, selected unit, and path storage
         Stage1.myTurn = true;
@@ -137,7 +135,6 @@ var Stage1 ={};
             }
             Stage1.terrainGrid.push(col);
         }
-        //console.log(Stage1.terrainGrid)
         
         //Create bug objectlayer from JSON then corresponding sprite group
         Stage1.bugLayer = Stage1.map.getObjectLayer('bug')['objects'];
@@ -180,6 +177,7 @@ var Stage1 ={};
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
+            obj.setTint(0x90EE90);
             obj.anims.play('bIdle');
             obj.spent = false;
             obj.health = 3;
@@ -245,6 +243,7 @@ var Stage1 ={};
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
+            obj.setTint(0xFFB6C1);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)] = 9;
             
             obj.rotate = function(dir) {
@@ -267,9 +266,7 @@ var Stage1 ={};
             
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            obj.rotate(randInt03);
-            
-            
+            obj.rotate(randInt03); 
         });
 
         //Create farmer objectlayer from JSON then corresponding sprite group
@@ -293,6 +290,7 @@ var Stage1 ={};
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
+            obj.setTint(0xADD8E6);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
         });
 
@@ -336,10 +334,9 @@ var Stage1 ={};
         Stage1.marker.strokeRect(0,0, Stage1.map.tileWidth, Stage1.map.tileHeight);
 
         //Camera moves when marker is outside dead zone
-        
         Stage1.cam = this.cameras.main;
-        Stage1.cam.setDeadzone(700,500);
-        Stage1.cam.startFollow(Stage1.marker, true);
+        //Stage1.cam.setDeadzone(700,500);
+        //Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);
         //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zon for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
@@ -365,7 +362,6 @@ var Stage1 ={};
 
         //CLICK LISTNER
         //We really should extract this function
-        //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             
             //On their turn, the player can move units that have not yet done so
@@ -406,6 +402,8 @@ var Stage1 ={};
                         Stage1.moveBug(Stage1.paths[i]);
                         Stage1.paths = [];
                     }
+                
+                //Stage1.currentBug = null;?
                 }
             }
 

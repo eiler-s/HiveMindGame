@@ -369,6 +369,7 @@ Stage1.key = 'stage1'
             
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -406,10 +407,12 @@ Stage1.key = 'stage1'
                         Stage1.paths = [];
                     }
                 }
+                Stage1.moveTiles.clear(true); //get rid of move tiles
             }
 
             //end turn
             else if (gameObject.name == 'nextTurn'){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.endTurn();
             }
 
@@ -456,10 +459,9 @@ Stage1.key = 'stage1'
                     if (Stage1.objectives.children.length == 0){
                         alert('You Win');
                     }
+                    Stage1.currentBug = null;
                 }
-                Stage1.currentBug = null;
             }
-
             Stage1.eatMode = false; //resets eatMode after a click
         }, Stage1);
 

@@ -1,5 +1,5 @@
 var Stage1 ={};
-
+Stage1.key = 'stage1'
     Stage1.playSound=function(name){
         /*if (name == 'cowhandDeath'){
             
@@ -31,7 +31,6 @@ var Stage1 ={};
     
     Stage1.preload=function(){
         Stage1.scene = this;
-
         //Load audio files
         //Thank you to Fesliyan Studios for background music.
         Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
@@ -414,6 +413,7 @@ var Stage1 ={};
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -451,10 +451,12 @@ var Stage1 ={};
                         Stage1.paths = [];
                     }
                 }
+                Stage1.moveTiles.clear(true); //get rid of move tiles
             }
 
             //end turn
             else if (gameObject.name == 'nextTurn'){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.endTurn();
             }
 
@@ -501,10 +503,9 @@ var Stage1 ={};
                     if (Stage1.objectives.children.length == 0){
                         alert('You Win');
                     }
+                    Stage1.currentBug = null;
                 }
-                Stage1.currentBug = null;
             }
-
             Stage1.eatMode = false; //resets eatMode after a click
         }, Stage1);
 
@@ -706,16 +707,20 @@ var Stage1 ={};
                 }
             });
             if (targets2.length != 0){//if targets found
-                let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
-                //damage that target
-                tar = targets2[rand];
-                tar.health -= 1;
-                //tar.spr.setTint(0xe36d59); //What?
-                Stage1.playSound('shoot');
-                if (tar.health < 1){
-                    tar.destroy();
-                }
-                Stage1.updateHealth(tar); // update the healthbar to show the damage
+                var enemyInterval = setInterval(function(){
+                    let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                    //damage that target
+                    tar = targets2[rand];
+                    Stage1.cam.centerOn(tar.x, tar.y);
+                    tar.health -= 1;
+                    Stage1.updateHealth(tar); // update the healthbar to show the damage
+                    //tar.setTint(0xe36d59);
+                    Stage1.playSound('shoot');
+                    if (tar.health < 1){
+                        tar.destroy();
+                    }
+                }, 200)
+                setTimeout(() => {clearInterval(enemyInterval);}, 200 * targets2.length);
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3

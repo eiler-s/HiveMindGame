@@ -175,14 +175,21 @@ var Stage1 ={};
 
         //Instantiate the bugs on the map
         Stage1.bugLayer.forEach(object => {
-            let obj = Stage1.bugs.create(object.x, object.y - object.height, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            obj.anims.play('bIdle');
-            obj.spent = false;
-            obj.health = 3;
+            //create a container to do the logic, and to hold both the bug sprite and the health bar
+            let con = this.add.container (object.x, object.y - object.height);
+            Stage1.bugs.add(con);
+            con.spr = this.add.sprite(0,0,"bug");
+            con.add(con.spr);
+
+            con.name = "bug";
+            con.spr.setDepth(1);
+            //con.setDepth(1);
+            con.spr.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spent = false;
+            con.health = 3;
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -367,7 +374,6 @@ var Stage1 ={};
         //We really should extract this function
         //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
-            
             //On their turn, the player can move units that have not yet done so
             if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
                 Stage1.currentBug = gameObject;
@@ -545,12 +551,12 @@ var Stage1 ={};
                 onStart: function move() {  //play the anim when the tween starts
                     Stage1.playSound('run');
                     tempDir=animQueue.shift();
-                    Stage1.currentBug.anims.play(tempDir);
+                    Stage1.currentBug.spr.anims.play(tempDir);
                 },
 
                 onComplete: function iddle() {   //stop anim when tween ends
                     Stage1.stopSound('run');
-                    Stage1.currentBug.anims.play('bIdle');
+                    Stage1.currentBug.spr.anims.play('bIdle');
                 }
             });
         }
@@ -607,8 +613,7 @@ var Stage1 ={};
          * input enemyTarget is the enemy that was just attacked
          * output destroys target and spawns a new bug, also updates the grid
          */
-
-        if (Math.random() > .7){
+        /*if (Math.random() > .7){
 
             let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
             obj.name = "bug";
@@ -618,6 +623,24 @@ var Stage1 ={};
             obj.anims.play('bIdle');
             obj.spent = true;
             obj.health = 1;
+        }*/
+
+        if (Math.random() > .7){
+            
+            let con = Stage1.scene.add.container (enemyTarget.x, enemyTarget.y);
+            Stage1.bugs.add(con);
+            con.spr = Stage1.scene.add.sprite(0,0,"bug");
+            con.add(con.spr);
+
+            con.name = "bug";
+            con.spr.setDepth(1);
+            //con.setDepth(1);
+            con.spr.setOrigin(0);
+            let rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spent = true;
+            con.health = 1;
         }
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -657,7 +680,7 @@ var Stage1 ={};
                 //damage that target
                 tar = targets2[rand];
                 tar.health -= 1;
-                tar.setTint(0xe36d59);
+                tar.spr.setTint(0xe36d59); //What?
                 Stage1.playSound('shoot');
                 if (tar.health < 1){
                     tar.destroy();

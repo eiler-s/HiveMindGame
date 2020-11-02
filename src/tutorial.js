@@ -941,8 +941,8 @@
             orientation: 'left',
             end: false,
             text: "Alien1:\n"+
-            "Fer a moment there, ah though that we'd get ourselves caught in \n"+
-            "our own loop. Heck, ah was sweatin' like a whore in church!"
+            "Fer a moment there, ah though that we'd got ourselves caught in \n"+
+            "our own lasso. Heck, ah was sweatin' like a whore in church!"
         },
         {
             speaker: 'alienBig',

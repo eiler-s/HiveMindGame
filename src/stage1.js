@@ -652,15 +652,20 @@ Stage1.key = 'stage1'
                 }
             });
             if (targets2.length != 0){//if targets found
-                let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
-                //damage that target
-                tar = targets2[rand];
-                tar.health -= 1;
-                tar.setTint(0xe36d59);
-                Stage1.playSound('shoot');
-                if (tar.health < 1){
-                    tar.destroy();
-                }
+                var enemyInterval = setInterval(function(){
+                    let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                    //damage that target
+                    tar = targets2[rand];
+                    Stage1.cam.centerOn(tar.x, tar.y);
+                    tar.health -= 1;
+                    tar.setTint(0xe36d59);
+                    Stage1.playSound('shoot');
+                    if (tar.health < 1){
+                        tar.destroy();
+                    }
+                }, 200)
+                setTimeout(() => {clearInterval(enemyInterval);}, 200 * targets2.length);
+                
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3

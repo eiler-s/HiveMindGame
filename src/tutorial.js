@@ -1,5 +1,5 @@
     var tutorial = {};
-
+    tutorial.key = 'tutorial';
     tutorial.playSound=function(name){
         if (name == 'hammer'){
             tutorial.music.play();

@@ -696,10 +696,10 @@ var Stage1 ={};
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
-                    //0,1,2,3 | up, left, right, down
+                    //0,1,2,3 | down, left, right, up
                     //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
-
-                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 1)){
+                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) 
+                        || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 0)){
                         //console.log("you are one ugly motherfucker")
                         targets2.push(tar);
                     }

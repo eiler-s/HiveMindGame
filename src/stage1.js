@@ -225,9 +225,9 @@ var Stage1 ={};
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
             con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
             con.spr.anims.play('bIdle');
-            con.bar.anims.play('health1');
             con.spent = false;
             con.health = 3;
+            Stage1.updateHealth(con);
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -668,9 +668,9 @@ var Stage1 ={};
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
             con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
             con.spr.anims.play('bIdle');
-            con.bar.anims.play('health1');
             con.spent = true;
             con.health = 1;
+            Stage1.updateHealth(con);
         }
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -710,11 +710,12 @@ var Stage1 ={};
                 //damage that target
                 tar = targets2[rand];
                 tar.health -= 1;
-                tar.spr.setTint(0xe36d59); //What?
+                //tar.spr.setTint(0xe36d59); //What?
                 Stage1.playSound('shoot');
                 if (tar.health < 1){
                     tar.destroy();
                 }
+                Stage1.updateHealth(tar); // update the healthbar to show the damage
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
@@ -725,8 +726,25 @@ var Stage1 ={};
 
     Stage1.consume = function(enemyTarget, bug){
         bug.health++;
+        Stage1.updateHealth(bug);
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
         enemyTarget.destroy();
     }
-    
+
+    Stage1.updateHealth = function(bug){
+        //should probs use a switch here. But whateves
+        //console.log(bug.health);
+        if (bug.health == 1){
+            bug.bar.anims.play('health1');
+        }
+        else if (bug.health == 2){
+            bug.bar.anims.play('health2');
+        }
+        else if (bug.health == 3){
+            bug.bar.anims.play('health3');
+        }
+        else if (bug.health == 4){
+            bug.bar.anims.play('health4');
+        }
+    }

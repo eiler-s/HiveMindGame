@@ -40,28 +40,28 @@
          "name":"farmer",
          "objects":[
                 {
-                 "gid":10,
+                 "gid":38,
                  "height":32,
-                 "id":105,
+                 "id":209,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":338.339,
+                 "x":352,
                  "y":256
                 }, 
                 {
-                 "gid":10,
+                 "gid":38,
                  "height":32,
-                 "id":106,
+                 "id":210,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":353.435,
-                 "y":283.509
+                 "x":352,
+                 "y":288
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -83,8 +83,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":769.809,
-                 "y":121.138
+                 "x":768,
+                 "y":128
                 }, 
                 {
                  "gid":9,
@@ -95,8 +95,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":768.187,
-                 "y":151.704
+                 "x":768,
+                 "y":160
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -130,8 +130,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":65.6218323586745,
-                 "y":189.130604288499
+                 "x":64,
+                 "y":192
                 }, 
                 {
                  "gid":11,
@@ -142,8 +142,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":133.769980506823,
-                 "y":153.543859649123
+                 "x":128,
+                 "y":160
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -152,10 +152,10 @@
          "y":0
         }],
  "nextlayerid":12,
- "nextobjectid":208,
+ "nextobjectid":211,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"2020.09.22",
+ "tiledversion":"1.4.2",
  "tileheight":32,
  "tilesets":[
         {
@@ -266,6 +266,10 @@
          "tileheight":32,
          "tilewidth":32,
          "transparentcolor":"#ff00ff"
+        }, 
+        {
+         "firstgid":29,
+         "source":"tilemap.tsx"
         }],
  "tilewidth":32,
  "type":"map",

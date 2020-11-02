@@ -53,6 +53,10 @@ Stage1.key = 'stage1'
         //Load next turn utton
         Stage1.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
 
+        //Load the aimcone
+        Stage1.scene.load.image('aimcone', "./src/sprites/aimcone1.png");
+
+
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/hunters/huntersheet.png',{
             frameWidth: 32,
@@ -105,7 +109,11 @@ Stage1.key = 'stage1'
         this.input.keyboard.on('keydown-E', () => Stage1.eatMode = true);
 
         //make the next turn button
-        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
+        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
+        
+        //place an aimcone
+        Stage1.aimcone = this.add.image(0,0,'aimcone').setDepth(5).setVisible(false);     
+        
 
         //end turn on space
         this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
@@ -311,7 +319,28 @@ Stage1.key = 'stage1'
             
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            obj.rotate(randInt03); 
+
+            obj.rotate(randInt03);
+            
+            obj.on('pointerover', function (pointer, lX, lY) {
+                Stage1.aimcone.setVisible(true);
+                if (this.dir == 0){
+                    Stage1.aimcone.setRotation(1.5*3.14159).setPosition(this.x+16, this.y+80);
+                }
+                if (this.dir == 1){
+                    Stage1.aimcone.setRotation(0).setPosition(this.x-48, this.y+16);
+                }
+                if (this.dir == 2){
+                    Stage1.aimcone.setRotation(1*3.14159).setPosition(this.x+80, this.y+16);
+                }
+                if (this.dir == 3){
+                    Stage1.aimcone.setRotation(0.5*3.14159).setPosition(this.x+16, this.y-48);
+                }
+                console.log(this.dir);
+            });
+            obj.on('pointerout', function (pointer) {
+               Stage1.aimcone.setVisible(false);
+            });             
         });
 
         //Create farmer objectlayer from JSON then corresponding sprite group
@@ -485,6 +514,8 @@ Stage1.key = 'stage1'
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
+                    Stage1.aimcone.setVisible(false);//no ghost aimcones
+
                     Stage1.moveTiles.clear(true); //get rid of move tiles
                     Stage1.paths = [];
         

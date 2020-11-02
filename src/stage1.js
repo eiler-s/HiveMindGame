@@ -1,5 +1,5 @@
-var Stage1 = {};
-
+var Stage1 ={};
+Stage1.key = 'stage1'
     Stage1.playSound=function(name){
         /*if (name == 'cowhandDeath'){
             
@@ -31,7 +31,6 @@ var Stage1 = {};
     
     Stage1.preload=function(){
         Stage1.scene = this;
-
         //Load audio files
         //Thank you to Fesliyan Studios for background music.
         Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
@@ -78,6 +77,22 @@ var Stage1 = {};
             frameHeight:32,
         });
         Stage1.scene.load.spritesheet('farmwoman', './Sprites/farmers/farmwoman.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health1', './src/sprites/Health11.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health2', './src/sprites/Health21.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health3', './src/sprites/Health31.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health4', './src/sprites/Health41.png',{
             frameWidth:32,
             frameHeight:32,
         });
@@ -170,18 +185,47 @@ var Stage1 = {};
             frames: [{ key: 'bug', frame: 0 }]
         });
 
+        //Generate health bar frames
+        this.anims.create({
+            key: 'health1',
+            frames: [{ key: 'health1', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health2',
+            frames: [{ key: 'health2', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health3',
+            frames: [{ key: 'health3', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health4',
+            frames: [{ key: 'health4', frame: 0 }]
+        });
+
         //Instantiate the bugs on the map
         Stage1.bugLayer.forEach(object => {
-            let obj = Stage1.bugs.create(object.x, object.y - object.height, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            obj.setTint(0x90EE90);
-            obj.anims.play('bIdle');
-            obj.spent = false;
-            obj.health = 3;
-            obj.oldTint = obj.tintTopLeft;  //###
+            //create a container to do the logic, and to hold both the bug sprite and the health bar
+            let con = this.add.container (object.x, object.y - object.height);
+            Stage1.bugs.add(con);
+            con.spr = this.add.sprite(0,0,"bug");
+            con.bar = this.add.sprite(0,32,"bar");
+            con.add(con.spr);
+            con.add(con.bar);
+
+            con.name = "bug";
+            con.spr.setDepth(1);
+            con.bar.setDepth(2);
+            con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spent = false;
+            con.health = 3;
+            Stage1.updateHealth(con);
+            con.spr.setTint(0x90EE90);
+            con.spr.oldTint = con.spr.tintTopLeft;  //###
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -364,9 +408,9 @@ var Stage1 = {};
         //CLICK LISTNER
         //We really should extract this function
         this.input.on('gameobjectdown', function (pointer, gameObject) {
-            
             //On their turn, the player can move units that have not yet done so
             if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.myTurn && Stage1.currentBug == null){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -407,10 +451,12 @@ var Stage1 = {};
                 
                 //Stage1.currentBug = null;?
                 }
+                Stage1.moveTiles.clear(true); //get rid of move tiles
             }
 
             //end turn
             else if (gameObject.name == 'nextTurn' && Stage1.myTurn){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.endTurn();
             }
 
@@ -457,10 +503,9 @@ var Stage1 = {};
                     if (Stage1.objectives.children.length == 0){
                         alert('You Win');
                     }
+                    Stage1.currentBug = null;
                 }
-                Stage1.currentBug = null;
             }
-
             Stage1.eatMode = false; //resets eatMode after a click
         }, Stage1);
 
@@ -504,7 +549,7 @@ var Stage1 = {};
         Stage1.currentBug.inMotion = true;
         timeline.setCallback("onComplete", () => {
             Stage1.currentBug.inMotion = false;
-            Stage1.currentBug.setTint(0x000000); //### need to change color back after turn ends
+            Stage1.currentBug.spr.setTint(0x000000); //### need to change color back after turn ends
             Stage1.currentBug = null;
         });
 
@@ -546,12 +591,12 @@ var Stage1 = {};
                 onStart: function move() {  //play the anim when the tween starts
                     Stage1.playSound('run');
                     tempDir=animQueue.shift();
-                    Stage1.currentBug.anims.play(tempDir);
+                    Stage1.currentBug.spr.anims.play(tempDir);
                 },
 
                 onComplete: function iddle() {   //stop anim when tween ends
                     Stage1.stopSound('run');
-                    Stage1.currentBug.anims.play('bIdle');
+                    Stage1.currentBug.spr.anims.play('bIdle');
                 }
             });
         }
@@ -608,17 +653,28 @@ var Stage1 = {};
          * input enemyTarget is the enemy that was just attacked
          * output destroys target and spawns a new bug, also updates the grid
          */
+        if (Math.random() < .7){
+            
+            let con = Stage1.scene.add.container (enemyTarget.x, enemyTarget.y);
+            Stage1.bugs.add(con);
+            con.spr = Stage1.scene.add.sprite(0,0,"bug");
+            con.bar = Stage1.scene.add.sprite(0,32,"bar");
+            con.add(con.spr);
+            con.add(con.bar);
 
-        if (Math.random() > .7){
-
-            let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            obj.anims.play('bIdle');
-            obj.spent = true;
-            obj.health = 1;
+            con.name = "bug";
+            con.spr.setDepth(1);
+            con.bar.setDepth(2);
+            con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spent = true;
+            con.health = 1;
+            Stage1.updateHealth(con);
+            con.spr.setTint(0x90EE90);
+            con.spr.oldTint = con.spr.tintTopLeft;  //###
         }
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -630,7 +686,7 @@ var Stage1 = {};
 
         Stage1.bugs.getChildren().forEach(bug =>{
             bug.spent = false;
-            bug.setTint(bug.oldTint);   //###
+            bug.spr.setTint(bug.oldTint);   //###
         });
         Stage1.myTurn = true;
     }
@@ -665,9 +721,10 @@ var Stage1 = {};
                     
                     //The alien tints red a secnd after the cowboy untints white, indicating hit
                     setTimeout(function(){ 
-                        alien.setTint(0xe36d59);
+                        alien.spr.setTint(0xe36d59);
                         alien.oldTint = 0xe36d59;   //###
                         alien.health -= 1;
+                        Stage1.updateHealth(alien); // update the healthbar to show the damage
                         if (alien.health < 1){
                             alien.destroy();
                         }
@@ -700,10 +757,10 @@ var Stage1 = {};
 
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
-                    //0,1,2,3 | up, left, right, down
+                    //0,1,2,3 | down, left, right, up
                     //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
-
-                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 1)){
+                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) 
+                        || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 0)){
                         //console.log("you are one ugly motherfucker")
                         targets2.push(tar);
                     }
@@ -722,14 +779,15 @@ var Stage1 = {};
                     //damage that target
                     tar = targets2[rand];
                     Stage1.cam.centerOn(tar.x, tar.y);
-                    tar.setTint(0xe36d59);
                     tar.health -= 1;
+                    Stage1.updateHealth(tar); // update the healthbar to show the damage
+                    //tar.setTint(0xe36d59);
                     Stage1.playSound('shoot');
                     if (tar.health < 1){
                         tar.destroy();
                     }
-                }, 1000)
-                setTimeout(() => {clearInterval(enemyInterval);}, 1000 * targets2.length);
+                }, 200)
+                setTimeout(() => {clearInterval(enemyInterval);}, 200 * targets2.length);
                 */
             } 
             else{ //Only rotate if no contacts
@@ -744,7 +802,25 @@ var Stage1 = {};
 
     Stage1.consume = function(enemyTarget, bug){
         bug.health++;
+        Stage1.updateHealth(bug);
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
         enemyTarget.destroy();
+    }
+
+    Stage1.updateHealth = function(bug){
+        //should probs use a switch here. But whateves
+        //console.log(bug.health);
+        if (bug.health == 1){
+            bug.bar.anims.play('health1');
+        }
+        else if (bug.health == 2){
+            bug.bar.anims.play('health2');
+        }
+        else if (bug.health == 3){
+            bug.bar.anims.play('health3');
+        }
+        else if (bug.health == 4){
+            bug.bar.anims.play('health4');
+        }
     }

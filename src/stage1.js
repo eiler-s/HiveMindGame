@@ -81,6 +81,22 @@ var Stage1 ={};
             frameWidth:32,
             frameHeight:32,
         });
+        Stage1.scene.load.spritesheet('health1', './src/sprites/Health11.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health2', './src/sprites/Health21.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health3', './src/sprites/Health31.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health4', './src/sprites/Health41.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
     }
 
     Stage1.create=function(){
@@ -173,21 +189,43 @@ var Stage1 ={};
             frames: [{ key: 'bug', frame: 0 }]
         });
 
+        //Generate health bar frames
+        this.anims.create({
+            key: 'health1',
+            frames: [{ key: 'health1', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health2',
+            frames: [{ key: 'health2', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health3',
+            frames: [{ key: 'health3', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health4',
+            frames: [{ key: 'health4', frame: 0 }]
+        });
+
         //Instantiate the bugs on the map
         Stage1.bugLayer.forEach(object => {
             //create a container to do the logic, and to hold both the bug sprite and the health bar
             let con = this.add.container (object.x, object.y - object.height);
             Stage1.bugs.add(con);
             con.spr = this.add.sprite(0,0,"bug");
+            con.bar = this.add.sprite(0,32,"bar");
             con.add(con.spr);
+            con.add(con.bar);
 
             con.name = "bug";
             con.spr.setDepth(1);
-            //con.setDepth(1);
+            con.bar.setDepth(2);
             con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
             con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
             con.spr.anims.play('bIdle');
+            con.bar.anims.play('health1');
             con.spent = false;
             con.health = 3;
         });
@@ -618,15 +656,19 @@ var Stage1 ={};
             let con = Stage1.scene.add.container (enemyTarget.x, enemyTarget.y);
             Stage1.bugs.add(con);
             con.spr = Stage1.scene.add.sprite(0,0,"bug");
+            con.bar = Stage1.scene.add.sprite(0,32,"bar");
             con.add(con.spr);
+            con.add(con.bar);
 
             con.name = "bug";
             con.spr.setDepth(1);
-            //con.setDepth(1);
+            con.bar.setDepth(2);
             con.spr.setOrigin(0);
-            let rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
             con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
             con.spr.anims.play('bIdle');
+            con.bar.anims.play('health1');
             con.spent = true;
             con.health = 1;
         }

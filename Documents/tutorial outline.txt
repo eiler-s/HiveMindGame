@@ -1,0 +1,101 @@
+Got slang terms from https://www.texasmonthly.com/articles/more-colorful-texas-sayings-than-you-can-shake-a-stick-at/.
+740h x 1536w pixels
+
+tutorial outline/script:
+spaceship lands on map
+
+HIVE QUEEN:
+"Howdy y'all! Ah know what y'all must be thinkin': why in high hell did we hafta land on this dustbowl of a planet? Well, ah'll have ya'll know that our interstella' hiveminds been running low on rations this season and we need fixins fast. Now conquer this backwater and see what y'all can rustle up!"
+
+two aliens exit the ship
+spaceship takes off an leave
+
+Alien1:
+"Ah'll be damned, this planet is so dry ah'm spitting cotton!"
+Alien2:
+"And its hot enough to fry eggs on the sidewalk too, ah reckon."
+Alien1:
+"Word around the galaxy has it that the locals here are some sort of bovine primeapes. Dumb as boxes of rocks too. Ah've heard that they fry up real good though."
+
+"Alien2:\n"+
+"Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up medium-rare."
+
+"Alien1:\n"+
+"Ah know just what yer thinkin'; afterall we are a hivemind specie. Welp, we're burnin daylight, lets get to it."
+
+two farmers appear two movements away
+
+Alien1:
+"Why, we must be riding a gravy train with biscuit wheels! Lucky fer us, theres some primeape cattle nearby."
+Alien2:
+"Lets get huntin'!"
+
+Instructions:
+>Use the cursor keys or move your touchpad pointer near the ege of the game's screen to move the camera around the map. Left-click on one of the aliens to see how far they can move. Available destinations are indicated with red tiles. Click on a red tile to move the alien to the destination. After moving one alien towards the two farmers, move the other alien. Each of alien can only perform one action each turn.<
+
+Next Turn button appears
+>Click 'Next Turn' to start the next turn.<
+
+After click on next turn
+Farmer: 
+"I'll be, Marge! Those look like some Yankees or something over yonder. I'll have them know that they're as welcome here as an outhouse breeze. Quick, get the kids back to the homestead."
+Farmwoman:
+"Were you raised in a barn, Bill? Sure, they look about as friendly as fire ants but thats no way to treat newcomers. Come hell or high water, we're going to give them some southern hospitality."
+Farmer:
+"Bless your heart, Marge. Its may be rough living out here on the range but you've never been nothing but sweetness and light. Kids, company’s coming; add a cup of water to the soup."
+
+Alien2:
+"Would ya look at that? If that primeape steer's brain was dynamite he wouldn't even be able to blow his own nose. This is goin' to be easy as pie."
+Alien1:
+"Say, Ah've been doin' some thinkin'..."
+Alien2:
+"And ah know just what yer've thunk and ah suppose that yer right. If we've gotsta round up so many primeape cattle we're goin' to need more help."
+Alien1:
+"Damn straight. Once we slaughter the adults, lay some eggs in their hides to make some more of us. Thata way we can gets ourselves a regular ranching team. Let the primeape calves run off though; they're as thin as fiddle strings, just ain't no meat on 'em."
+
+Instructions:
+>Move the aliens so that the farmers are within their movement range. An alien can only perform one of two actions in their turn: move or kill. If possible, left-click on a human within a selected alien's range to kill the human. A new alien will spawn in the dead human's place. New aliens cannot move until the next turn. Eliminate the two farmers.<
+
+aliens attack and kill
+spawn new
+
+once farmhands are dead
+Alien2:
+"Mmmhmm, those primeape cattle really hit the spot. It sho' is nice to see our swarm grow."
+Alien1:
+"Speak fer yerself. If ya ask me, that primeape steer was tough as nickle steak and as fer that cow, welp, ah'd as soon bite a bug."
+
+cowhands appear two movements away
+Cowboy:
+"Damn, those kids came running into town faster than greased lightnin'! Bill may have been a snot-slinging drunk and Marge was dull as a mashed-potato sandwich, but thems were good people. I'll show whicheva' revolving sons of *****s that ate their parents some real Texas justice. Mmmhm yep, Ima string them up by a strong oak tree."
+Cowgirl:
+"Hey now, Sheriff, don't be getting as dark as the devil's riding boots. We're gonna carry those vagabonds back to town and give them a fair trial...THEN we'll have ourselves a hangin'!"
+Cowboy:
+"Well would'ya look at that, I can see them right over that there gully. 'In lookit them, they're ugly as sin. Lets go show them not to mess with Texas!"
+Cowgirl:
+"Yee-haw!!!"
+
+Instructions:
+>Kill the remaining humans. Be careful when approaching cowhands. Moving an alien into a cowhand's attack range will result in the alien being killed. Cowhands will sometimes also rotate to look in another direction, so having patience can be advantagous. Be aware of terrain tiles. Aliens cannot move through trees or over trenches. However, placing an alien behind a tree will protect from an opposite cowhands shooting. Also, cowhands can shoot over trenches.<
+
+move to cowhands, next turn
+cowhands attack
+if all the aliens die, restart tutorial
+
+once cowhands are dead
+flag appears
+
+Alien1:
+"Fer a moment there, ah though that we'd get ourselves caught in our own loop. Heck, ah was sweatin' like a whore in church!"
+Alien2:
+"Bah, ah reckon we whipped 'em like a redheaded stepchild. These ones were tastier too, nice an' tender bites. Ah think we should set up a ranch in these parts."
+Alien1:
+"Sho' thin', its been a hulluva time. We gotsta do somethin' about that flag over there, ah'll be damned it we fly someone else's brand on our land."
+
+Instructions:
+>Move the aliens over the Texas flag to tear it down. The objective of the game is to remove all the Texas flags in a game level.<
+
+take the flag
+once take flag, tutorial is over
+
+

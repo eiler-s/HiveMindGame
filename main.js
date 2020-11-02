@@ -7,6 +7,6 @@ var config={
     input:{
         activePointers: 1
     },
-    scene: [Menu, Stage1]
+    scene: [Menu, Stage1, tutorial]
 }
 const game = new Phaser.Game(config);

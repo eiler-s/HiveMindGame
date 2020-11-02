@@ -181,6 +181,7 @@ var Stage1 = {};
             obj.anims.play('bIdle');
             obj.spent = false;
             obj.health = 3;
+            obj.oldTint = obj.tintTopLeft;  //###
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -365,7 +366,7 @@ var Stage1 = {};
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
+            if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.myTurn && Stage1.currentBug == null){
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -394,7 +395,8 @@ var Stage1 = {};
                     Stage1.finder.calculate();
                 }
             }
-            else if (gameObject.name == 'red'){     //If the player has already selected a unit, show available move tiles
+            //If the player has already selected a unit, show available move tiles
+            else if (gameObject.name == 'red' && Stage1.myTurn){
                 //Check each availble path to see if selected tile is in range
                 for (var i = 0; i < Stage1.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
@@ -408,7 +410,7 @@ var Stage1 = {};
             }
 
             //end turn
-            else if (gameObject.name == 'nextTurn'){
+            else if (gameObject.name == 'nextTurn' && Stage1.myTurn){
                 Stage1.endTurn();
             }
 
@@ -502,6 +504,7 @@ var Stage1 = {};
         Stage1.currentBug.inMotion = true;
         timeline.setCallback("onComplete", () => {
             Stage1.currentBug.inMotion = false;
+            Stage1.currentBug.setTint(0x000000); //### need to change color back after turn ends
             Stage1.currentBug = null;
         });
 
@@ -622,23 +625,79 @@ var Stage1 = {};
     }
 
     Stage1.endTurn = function(){
+        Stage1.myTurn = false;
         Stage1.returnFire();
 
         Stage1.bugs.getChildren().forEach(bug =>{
             bug.spent = false;
+            bug.setTint(bug.oldTint);   //###
         });
+        Stage1.myTurn = true;
     }
 
     Stage1.returnFire = function(){
+        let shotHitPairs = Stage1.getCowhandShots();
+        console.log("retrieved pairs list:", shotHitPairs); //###
+        if (shotHitPairs.length > 0){
+
+            for (let i = 0; i < shotHitPairs.length; i++){
+                console.log('shotHitPairs', shotHitPairs);//###
+                //Camera is recentered on a new pair every 4 seconds
+                setTimeout(function(){
+                    console.log('shotHitPairs', shotHitPairs);//###
+                    let pair = shotHitPairs[i];
+                    let cowhand = pair.shooter;
+                    let alien = pair.target;
+                    console.log("pair shooting:", cowhand, "and", alien); //###
+                    Stage1.cam.centerOn(alien.x, alien.y);
+                    
+                    //The cowboy tints white for 1 second a second after centering camera, indicating shot
+                    setTimeout(function(){
+                        Stage1.playSound('shoot');  //takes two seconds to play
+                        cowhand.setTintFill(0xFFFFFF);
+                    }, 1000 + 4000*i, cowhand);
+        
+                    //Cowboy returns to original tint a second after the shot
+                    setTimeout(function(){ 
+                        cowhand.clearTint();
+                        cowhand.setTint(0xFFB6C1); 
+                    }, 2000 + 4000*i, cowhand);
+                    
+                    //The alien tints red a secnd after the cowboy untints white, indicating hit
+                    setTimeout(function(){ 
+                        alien.setTint(0xe36d59);
+                        alien.oldTint = 0xe36d59;   //###
+                        alien.health -= 1;
+                        if (alien.health < 1){
+                            alien.destroy();
+                        }
+                    }, 3000 + 4000*i, alien);
+    
+                    //Allow time for the user to see what happened
+                    setTimeout(function(){ 
+                        console.log("moving on to next shooting")
+                    }, 4000 + 4000*i)
+
+                }, 4000*i, shotHitPairs, i);   //Wait a second to before recentering camera
+            }
+        }
+
+    }
+    
+    Stage1.getCowhandShots = function (){
+        var cowhandShots = [];
+
         Stage1.cowhands.getChildren().forEach(cowhand =>{
             let targets1 = Stage1.bugs.getChildren();
             let targets2 = [];
+
             targets1.forEach(tar => {
                 let attackRange = 3.01
                 let attackRangeS = Math.pow(attackRange*32, 2); //see the bug's attack for documentation
                 let distX = tar.x - cowhand.x;
                 let distY = tar.y - cowhand.y;
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
+
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
                     //0,1,2,3 | up, left, right, down
@@ -650,22 +709,37 @@ var Stage1 = {};
                     }
                 }
             });
+
             if (targets2.length != 0){//if targets found
                 let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
-                //damage that target
                 tar = targets2[rand];
-                tar.health -= 1;
-                tar.setTint(0xe36d59);
-                Stage1.playSound('shoot');
-                if (tar.health < 1){
-                    tar.destroy();
-                }
+                pair = {shooter: cowhand, target: tar};
+                console.log('pair identified:', pair);  //###
+                cowhandShots.push(pair);
+                /*
+                var enemyInterval = setInterval(function(){
+                    let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                    //damage that target
+                    tar = targets2[rand];
+                    Stage1.cam.centerOn(tar.x, tar.y);
+                    tar.setTint(0xe36d59);
+                    tar.health -= 1;
+                    Stage1.playSound('shoot');
+                    if (tar.health < 1){
+                        tar.destroy();
+                    }
+                }, 1000)
+                setTimeout(() => {clearInterval(enemyInterval);}, 1000 * targets2.length);
+                */
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
                 cowhand.rotate(randInt03);
             }
         });
+
+        console.log('all pairs found:', cowhandShots);//###
+        return cowhandShots;
     }
 
     Stage1.consume = function(enemyTarget, bug){

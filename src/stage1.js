@@ -613,19 +613,7 @@ var Stage1 ={};
          * input enemyTarget is the enemy that was just attacked
          * output destroys target and spawns a new bug, also updates the grid
          */
-        /*if (Math.random() > .7){
-
-            let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            obj.anims.play('bIdle');
-            obj.spent = true;
-            obj.health = 1;
-        }*/
-
-        if (Math.random() > .7){
+        if (Math.random() < .7){
             
             let con = Stage1.scene.add.container (enemyTarget.x, enemyTarget.y);
             Stage1.bugs.add(con);
@@ -699,3 +687,4 @@ var Stage1 ={};
         Stage1.finder.setGrid(Stage1.terrainGrid);
         enemyTarget.destroy();
     }
+    

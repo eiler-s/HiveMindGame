@@ -1,5 +1,5 @@
     var tutorial = {};
-
+    tutorial.key = 'tutorial';
     tutorial.playSound=function(name){
         if (name == 'hammer'){
             tutorial.music.play();
@@ -359,7 +359,7 @@
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && tutorial.myTurn == true){
+            if (gameObject.spent == false && tutorial.myTurn == true && tutorial.currentBug == null){
                 console.log("test");
                 tutorial.currentBug = gameObject;
                 tutorial.map.setLayer('terrain');
@@ -447,6 +447,8 @@
                     bug.spent = true;
                     tutorial.playSound('cowhandDeath');
                     tutorial.spawn(gameObject);
+
+                    tutorial.currentBug = null;
                 }
 
                 //check if farmers/cowhands with corresponding method

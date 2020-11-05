@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="2020.09.22" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="12" nextobjectid="208">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="12" nextobjectid="211">
  <editorsettings>
   <export target="tutorialMap.json" format="json"/>
  </editorsettings>
@@ -54,6 +54,7 @@
  <tileset firstgid="13" name="Backgrounds" tilewidth="32" tileheight="32" tilecount="16" columns="4">
   <image source="../sprites/bgSheet1.png" trans="ff00ff" width="128" height="128"/>
  </tileset>
+ <tileset firstgid="29" source="tilemap.tsx"/>
  <layer id="11" name="background" width="48" height="22">
   <data encoding="csv">
 21,13,21,13,21,13,13,13,17,13,17,17,17,21,14,13,21,14,21,13,21,17,21,13,13,14,18,15,24,19,19,20,16,19,19,15,24,16,15,15,19,15,19,24,15,24,16,16,
@@ -107,12 +108,12 @@
 </data>
  </layer>
  <objectgroup id="7" name="farmer">
-  <object id="105" gid="10" x="338.339" y="256" width="32" height="32"/>
-  <object id="106" gid="10" x="353.435" y="283.509" width="32" height="32"/>
+  <object id="209" gid="38" x="352" y="256" width="32" height="32"/>
+  <object id="210" gid="38" x="352" y="288" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="8" name="cowhand">
-  <object id="150" gid="9" x="769.809" y="121.138" width="32" height="32"/>
-  <object id="151" gid="9" x="768.187" y="151.704" width="32" height="32"/>
+  <object id="150" gid="9" x="768" y="128" width="32" height="32"/>
+  <object id="151" gid="9" x="768" y="160" width="32" height="32"/>
  </objectgroup>
  <layer id="9" name="top" width="48" height="22" opacity="0.31">
   <data encoding="csv">
@@ -141,7 +142,7 @@
 </data>
  </layer>
  <objectgroup id="10" name="bug">
-  <object id="204" gid="11" x="65.6218" y="189.131" width="32" height="32"/>
-  <object id="206" gid="11" x="133.77" y="153.544" width="32" height="32"/>
+  <object id="204" gid="11" x="64" y="192" width="32" height="32"/>
+  <object id="206" gid="11" x="128" y="160" width="32" height="32"/>
  </objectgroup>
 </map>

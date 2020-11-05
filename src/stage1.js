@@ -53,6 +53,10 @@ Stage1.key = 'stage1'
         //Load next turn utton
         Stage1.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
 
+        //Load the aimcone
+        Stage1.scene.load.image('aimcone', "./src/sprites/aimcone1.png");
+
+
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/hunters/huntersheet.png',{
             frameWidth: 32,
@@ -80,6 +84,22 @@ Stage1.key = 'stage1'
             frameWidth:32,
             frameHeight:32,
         });
+        Stage1.scene.load.spritesheet('health1', './src/sprites/Health11.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health2', './src/sprites/Health21.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health3', './src/sprites/Health31.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        Stage1.scene.load.spritesheet('health4', './src/sprites/Health41.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
     }
 
     Stage1.create=function(){
@@ -89,8 +109,11 @@ Stage1.key = 'stage1'
         this.input.keyboard.on('keydown-E', () => Stage1.eatMode = true);
 
         //make the next turn button
-        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");     
-
+        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
+        
+        //place an aimcone
+        Stage1.aimcone = this.add.image(0,0,'aimcone').setDepth(5).setVisible(false);     
+        
         //end turn on space
         this.input.keyboard.on('keydown-SPACE', Stage1.endTurn);
         
@@ -103,8 +126,6 @@ Stage1.key = 'stage1'
         Stage1.sfx.shoot = Stage1.scene.sound.add('shoot', {volume: 0.1});
         Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
         Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
-        //Stage1.playSound('cowboyDeath');
-        //Stage1.playSound('hammer');
 
         //Define user turn, selected unit, and path storage
         Stage1.myTurn = true;
@@ -136,7 +157,6 @@ Stage1.key = 'stage1'
             }
             Stage1.terrainGrid.push(col);
         }
-        //console.log(Stage1.terrainGrid)
         
         //Create bug objectlayer from JSON then corresponding sprite group
         Stage1.bugLayer = Stage1.map.getObjectLayer('bug')['objects'];
@@ -172,16 +192,45 @@ Stage1.key = 'stage1'
             frames: [{ key: 'bug', frame: 0 }]
         });
 
+        //Generate health bar frames
+        this.anims.create({
+            key: 'health1',
+            frames: [{ key: 'health1', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health2',
+            frames: [{ key: 'health2', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health3',
+            frames: [{ key: 'health3', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health4',
+            frames: [{ key: 'health4', frame: 0 }]
+        });
+
         //Instantiate the bugs on the map
         Stage1.bugLayer.forEach(object => {
-            let obj = Stage1.bugs.create(object.x, object.y - object.height, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            obj.anims.play('bIdle');
-            obj.spent = false;
-            obj.health = 3;
+            //create a container to do the logic, and to hold both the bug sprite and the health bar
+            let con = this.add.container (object.x, object.y - object.height);
+            Stage1.bugs.add(con);
+            con.spr = this.add.sprite(0,0,"bug");
+            con.bar = this.add.sprite(0,32,"bar");
+            con.add(con.spr);
+            con.add(con.bar);
+
+            con.name = "bug";
+            con.spr.setDepth(1);
+            con.bar.setDepth(2);
+            con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spent = false;
+            con.health = 3;
+            Stage1.updateHealth(con);
         });
         
         //Create cowhands objectlayer from JSON then corresponding sprite group
@@ -266,9 +315,28 @@ Stage1.key = 'stage1'
             
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+
             obj.rotate(randInt03);
             
-            
+            obj.on('pointerover', function (pointer, lX, lY) {
+                Stage1.aimcone.setVisible(true);
+                if (this.dir == 0){
+                    Stage1.aimcone.setRotation(1.5*3.14159).setPosition(this.x+16, this.y+80);
+                }
+                if (this.dir == 1){
+                    Stage1.aimcone.setRotation(0).setPosition(this.x-48, this.y+16);
+                }
+                if (this.dir == 2){
+                    Stage1.aimcone.setRotation(1*3.14159).setPosition(this.x+80, this.y+16);
+                }
+                if (this.dir == 3){
+                    Stage1.aimcone.setRotation(0.5*3.14159).setPosition(this.x+16, this.y-48);
+                }
+                //console.log(this.dir);
+            });
+            obj.on('pointerout', function (pointer) {
+               Stage1.aimcone.setVisible(false);
+            });             
         });
 
         //Create farmer objectlayer from JSON then corresponding sprite group
@@ -306,7 +374,6 @@ Stage1.key = 'stage1'
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.setInteractive();
-            obj.setTint(0x00FFFF);
             Stage1.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10
         })
 
@@ -335,12 +402,11 @@ Stage1.key = 'stage1'
         Stage1.marker.strokeRect(0,0, Stage1.map.tileWidth, Stage1.map.tileHeight);
 
         //Camera moves when marker is outside dead zone
-        
         Stage1.cam = this.cameras.main;
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);
-        //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zon for camera
+        //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
 
         //Initializes pathfinder
@@ -363,12 +429,9 @@ Stage1.key = 'stage1'
         Stage1.finder.setAcceptableTiles(Stage1.acceptableTiles);
 
         //CLICK LISTNER
-        //We really should extract this function
-        //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
-            
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && Stage1.myTurn == true && Stage1.currentBug == null){
+            if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.myTurn && Stage1.currentBug == null){
                 Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
@@ -398,7 +461,8 @@ Stage1.key = 'stage1'
                     Stage1.finder.calculate();
                 }
             }
-            else if (gameObject.name == 'red'){     //If the player has already selected a unit, show available move tiles
+            //If the player has already selected a unit, show available move tiles
+            else if (gameObject.name == 'red' && Stage1.myTurn){
                 //Check each availble path to see if selected tile is in range
                 for (var i = 0; i < Stage1.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
@@ -411,7 +475,7 @@ Stage1.key = 'stage1'
             }
 
             //end turn
-            else if (gameObject.name == 'nextTurn'){
+            else if (gameObject.name == 'nextTurn' && Stage1.myTurn){
                 Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.endTurn();
             }
@@ -436,15 +500,18 @@ Stage1.key = 'stage1'
                 let attackRangeS = Math.pow(attackRange*32, 2);
                 let distX = bug.x - gameObject.x;
                 let distY = bug.y - gameObject.y;
-
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2)
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
+                    Stage1.aimcone.setVisible(false);//no ghost aimcones
+
                     Stage1.moveTiles.clear(true); //get rid of move tiles
                     Stage1.paths = [];
         
                     bug.spent = true;
+                    bug.spr.setTint(0x808080);
+                    Stage1.currentBug = null;
                     Stage1.playSound('cowhandDeath');
 
                     if (Stage1.eatMode){
@@ -459,7 +526,6 @@ Stage1.key = 'stage1'
                     if (Stage1.objectives.children.length == 0){
                         alert('You Win');
                     }
-                    Stage1.currentBug = null;
                 }
             }
             Stage1.eatMode = false; //resets eatMode after a click
@@ -505,6 +571,7 @@ Stage1.key = 'stage1'
         Stage1.currentBug.inMotion = true;
         timeline.setCallback("onComplete", () => {
             Stage1.currentBug.inMotion = false;
+            Stage1.currentBug.spr.setTint(0x808080);
             Stage1.currentBug = null;
         });
 
@@ -546,12 +613,12 @@ Stage1.key = 'stage1'
                 onStart: function move() {  //play the anim when the tween starts
                     Stage1.playSound('run');
                     tempDir=animQueue.shift();
-                    Stage1.currentBug.anims.play(tempDir);
+                    Stage1.currentBug.spr.anims.play(tempDir);
                 },
 
                 onComplete: function iddle() {   //stop anim when tween ends
                     Stage1.stopSound('run');
-                    Stage1.currentBug.anims.play('bIdle');
+                    Stage1.currentBug.spr.anims.play('bIdle');
                 }
             });
         }
@@ -570,10 +637,6 @@ Stage1.key = 'stage1'
         //Places the marker around the selected tile
         Stage1.marker.x = Stage1.map.tileToWorldX(pointerTileX);
         Stage1.marker.y = Stage1.map.tileToWorldY(pointerTileY);
-
-        //checks if space has been pressed, if so ends turn
-        
-
     }
 
     //Returns the ID of a tile at a given coordinate
@@ -608,77 +671,157 @@ Stage1.key = 'stage1'
          * input enemyTarget is the enemy that was just attacked
          * output destroys target and spawns a new bug, also updates the grid
          */
+        if (Math.random() < .7){
+            
+            let con = Stage1.scene.add.container (enemyTarget.x, enemyTarget.y);
+            Stage1.bugs.add(con);
+            con.spr = Stage1.scene.add.sprite(0,0,"bug");
+            con.bar = Stage1.scene.add.sprite(0,32,"bar");
+            con.add(con.spr);
+            con.add(con.bar);
 
-        if (Math.random() > .7){
-
-            let obj = Stage1.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-            obj.setInteractive();
-            obj.anims.play('bIdle');
-            obj.spent = true;
-            obj.health = 1;
+            con.name = "bug";
+            con.spr.setDepth(1);
+            con.bar.setDepth(2);
+            con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spr.setTint(0x808080);
+            con.spent = true;
+            con.health = 1;
+            Stage1.updateHealth(con);
         }
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
     }
 
     Stage1.endTurn = function(){
+        Stage1.myTurn = false;
         Stage1.returnFire();
 
         Stage1.bugs.getChildren().forEach(bug =>{
             bug.spent = false;
+            bug.spr.clearTint();
         });
+        Stage1.myTurn = true;
     }
 
     Stage1.returnFire = function(){
+        let shotHitPairs = Stage1.getCowhandShots();
+        if (shotHitPairs.length > 0){
+
+            for (let i = 0; i < shotHitPairs.length; i++){
+                //Camera is recentered on a new pair every 4 seconds
+                let pair = shotHitPairs[i];
+                let cowhand = pair.shooter;
+                let alien = pair.target;
+                Stage1.cam.centerOn(alien.x, alien.y);
+                
+                //The cowboy tints white for 1 second a second after centering camera, indicating shot
+                setTimeout(function(){
+                    Stage1.playSound('shoot');  //takes two seconds to play
+                    cowhand.setTintFill(0xFFFFFF);
+                }, 1000 + 4000*i, cowhand);
+    
+                //Cowboy returns to original tint a second after the shot
+                setTimeout(function(){ 
+                    cowhand.clearTint();
+                }, 2000 + 4000*i, cowhand);
+                
+                //The alien tints red a secnd after the cowboy untints white, indicating hit
+                setTimeout(function(){ 
+                    alien.health -= 1;
+                    Stage1.updateHealth(alien); // update the healthbar to show the damage
+                    //alien.spr.setTint(0xe36d59);
+                }, 3000 + 4000*i, alien);
+
+                //Allow time for the user to see what happened
+                setTimeout(function(){ 
+                    if (alien.health < 1){
+                        alien.destroy();
+                    }
+                }, 4000 + 4000*i)
+            }
+        }
+    }
+    
+    Stage1.getCowhandShots = function (){
+        var cowhandShots = [];
+
         Stage1.cowhands.getChildren().forEach(cowhand =>{
             let targets1 = Stage1.bugs.getChildren();
             let targets2 = [];
+
             targets1.forEach(tar => {
                 let attackRange = 3.01
                 let attackRangeS = Math.pow(attackRange*32, 2); //see the bug's attack for documentation
                 let distX = tar.x - cowhand.x;
                 let distY = tar.y - cowhand.y;
                 let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
+
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
-                    //0,1,2,3 | up, left, right, down
+                    //0,1,2,3 | down, left, right, up
                     //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
-
-                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 1)){
+                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) 
+                        || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 0)){
                         //console.log("you are one ugly motherfucker")
                         targets2.push(tar);
                     }
                 }
             });
+
             if (targets2.length != 0){//if targets found
+                let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                tar = targets2[rand];
+                pair = {shooter: cowhand, target: tar};
+                cowhandShots.push(pair);
+                /*
                 var enemyInterval = setInterval(function(){
                     let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
                     //damage that target
                     tar = targets2[rand];
                     Stage1.cam.centerOn(tar.x, tar.y);
                     tar.health -= 1;
-                    tar.setTint(0xe36d59);
+                    Stage1.updateHealth(tar); // update the healthbar to show the damage
+                    //tar.setTint(0xe36d59);
                     Stage1.playSound('shoot');
                     if (tar.health < 1){
                         tar.destroy();
                     }
                 }, 200)
                 setTimeout(() => {clearInterval(enemyInterval);}, 200 * targets2.length);
-                
+                */
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
                 cowhand.rotate(randInt03);
             }
         });
+        return cowhandShots;
     }
 
     Stage1.consume = function(enemyTarget, bug){
         bug.health++;
+        Stage1.updateHealth(bug);
         Stage1.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
         Stage1.finder.setGrid(Stage1.terrainGrid);
         enemyTarget.destroy();
+    }
+
+    Stage1.updateHealth = function(bug){
+        if (bug.health == 1){
+            bug.bar.anims.play('health1');
+        }
+        else if (bug.health == 2){
+            bug.bar.anims.play('health2');
+        }
+        else if (bug.health == 3){
+            bug.bar.anims.play('health3');
+        }
+        else if (bug.health == 4){
+            bug.bar.anims.play('health4');
+        }
     }

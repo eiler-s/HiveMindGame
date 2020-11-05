@@ -470,8 +470,6 @@ Stage1.key = 'stage1'
                         Stage1.moveBug(Stage1.paths[i]);
                         Stage1.paths = [];
                     }
-                
-                //Stage1.currentBug = null; //###
                 }
                 Stage1.moveTiles.clear(true); //get rid of move tiles
             }
@@ -512,6 +510,8 @@ Stage1.key = 'stage1'
                     Stage1.paths = [];
         
                     bug.spent = true;
+                    bug.spr.setTint(0x808080);
+                    Stage1.currentBug = null;
                     Stage1.playSound('cowhandDeath');
 
                     if (Stage1.eatMode){
@@ -526,7 +526,6 @@ Stage1.key = 'stage1'
                     if (Stage1.objectives.children.length == 0){
                         alert('You Win');
                     }
-                    Stage1.currentBug = null;
                 }
             }
             Stage1.eatMode = false; //resets eatMode after a click
@@ -572,7 +571,7 @@ Stage1.key = 'stage1'
         Stage1.currentBug.inMotion = true;
         timeline.setCallback("onComplete", () => {
             Stage1.currentBug.inMotion = false;
-            Stage1.currentBug.spr.setTint(0x000000);
+            Stage1.currentBug.spr.setTint(0x808080);
             Stage1.currentBug = null;
         });
 
@@ -689,6 +688,7 @@ Stage1.key = 'stage1'
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
             con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
             con.spr.anims.play('bIdle');
+            con.spr.setTint(0x808080);
             con.spent = true;
             con.health = 1;
             Stage1.updateHealth(con);
@@ -714,38 +714,35 @@ Stage1.key = 'stage1'
 
             for (let i = 0; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
+                let pair = shotHitPairs[i];
+                let cowhand = pair.shooter;
+                let alien = pair.target;
+                Stage1.cam.centerOn(alien.x, alien.y);
+                
+                //The cowboy tints white for 1 second a second after centering camera, indicating shot
                 setTimeout(function(){
-                    let pair = shotHitPairs[i];
-                    let cowhand = pair.shooter;
-                    let alien = pair.target;
-                    Stage1.cam.centerOn(alien.x, alien.y);
-                    
-                    //The cowboy tints white for 1 second a second after centering camera, indicating shot
-                    setTimeout(function(){
-                        Stage1.playSound('shoot');  //takes two seconds to play
-                        cowhand.setTintFill(0xFFFFFF);
-                    }, 1000 + 4000*i, cowhand);
-        
-                    //Cowboy returns to original tint a second after the shot
-                    setTimeout(function(){ 
-                        cowhand.clearTint();
-                    }, 2000 + 4000*i, cowhand);
-                    
-                    //The alien tints red a secnd after the cowboy untints white, indicating hit
-                    setTimeout(function(){ 
-                        alien.health -= 1;
-                        Stage1.updateHealth(alien); // update the healthbar to show the damage
-                        //alien.spr.setTint(0xe36d59);
-                    }, 3000 + 4000*i, alien);
+                    Stage1.playSound('shoot');  //takes two seconds to play
+                    cowhand.setTintFill(0xFFFFFF);
+                }, 1000 + 4000*i, cowhand);
     
-                    //Allow time for the user to see what happened
-                    setTimeout(function(){ 
-                        if (alien.health < 1){
-                            alien.destroy();
-                        }
-                    }, 4000 + 4000*i)
+                //Cowboy returns to original tint a second after the shot
+                setTimeout(function(){ 
+                    cowhand.clearTint();
+                }, 2000 + 4000*i, cowhand);
+                
+                //The alien tints red a secnd after the cowboy untints white, indicating hit
+                setTimeout(function(){ 
+                    alien.health -= 1;
+                    Stage1.updateHealth(alien); // update the healthbar to show the damage
+                    //alien.spr.setTint(0xe36d59);
+                }, 3000 + 4000*i, alien);
 
-                }, 4000*i, shotHitPairs, i);   //Wait a second to before recentering camera
+                //Allow time for the user to see what happened
+                setTimeout(function(){ 
+                    if (alien.health < 1){
+                        alien.destroy();
+                    }
+                }, 4000 + 4000*i)
             }
         }
     }

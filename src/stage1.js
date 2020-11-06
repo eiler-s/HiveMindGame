@@ -222,6 +222,7 @@ Stage1.key = 'stage1'
             con.add(con.bar);
 
             con.name = "bug";
+            con.setDepth(1);
             con.spr.setDepth(1);
             con.bar.setDepth(2);
             con.spr.setOrigin(0);
@@ -439,7 +440,7 @@ Stage1.key = 'stage1'
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
             if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.myTurn && Stage1.currentBug == null){
-                Stage1.moveTiles.clear(true); //get rid of move tiles
+                Stage1.moveTiles.clear(true, true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -480,12 +481,12 @@ Stage1.key = 'stage1'
                 
                 //Stage1.currentBug = null;?
                 }
-                Stage1.moveTiles.clear(true); //get rid of move tiles
+                Stage1.moveTiles.clear(true, true); //get rid of move tiles
             }
 
             //end turn
             else if (gameObject.name == 'nextTurn' && Stage1.myTurn){
-                Stage1.moveTiles.clear(true); //get rid of move tiles
+                Stage1.moveTiles.clear(true, true); //get rid of move tiles
                 Stage1.endTurn();
             }
 
@@ -516,7 +517,7 @@ Stage1.key = 'stage1'
                 if (distanceS < attackRangeS && bug.spent != true){
                     Stage1.aimcone.setVisible(false);//no ghost aimcones
 
-                    Stage1.moveTiles.clear(true); //get rid of move tiles
+                    Stage1.moveTiles.clear(true, true); //get rid of move tiles
                     Stage1.paths = [];
         
                     bug.spent = true;
@@ -632,7 +633,7 @@ Stage1.key = 'stage1'
             });
         }
         timeline.play();
-        Stage1.moveTiles.clear(true);
+        Stage1.moveTiles.clear(true, true);
     }
 
     Stage1.update = function(time, delta){
@@ -696,6 +697,7 @@ Stage1.key = 'stage1'
             con.name = "bug";
             con.spr.setDepth(1);
             con.bar.setDepth(2);
+            con.setDepth(1);
             con.spr.setOrigin(0);
             con.bar.setOrigin(0);
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);

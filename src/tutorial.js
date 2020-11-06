@@ -1,10 +1,28 @@
     var tutorial = {};
     tutorial.key = 'tutorial';
     tutorial.playSound=function(name){
-        if (name == 'hammer'){
-            tutorial.music.play();
-        } else if (name == 'cowhandDeath'){
-            tutorial.sfx.cowhandDeath.play();
+        switch (name){
+            case 'cowhandDeath':
+                tutorial.sfx.cowhandDeath.play();
+                break;
+            case 'run':
+                tutorial.sfx.run.play();
+                break;
+            case 'shoot':
+                tutorial.sfx.shoot.play();
+                break;
+            case 'hawk':
+                tutorial.sfx.hawk.play();
+                break;
+            case 'train':
+                tutorial.sfx.train.play();
+        }
+    }
+
+    tutorial.stopSound = function(name){
+        switch (name){
+            case 'run':
+                tutorial.sfx.run.stop();
         }
     }
 
@@ -15,6 +33,11 @@
         //Thank you to Fesliyan Studios for background music.
         tutorial.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         tutorial.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
+
+        tutorial.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
+        tutorial.scene.load.audio('shoot', './Sound/shoot.mp3')
+        tutorial.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
+        tutorial.scene.load.audio('train', './Sound/train.mp3')
 
         //loads background
         tutorial.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
@@ -27,6 +50,9 @@
 
         //Load next turn utton
         tutorial.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
+
+        //Load the aimcone
+        tutorial.scene.load.image('aimcone', "./src/sprites/aimcone1.png");
 
         //Load character spritesheets
         tutorial.scene.load.spritesheet('bug', './Sprites/hunters/huntersheet.png',{
@@ -55,6 +81,22 @@
             frameWidth:32,
             frameHeight:32,
         });
+        tutorial.scene.load.spritesheet('health1', './src/sprites/Health11.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        tutorial.scene.load.spritesheet('health2', './src/sprites/Health21.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        tutorial.scene.load.spritesheet('health3', './src/sprites/Health31.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
+        tutorial.scene.load.spritesheet('health4', './src/sprites/Health41.png',{
+            frameWidth:32,
+            frameHeight:32,
+        });
 
         //Load images for textboxes
         tutorial.scene.load.image('farmerBig','./Sprites/farmers/farmer2.png');
@@ -70,23 +112,31 @@
 
     tutorial.create=function(){
 
-        //make the next turn button
-        tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(4).setScrollFactor(0).setName("nextTurn").setOrigin(0,0);
-        tutorial.nextTurn.visible = false;   
+        //used for consume function
+        tutorial.eatMode = false;
+        this.input.keyboard.on('keydown-E', () => tutorial.eatMode = true);
 
-        //I forgot what this line is for?
-        var bg = tutorial.scene.add.image(0,0,'bg').setScale(16).setOrigin(0);
-        
+        //make the next turn button
+        tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).disableInteractive().setName("nextTurn");  
+        tutorial.nextTurn.visible = false;
+
+        //place an aimcone
+        tutorial.aimcone = this.add.image(0,0,'aimcone').setDepth(5).setVisible(false);     
+
+        //end turn on space
+        this.input.keyboard.on('keydown-SPACE', tutorial.endTurn);
+
         //Create the music and sound effects using loaded audio
-        tutorial.music = tutorial.scene.sound.add('music', { volume: 0.5, loop: true });
+        tutorial.music = tutorial.scene.sound.add('music', { volume: 0.1, loop: true });
         tutorial.music.play();
         tutorial.sfx = {};
-        tutorial.sfx.cowhandDeath = tutorial.scene.sound.add('cowhandDeath');
-        
-        //tutorial.playSound('cowboyDeath');
-        //tutorial.playSound('hammer');
+        tutorial.sfx.cowhandDeath = tutorial.scene.sound.add('cowhandDeath', {volume: 0.1});
+        tutorial.sfx.run = tutorial.scene.sound.add('run', {volume: 0.1});
+        tutorial.sfx.shoot = tutorial.scene.sound.add('shoot', {volume: 0.1});
+        tutorial.sfx.hawk = tutorial.scene.sound.add('hawk', {volume: 0.1});
+        tutorial.sfx.train = tutorial.scene.sound.add('train', {volume: 0.1});
 
-        //Defing user turn, selected unit, and path storage
+        //Define user turn, selected unit, and path storage
         tutorial.myTurn = true;
         tutorial.currentBug = null;
         tutorial.paths = [];
@@ -116,35 +166,6 @@
             }
             tutorial.terrainGrid.push(col);
         }
-        //console.log(tutorial.terrainGrid)
-
-        //Assigns arrow keys to cursors
-        tutorial.cursors = this.input.keyboard.createCursorKeys();
-
-        //Move main camera with cursors
-        var controlConfig = {
-            camera: this.cameras.main,
-            left: tutorial.cursors.left,
-            right: tutorial.cursors.right,
-            up: tutorial.cursors.up,
-            down: tutorial.cursors.down,
-            acceleration : 1,
-            drag: 1,
-            maxSpeed: 1
-        };
-        tutorial.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
-
-        //Makes a square (marker) follow cursor
-        tutorial.marker = this.add.graphics();
-        tutorial.marker.lineStyle(3, 0xffffff, 1);
-        tutorial.marker.strokeRect(0,0, tutorial.map.tileWidth, tutorial.map.tileHeight);
-
-        //Camera moves when marker is outside dead zone
-        tutorial.cam = this.cameras.main;
-        tutorial.cam.setPosition(0, 0);
-        //tutorial.cam.setDeadzone(700,500);
-        //tutorial.cam.startFollow(tutorial.marker, true);
-        tutorial.cam.setBounds(0,0, 48*32, 22*32);
 
         //Create bug objectlayer from JSON then corresponding sprite group
         tutorial.bugLayer = tutorial.map.getObjectLayer('bug')['objects'];
@@ -180,15 +201,45 @@
             frames: [{ key: 'bug', frame: 0 }]
         });
 
+        //Generate health bar frames
+        this.anims.create({
+            key: 'health1',
+            frames: [{ key: 'health1', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health2',
+            frames: [{ key: 'health2', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health3',
+            frames: [{ key: 'health3', frame: 0 }]
+        });
+        this.anims.create({
+            key: 'health4',
+            frames: [{ key: 'health4', frame: 0 }]
+        });
+
         //Instantiate the bugs on the map
         tutorial.bugLayer.forEach(object => {
-            let obj = tutorial.bugs.create(object.x, object.y - object.height, "bug");
-            obj.name = "bug";
-            obj.setDepth(1);
-            obj.setOrigin(0,0);
-            obj.setInteractive();
-            obj.anims.play('bIdle');
-            obj.spent = false;
+            //create a container to do the logic, and to hold both the bug sprite and the health bar
+            let con = this.add.container (object.x, object.y - object.height);
+            tutorial.bugs.add(con);
+            con.spr = this.add.sprite(0,0,"bug");
+            con.bar = this.add.sprite(0,32,"bar");
+            con.add(con.spr);
+            con.add(con.bar);
+
+            con.name = "bug";
+            con.spr.setDepth(1);
+            con.bar.setDepth(2);
+            con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spent = false;
+            con.health = 3;
+            tutorial.updateHealth(con);
         });
 
         //Start tutorial narative
@@ -224,29 +275,6 @@
         //Create farmer objectlayer from JSON then corresponding sprite group
         tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
         tutorial.farmers = this.add.group();
-
-        //Instantiate the farmers on the map
-        tutorial.farmerLayer.forEach(object => {
-            //Randomly select the gender of the farmers
-            var gender;
-            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
-            if (randInt == 1){
-                gender = "farmer";
-            } else {
-                gender = "farmwoman";
-            }
-
-            //create farmer and identify position on grid
-            let obj = tutorial.farmers.create(object.x, object.y - object.height, gender);
-            obj.name = "farmer";
-            obj.setDepth(1);
-            obj.setOrigin(0);
-
-            obj.disableInteractive();
-            obj.visible = false;
-
-            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
-        });
 
         //Create cowhands objectlayer from JSON then corresponding sprite group
         tutorial.cowhandLayer = tutorial.map.getObjectLayer('cowhand')['objects'];
@@ -307,33 +335,124 @@
             obj.name = "cowhand";
             obj.setDepth(1);
             obj.setOrigin(0);
-
             obj.disableInteractive();
             obj.visible = false;
-
-            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]= 9;
+            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)] = 9;
+            
+            obj.rotate = function(dir) {
+                obj.dir = dir;
+                switch (dir){
+                    case 0:
+                        obj.anims.play(prefix+"Up");
+                        break;
+                    case 1:
+                        obj.anims.play(prefix+"Left");
+                        break;
+                    case 2:
+                        obj.anims.play(prefix+"Right");
+                        break;
+                    case 3:
+                        obj.anims.play(prefix+"Down");
+                        break;
+                }
+            }
 
             //Randomly select the orientation of the cowhands
             var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
-            switch (randInt03){
-                case 0:
-                    obj.anims.play(prefix+"Up");
-                    break;
-                case 1:
-                    obj.anims.play(prefix+"Left");
-                    break;
-                case 2:
-                    obj.anims.play(prefix+"Right");
-                    break;
-                case 3:
-                    obj.anims.play(prefix+"Down");
-                    break;
-            }
+
+            obj.rotate(randInt03);
+            
+            obj.on('pointerover', function (pointer, lX, lY) {
+                tutorial.aimcone.setVisible(true);
+                if (this.dir == 0){
+                    tutorial.aimcone.setRotation(1.5*3.14159).setPosition(this.x+16, this.y+80);
+                }
+                if (this.dir == 1){
+                    tutorial.aimcone.setRotation(0).setPosition(this.x-48, this.y+16);
+                }
+                if (this.dir == 2){
+                    tutorial.aimcone.setRotation(1*3.14159).setPosition(this.x+80, this.y+16);
+                }
+                if (this.dir == 3){
+                    tutorial.aimcone.setRotation(0.5*3.14159).setPosition(this.x+16, this.y-48);
+                }
+                //console.log(this.dir);
+            });
+            obj.on('pointerout', function (pointer) {
+               tutorial.aimcone.setVisible(false);
+            });             
         });
+
+        //Create farmer objectlayer from JSON then corresponding sprite group
+        tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
+        tutorial.farmers = this.add.group();
+
+        //Instantiate the farmers on the map
+        tutorial.farmerLayer.forEach(object => {
+            //Randomly select the gender of the farmers
+            var gender;
+            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
+            if (randInt == 1){
+                gender = "farmer";
+            } else {
+                gender = "farmwoman";
+            }
+
+            //create farmer and identify position on grid
+            let obj = tutorial.farmers.create(object.x, object.y - object.height, gender);
+            obj.name = "farmer";
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.disableInteractive();
+            obj.visible = false;
+            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10;
+        });
+        
+        //Create a group for the objects representing the game objective
+        tutorial.objectiveLayer = tutorial.map.getObjectLayer('objective')['objects'];
+        tutorial.objectives = this.add.group();
+
+        //Instantiate objectives on the map
+        tutorial.objectiveLayer.forEach(object=>{
+            let obj = tutorial.objectives.create(object.x, object.y - object.height, 'red');
+            obj.name = 'objective';
+            obj.setDepth(1);
+            obj.setOrigin(0);
+            obj.disableInteractive();
+            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10
+        })
 
         //Create movement tile group
         tutorial.moveTiles = this.add.group();
 
+        //Assigns arrow keys to cursors
+        tutorial.cursors = this.input.keyboard.createCursorKeys();
+
+        //Move main camera with cursors
+        var controlConfig = {
+            camera: this.cameras.main,
+            left: tutorial.cursors.left,
+            right: tutorial.cursors.right,
+            up: tutorial.cursors.up,
+            down: tutorial.cursors.down,
+            acceleration : 1,
+            drag: 1,
+            maxSpeed: 1
+        };
+        tutorial.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
+
+        //Makes a square (marker) follow cursor
+        tutorial.marker = this.add.graphics();
+        tutorial.marker.lineStyle(3, 0xffffff, 1);
+        tutorial.marker.strokeRect(0,0, tutorial.map.tileWidth, tutorial.map.tileHeight);
+
+        //Camera moves when marker is outside dead zone
+        tutorial.cam = this.cameras.main;
+        tutorial.cam.setPosition(0, 0);
+        tutorial.cam.setDeadzone(700,500);
+        tutorial.cam.startFollow(tutorial.marker, true);
+        tutorial.cam.setBounds(0,0, 48*32, 22*32);
+        
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
         tutorial.finder.setGrid(tutorial.terrainGrid);
@@ -354,13 +473,10 @@
         tutorial.finder.setAcceptableTiles(tutorial.acceptableTiles);
 
         //CLICK LISTNER
-        //We really should extract this function
-        //Handles click events on units or on available move tiles
         this.input.on('gameobjectdown', function (pointer, gameObject) {
-            
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.spent == false && tutorial.myTurn == true && tutorial.currentBug == null){
-                console.log("test");
+            if (gameObject.name == 'bug' && gameObject.spent == false && tutorial.myTurn && tutorial.currentBug == null){
+                tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.currentBug = gameObject;
                 tutorial.map.setLayer('terrain');
 
@@ -380,7 +496,7 @@
                             //console.log("path not found")
                         }
                         else{
-                            //the path given at this poin is the most direct path. If the most direct path is greater than 5, then it won't be displayed.
+                            //If the most direct path is greater than 5, then it won't be displayed
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 tutorial.pathStorage(path)
                             }
@@ -389,7 +505,8 @@
                     tutorial.finder.calculate();
                 }
             }
-            else if (gameObject.name == 'red'){     //If the player has already selected a unit, show available move tiles
+            //If the player has already selected a unit, show available move tiles
+            else if (gameObject.name == 'red' && tutorial.myTurn){
                 //Check each availble path to see if selected tile is in range
                 for (var i = 0; i < tutorial.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
@@ -405,18 +522,17 @@
                                 curNar = narQueue[1];
                                 speech = curNar.shift();
                                 tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
-                                console.log('shifted narrative to 1')//?
                             }
                         }
                     }
                 }
+                tutorial.moveTiles.clear(true); //get rid of move tiles
             }
 
             //end turn
-            else if (gameObject.name == 'nextTurn'){
-                tutorial.bugs.getChildren().forEach(bug =>{
-                    bug.spent = false;
-                });
+            else if (gameObject.name == 'nextTurn' && tutorial.myTurn){
+                tutorial.moveTiles.clear(true); //get rid of move tiles
+                tutorial.endTurn();
             }
 
             //ATTACK!
@@ -430,28 +546,44 @@
             //  Into the valley of Texas
             //  Swarmed the six hundred
         
-            //If the player moves the bug to a human then it will be killed
-            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer') && tutorial.myTurn && tutorial.currentBug != null && !tutorial.currentBug.inMotion){
+            //If the player moves the bug to a human then the human will be killed
+            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && tutorial.myTurn && tutorial.currentBug != null && !tutorial.currentBug.inMotion){
                 let bug = tutorial.currentBug;
 
                 let attackRange = 1.8;
-                //square of the range. Faster to compute
-                let attackRangeS = Math.pow(attackRange, 2);
-                let distanceS = Math.pow(bug.x/32 - gameObject.x/32, 2) + Math.pow(bug.y/32 - gameObject.y/32, 2)
+                //square of the range. Faster to compute. 32 added to make it match the pixel count
+                let attackRangeS = Math.pow(attackRange*32, 2);
+                let distX = bug.x - gameObject.x;
+                let distY = bug.y - gameObject.y;
+                let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2)
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
+                    tutorial.aimcone.setVisible(false);//no ghost aimcones
+
                     tutorial.moveTiles.clear(true); //get rid of move tiles
                     tutorial.paths = [];
         
                     bug.spent = true;
-                    tutorial.playSound('cowhandDeath');
-                    tutorial.spawn(gameObject);
-
+                    bug.spr.setTint(0x808080);
                     tutorial.currentBug = null;
+                    tutorial.playSound('cowhandDeath');
+
+                    if (tutorial.eatMode){
+                        tutorial.consume(gameObject, bug);
+                    }
+                    else{
+                        tutorial.spawn(gameObject);
+                        gameObject.destroy();
+                    }
+                    
+                    //objectives check
+                    if (tutorial.objectives.children.length == 0){
+                        alert('You Win');
+                    }
                 }
 
-                //check if farmers/cowhands with corresponding method
+                //check if farmers/cowhands are alive with corresponding method
                 if (tutorial.farmersDead == false){
                     tutorial.checkActCowhands();
 
@@ -478,8 +610,286 @@
                     tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
                 }
             }
+            tutorial.eatMode = false; //resets eatMode after a click
         }, tutorial);
         
+        //Periodically play environmental noises
+        setInterval(function(){
+            if (Math.random() < .7){
+                tutorial.playSound('hawk');
+            }
+            else{
+                tutorial.playSound('train');
+            }
+        }, 100000)
+    }
+
+    //Create a movement tile at a path's destination
+    tutorial.pathStorage = function(path){
+        /**
+         * input path is a possible path to take
+         * output shows available paths as red squares
+         */
+        let obj = tutorial.moveTiles.create(path[path.length-1].x*32, path[path.length-1].y*32, 'red');
+        obj.name = 'red';
+        obj.setInteractive();
+        obj.setOrigin(0);
+        obj.setAlpha(.5);
+        tutorial.paths.push(path);
+    }
+
+    //Moves the bug to a destination tile
+    tutorial.moveBug = function(path){
+        /**
+         * input path is the chosen path
+         * output moves the currentBug to destination
+         */
+        var timeline = tutorial.scene.tweens.createTimeline({useFrames:true});
+
+        //don't let the bug do anything else
+        tutorial.currentBug.spent = true;
+
+        //let other functions know if the bug is moving
+        tutorial.currentBug.inMotion = true;
+        timeline.setCallback("onComplete", () => {
+            tutorial.currentBug.inMotion = false;
+            tutorial.currentBug.spr.setTint(0x808080);
+            tutorial.currentBug = null;
+        });
+
+        var animQueue=[];
+
+        //Creates a tween for each step of the bugs movement
+        for (var i = 0; i < path.length-1; i++){
+            //Get location of current tile in the path
+            var xo = path[i].x;
+            var yo = path[i].y;
+
+            //Get location of next tile in the path
+            var xf = path[i+1].x;
+            var yf = path[i+1].y;
+
+            //Get direction of next movement
+            var xdir = xf - xo;
+            var ydir = yf - yo;
+
+            //Set animation frames to direction
+            var dirKey;
+            if (xdir > 0) {
+                dirKey = 'bRight';
+            } else if (xdir < 0) {
+                dirKey = 'bLeft';
+            } else if (ydir > 0) {
+                dirKey = 'bUp';
+            } else if (ydir < 0) {
+                dirKey = 'bDown';
+            }
+            animQueue.push(""+dirKey);
+
+            timeline.add({
+                targets: tutorial.currentBug,
+                x: xf*tutorial.map.tileWidth,
+                y: yf*tutorial.map.tileHeight,
+                duration: 10,
+
+                onStart: function move() {  //play the anim when the tween starts
+                    tutorial.playSound('run');
+                    tempDir=animQueue.shift();
+                    tutorial.currentBug.spr.anims.play(tempDir);
+                },
+
+                onComplete: function iddle() {   //stop anim when tween ends
+                    tutorial.stopSound('run');
+                    tutorial.currentBug.spr.anims.play('bIdle');
+                }
+            });
+        }
+        timeline.play();
+        tutorial.moveTiles.clear(true);
+    }
+
+    tutorial.update = function(time, delta){
+        tutorial.controls.update(delta)
+        var worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
+
+        //Rounds the cursor location to the nearest tile
+        var pointerTileX = tutorial.map.worldToTileX(worldPoint.x);
+        var pointerTileY = tutorial.map.worldToTileY(worldPoint.y);
+
+        //Places the marker around the selected tile
+        tutorial.marker.x = tutorial.map.tileToWorldX(pointerTileX);
+        tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);
+    }
+
+    //Returns the ID of a tile at a given coordinate
+    tutorial.getTileID = function(x,y){
+        /**
+         * input x is the x coord given
+         * input y is the y coord given
+         * output gives the tile id of the tile at coords, if there isn't a tile, then it is assumed to be ground
+         */
+        if (tutorial.map.hasTileAt(x,y)){ //Originally there wasn't a tile defined for ground
+            var tile = tutorial.map.getTileAt(x,y);
+            return tile.index;          //returns the tile ID
+        }
+        else{
+            return 1;
+        }
+    }
+
+    //Returns boolean for whether a tile is collidable
+    tutorial.checkCollision = function(x,y){
+        /**
+         * input x is the x coord given
+         * input y is the y coord given
+         * output is whether the tile at x, y is collidable
+         */
+        var tile = tutorial.map.getTileAt(x, y);
+        return tile.properties.collide == true;
+    }
+
+    tutorial.spawn = function(enemyTarget){
+        /***
+         * input enemyTarget is the enemy that was just attacked
+         * output destroys target and spawns a new bug, also updates the grid
+         */
+        if (Math.random() < .7){
+            
+            let con = tutorial.scene.add.container (enemyTarget.x, enemyTarget.y);
+            tutorial.bugs.add(con);
+            con.spr = tutorial.scene.add.sprite(0,0,"bug");
+            con.bar = tutorial.scene.add.sprite(0,32,"bar");
+            con.add(con.spr);
+            con.add(con.bar);
+
+            con.name = "bug";
+            con.spr.setDepth(1);
+            con.bar.setDepth(2);
+            con.spr.setOrigin(0);
+            con.bar.setOrigin(0);
+            var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
+            con.setInteractive(rect, Phaser.Geom.Rectangle.Contains); 
+            con.spr.anims.play('bIdle');
+            con.spr.setTint(0x808080);
+            con.spent = true;
+            con.health = 1;
+            tutorial.updateHealth(con);
+        }
+        tutorial.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+        tutorial.finder.setGrid(tutorial.terrainGrid);
+    }
+
+    tutorial.endTurn = function(){
+        tutorial.myTurn = false;
+        tutorial.returnFire();
+
+        tutorial.bugs.getChildren().forEach(bug =>{
+            bug.spent = false;
+            bug.spr.clearTint();
+        });
+        tutorial.myTurn = true;
+    }
+
+    tutorial.returnFire = function(){
+        let shotHitPairs = tutorial.getCowhandShots();
+        if (shotHitPairs.length > 0){
+
+            for (let i = 0; i < shotHitPairs.length; i++){
+                //Camera is recentered on a new pair every 4 seconds
+                let pair = shotHitPairs[i];
+                let cowhand = pair.shooter;
+                let alien = pair.target;
+                tutorial.cam.centerOn(alien.x, alien.y);
+                
+                //The cowboy tints white for 1 second a second after centering camera, indicating shot
+                setTimeout(function(){
+                    tutorial.playSound('shoot');  //takes two seconds to play
+                    cowhand.setTintFill(0xFFFFFF);
+                }, 1000 + 4000*i, cowhand);
+    
+                //Cowboy returns to original tint a second after the shot
+                setTimeout(function(){ 
+                    cowhand.clearTint();
+                }, 2000 + 4000*i, cowhand);
+                
+                //The alien tints red a secnd after the cowboy untints white, indicating hit
+                setTimeout(function(){ 
+                    alien.health -= 1;
+                    tutorial.updateHealth(alien); // update the healthbar to show the damage
+                    //alien.spr.setTint(0xe36d59);
+                }, 3000 + 4000*i, alien);
+
+                //Allow time for the user to see what happened
+                setTimeout(function(){ 
+                    if (alien.health < 1){
+                        alien.destroy();
+                    }
+                }, 4000 + 4000*i)
+            }
+        }
+    }
+    
+    tutorial.getCowhandShots = function (){
+        var cowhandShots = [];
+
+        tutorial.cowhands.getChildren().forEach(cowhand =>{
+            let targets1 = tutorial.bugs.getChildren();
+            let targets2 = [];
+
+            targets1.forEach(tar => {
+                let attackRange = 3.01
+                let attackRangeS = Math.pow(attackRange*32, 2); //see the bug's attack for documentation
+                let distX = tar.x - cowhand.x;
+                let distY = tar.y - cowhand.y;
+                let distanceS = Math.pow(distX, 2) + Math.pow(distY, 2);
+
+                if(distanceS < attackRangeS){
+                    //now check if the cowhand is facing the right way
+                    //0,1,2,3 | down, left, right, up
+                    //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
+                    if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) 
+                        || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 0)){
+                        //console.log("you are one ugly motherfucker")
+                        targets2.push(tar);
+                    }
+                }
+            });
+
+            if (targets2.length != 0){//if targets found
+                let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                tar = targets2[rand];
+                pair = {shooter: cowhand, target: tar};
+                cowhandShots.push(pair);
+            } 
+            else{ //Only rotate if no contacts
+                var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3
+                cowhand.rotate(randInt03);
+            }
+        });
+        return cowhandShots;
+    }
+
+    tutorial.consume = function(enemyTarget, bug){
+        bug.health++;
+        tutorial.updateHealth(bug);
+        tutorial.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+        tutorial.finder.setGrid(tutorial.terrainGrid);
+        enemyTarget.destroy();
+    }
+
+    tutorial.updateHealth = function(bug){
+        if (bug.health == 1){
+            bug.bar.anims.play('health1');
+        }
+        else if (bug.health == 2){
+            bug.bar.anims.play('health2');
+        }
+        else if (bug.health == 3){
+            bug.bar.anims.play('health3');
+        }
+        else if (bug.health == 4){
+            bug.bar.anims.play('health4');
+        }
     }
 
     tutorial.checkActFarmers = function(){
@@ -531,155 +941,6 @@
         else {
             console.log('a cowhand is still alive');//?
         }
-    }
-
-    //Create a movement tile at a path's destination
-    tutorial.pathStorage = function(path){
-        /**
-         * input path is a possible path to take
-         * output shows available paths as red squares
-         */
-        let obj = tutorial.moveTiles.create(path[path.length-1].x*32, path[path.length-1].y*32, 'red');
-        obj.name = 'red';
-        obj.setInteractive();
-        obj.setOrigin(0);
-        obj.setAlpha(.5);
-        tutorial.paths.push(path);
-    }
-
-    //Moves the bug to a destination tile
-    tutorial.moveBug = function(path){
-        /**
-         * input path is the chosen path
-         * output moves the currentBug to destination
-         */
-        var timeline = tutorial.scene.tweens.createTimeline({useFrames:true});
-
-        //don't let the bug do anything else
-        tutorial.currentBug.spent = true;
-
-        //let other functions know if the bug is moving
-        tutorial.currentBug.inMotion = true;
-        timeline.setCallback("onComplete", () => {
-            tutorial.currentBug.inMotion = false;
-            tutorial.currentBug = null;
-        });
-
-        var animQueue=[];
-        //Creates a tween for each step of the bugs movement
-        for (var i = 0; i < path.length-1; i++){
-            //Get location of current tile in the path
-            var xo = path[i].x;
-            var yo = path[i].y;
-            //console.log('(external) xo:',xo,'yo:',yo);
-
-            //Get location of next tile in the path
-            var xf = path[i+1].x;
-            var yf = path[i+1].y;
-            //console.log('(external) xf:',xf,'xf:',yf);
-
-            //Get direction of next movement
-            var xdir = xf - xo;
-            var ydir = yf - yo;
-            //console.log('xdir:',xdir,'ydir:',ydir);
-
-            //Set animation frames to direction
-            var dirKey;
-            if (xdir > 0) {
-                dirKey = 'bRight';
-            } else if (xdir < 0) {
-                dirKey = 'bLeft';
-            } else if (ydir > 0) {
-                dirKey = 'bUp';
-            } else if (ydir < 0) {
-                dirKey = 'bDown';
-            }
-            //console.log('dirKey:',dirKey);
-            animQueue.push(""+dirKey);
-
-            timeline.add({
-                targets: tutorial.currentBug,
-                x: xf*tutorial.map.tileWidth,
-                y: yf*tutorial.map.tileHeight,
-                duration: 10,
-
-                onStart: function move() {  //play the anim when the tween starts
-                    //console.log('here');
-                    tempDir = animQueue.shift();
-                    //console.log('   internal dir:', tempDir);
-                    tutorial.currentBug.anims.play(tempDir);
-                    
-                    //set a timer to keep track of how long the animation has been running
-                    /*
-                    while (timer.now < 1000){console.log(timer.now)}
-                    */
-                },
-
-                onComplete: function iddle() {   //stop anim when tween ends
-                    // console.log('   stopping');
-                    tutorial.currentBug.anims.play('bIdle');
-                }
-            });
-        }
-        timeline.play();
-        tutorial.moveTiles.clear(true);
-    }
-
-    tutorial.update=function(time, delta){
-        tutorial.controls.update(delta)
-        var worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
-
-        //Rounds the cursor location to the nearest tile
-        var pointerTileX = tutorial.map.worldToTileX(worldPoint.x);
-        var pointerTileY = tutorial.map.worldToTileY(worldPoint.y);
-
-        //Places the marker around the selected tile
-        tutorial.marker.x = tutorial.map.tileToWorldX(pointerTileX);
-        tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);
-    }
-
-    //Returns the ID of a tile at a given coordinate
-    tutorial.getTileID = function(x,y){
-        /**
-         * input x is the x coord given
-         * input y is the y coord given
-         * output gives the tile id of the tile at coords, if there isn't a tile, then it is assumed to be ground
-         */
-        if (tutorial.map.hasTileAt(x,y)){ //why would there not be a tile? Kevin Here, originally there wasn't a tile defined for ground
-            var tile = tutorial.map.getTileAt(x,y);
-            return tile.index;          //returns the tile ID
-        }
-        else{
-            return 1;
-        }
-    }
-
-    //Returns boolean for whether a tile is collidable
-    tutorial.checkCollision=function(x,y){
-        /**
-         * input x is the x coord given
-         * input y is the y coord given
-         * output is whether the tile at x, y is collidable
-         */
-        var tile = tutorial.map.getTileAt(x, y);
-        return tile.properties.collide == true;
-    }
-
-    tutorial.spawn = function(enemyTarget){
-        /***
-         * input enemyTarget is the enemy that was just attacked
-         * output destroys target and spawns a new bug, also updates the grid
-         */
-        let obj = tutorial.bugs.create(enemyTarget.x, enemyTarget.y, "bug");
-        obj.name = "bug";
-        obj.setDepth(1);
-        obj.setOrigin(0);
-        obj.setInteractive();
-        obj.anims.play('bIdle');
-        obj.spent = true;
-        tutorial.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
-        tutorial.finder.setGrid(tutorial.terrainGrid);
-        enemyTarget.destroy();
     }
 
     //Makes a text box with progression button and image of speaker ###

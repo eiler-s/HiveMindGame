@@ -301,7 +301,7 @@
         //Create animations for cowgirl movement
         this.anims.create({
             key: 'cgDown',
-            frames: [{ key: 'cowgirl', frame: 3 }]
+            frames: [{ key: 'cowgirl', frame: 0 }]
         });
         this.anims.create({
             key: 'cgLeft',
@@ -313,7 +313,7 @@
         });
         this.anims.create({
             key: 'cgUp',
-            frames: [{ key: 'cowgirl', frame: 0 }]
+            frames: [{ key: 'cowgirl', frame: 3 }]
         });
 
         //Instantiate the cowhands on the map

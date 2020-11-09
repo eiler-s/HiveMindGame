@@ -521,10 +521,12 @@ Stage1.key = 'stage1'
                         Stage1.spawn(gameObject);
                         gameObject.destroy();
                     }
-                    
                     //objectives check
-                    if (Stage1.objectives.children.length == 0){
-                        alert('You Win');
+                    if (Stage1.objectives.getChildren().length == 0){
+                        Stage1.music.stop();                      
+                        game.scene.stop('stage1');
+                        game.scene.start('win');
+                        
                     }
                 }
             }

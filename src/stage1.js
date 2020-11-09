@@ -518,6 +518,8 @@ Stage1.key = 'stage1'
                     }
 
                     if (gameObject.name == 'objective'){
+                        Stage1.terrainGrid[Math.floor(gameObject.y/gameObject.height)][Math.floor(gameObject.x/gameObject.width)]=1;
+                        Stage1.finder.setGrid(Stage1.terrainGrid);
                         gameObject.destroy();
                     }
                     else if (Stage1.eatMode){

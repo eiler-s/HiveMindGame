@@ -724,26 +724,34 @@ Stage1.key = 'stage1'
                 setTimeout(function(){
                     Stage1.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
-                }, 1000 + 4000*i, cowhand);
+                },  900*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
-                }, 2000 + 4000*i, cowhand);
+                }, 300 + 900*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     Stage1.updateHealth(alien); // update the healthbar to show the damage
                     //alien.spr.setTint(0xe36d59);
-                }, 3000 + 4000*i, alien);
+                }, 600 + 900*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
+                        //checks to see if that was the last alien. If so, you lose
+                        if(Stage1.bugs.getChildren().length == 0){
+                            //Stage1.scene.registry.destroy();
+                            //Stage1.scene.events.off();
+                            Stage1.music.stop();
+                            game.scene.stop('stage1');
+                            game.scene.start('lose');
+                        }
                     }
-                }, 4000 + 4000*i)
+                }, 900 + 900*i)
             }
         }
     }
@@ -779,22 +787,6 @@ Stage1.key = 'stage1'
                 tar = targets2[rand];
                 pair = {shooter: cowhand, target: tar};
                 cowhandShots.push(pair);
-                /*
-                var enemyInterval = setInterval(function(){
-                    let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
-                    //damage that target
-                    tar = targets2[rand];
-                    Stage1.cam.centerOn(tar.x, tar.y);
-                    tar.health -= 1;
-                    Stage1.updateHealth(tar); // update the healthbar to show the damage
-                    //tar.setTint(0xe36d59);
-                    Stage1.playSound('shoot');
-                    if (tar.health < 1){
-                        tar.destroy();
-                    }
-                }, 200)
-                setTimeout(() => {clearInterval(enemyInterval);}, 200 * targets2.length);
-                */
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3

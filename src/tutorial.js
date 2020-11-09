@@ -471,7 +471,7 @@
         //CLICK LISTNER
         tutorial.scene.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
-
+            console.log('gameobject:',gameObject.name);//###
             if (gameObject.name == 'bug' && gameObject.spent == false && tutorial.currentBug == null){
                 tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.currentBug = gameObject;
@@ -847,6 +847,9 @@
                 }
             }
         }
+        else{
+            tutorial.scene.input.enabled = true;
+        }
     }
     
     tutorial.getCowhandShots = function (){
@@ -1055,12 +1058,11 @@
             orientation: 'left',
             end: true,
             text: "Instructions:\n"+
-            "Use the cursor keys or move your touchpad pointer near the ege of the \n"+
-            "game's screen to move the camera around the map. Left-click on one of \n"+
-            "the aliens to see how far they can move. Available destinations are \n"+
-            "indicated with red tiles. Left-click on a red tile to move the alien \n"+
-            "to the destination. After moving one alien, move the other alien. \n"+
-            "Each of alien can only perform one action each turn."
+            "Use the cursor keys to move the camera around the map.\n"+
+            "Left-click on an alien to see where it can move.\n"+
+            "Available move positions are indicated with red tiles.\n"+ 
+            "Left-click on a red tile to move the alien to the destination.\n"+ 
+            "Move each alien. An alien can only move once a turn."
         }
     ];
 
@@ -1147,13 +1149,13 @@
             orientation: 'left',
             end: true,
             text: "Instructions:\n"+
-            "First, click next turn to be able to move the aliens again. Then, \n"+
-            "move the aliens so that the farmers are within their movement range. \n"+
-            "An alien can only perform one of two actions in their turn: move or \n"+
-            "kill. If possible, left-click on a human within a selected alien's \n"+
-            "range to kill that human. A new alien may spawn in the dead human's \n"+
-            "place. New aliens cannot move until the next turn. Eliminate the two \n"+
-            "farmers."
+            "Click the next turn button (or press spacebar) to start the next turn.\n"+
+            "In a turn an alien can perform a single action: move, eat, or kill.\n"+
+            "Move an alien to a tile next to or diagonal of a human to eat/kill it\n"+
+            "in the next turn. To kill a human, click the alien then the human.\n"+
+            "A low health alien may (or may not) spawn after killing a human.\n"+
+            "To eat, left click the alien then press the 'e' key to enter eat mode.\n"+
+            "Then click the human to be eaten. This will heal the aliens health."
         }
     ];
 
@@ -1200,14 +1202,12 @@
             orientation: 'left',
             end: true,
             text: "Instructions:\n"+
-            "Kill the remaining humans. Be careful when approaching cowhands. \n"+
+            "Eliminate the remaining humans. Be careful when approaching cowhands. \n"+
+            "After each turn, cowhands will either rotate their orientation or \n"+
+            "shoot an alien. Hover the cursor over an cowhand to see their attack range.\n"+
             "Moving an alien into a cowhand's attack range will result in the \n"+
-            "alien being killed. Cowhands will sometimes also rotate to look \n"+
-            "in another direction, so having patience can be advantagous. Be \n"+
-            "aware of terrain tiles. Aliens cannot move through trees or over \n"+
-            "trenches. However, placing an alien behind a tree will protect \n"+
-            "from an opposite cowhands shooting. Also, cowhands can shoot over \n"+
-            "trenches."
+            "alien being shot and losing health.  Also, cowhands can shoot over \n"+
+            "trenches and through trees."
         }
     ];
 

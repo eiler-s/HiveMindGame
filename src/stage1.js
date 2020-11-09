@@ -106,7 +106,7 @@ Stage1.key = 'stage1'
 
         //used for consume function
         Stage1.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => Stage1.eatMode = true);
+        this.input.keyboard.on('keydown-E', () => {Stage1.eatMode = true; this.input.setDefaultCursor('url(./src/sprites/eat.cur), pointer');});
 
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
@@ -529,6 +529,7 @@ Stage1.key = 'stage1'
                 }
             }
             Stage1.eatMode = false; //resets eatMode after a click
+            Stage1.scene.input.setDefaultCursor('default');
         }, Stage1);
 
         //Periodically play environmental noises

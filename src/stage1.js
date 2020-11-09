@@ -49,13 +49,13 @@ Stage1.key = 'stage1'
         Stage1.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         Stage1.scene.load.image('red', './src/sprites/red.png');
         Stage1.scene.load.tilemapTiledJSON('map', './src/tilemaps/map.json');
+        Stage1.scene.load.image('flag', './Sprites/terrain/Texas_flag.png');
 
-        //Load next turn utton
+        //Load next turn button
         Stage1.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
 
         //Load the aimcone
         Stage1.scene.load.image('aimcone', "./src/sprites/aimcone1.png");
-
 
         //Load character spritesheets
         Stage1.scene.load.spritesheet('bug', './Sprites/hunters/huntersheet.png',{
@@ -369,7 +369,7 @@ Stage1.key = 'stage1'
 
         //Instantiate objectives on the map
         Stage1.objectiveLayer.forEach(object=>{
-            let obj = Stage1.objectives.create(object.x, object.y - object.height, 'red');
+            let obj = Stage1.objectives.create(object.x, object.y - object.height, 'flag');
             obj.name = 'objective';
             obj.setDepth(1);
             obj.setOrigin(0);
@@ -403,6 +403,7 @@ Stage1.key = 'stage1'
 
         //Camera moves when marker is outside dead zone
         Stage1.cam = this.cameras.main;
+        tutorial.cam.setPosition(0, 0);
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);

@@ -33,7 +33,6 @@
         //Thank you to Fesliyan Studios for background music.
         tutorial.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         tutorial.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
-
         tutorial.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
         tutorial.scene.load.audio('shoot', './Sound/shoot.mp3')
         tutorial.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
@@ -47,6 +46,7 @@
         tutorial.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         tutorial.scene.load.image('red', './src/sprites/red.png');
         tutorial.scene.load.tilemapTiledJSON('map', './src/tilemaps/tutorialMap.json');
+        tutorial.scene.load.image('flag', './Sprites/terrain/Texas_flag.png');
 
         //Load next turn utton
         tutorial.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
@@ -107,6 +107,8 @@
         tutorial.scene.load.spritesheet('arrows','./Sprites/arrows/arrows.png',{
             frameWidth:32,
             frameHeight:32,
+            margin:1,
+            spacing:2
         });
     }
 
@@ -117,7 +119,8 @@
         this.input.keyboard.on('keydown-E', () => tutorial.eatMode = true);
 
         //make the next turn button
-        tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).disableInteractive().setName("nextTurn");  
+        tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).disableInteractive().setName("nextTurn");
+        tutorial.nextTurn.setOrigin(0,0);  
         tutorial.nextTurn.visible = false;
 
         //place an aimcone
@@ -246,7 +249,7 @@
         var curNar = narQueue[0];
         var speech = curNar.shift();
 
-        //Create textbox images ###
+        //Create textbox images
         tutorial.textbox = this.add.rectangle(0, 472, 800, 228, 0x696969).setDepth(3).setScrollFactor(0).setOrigin(0,0);
 
         tutorial.speaker = this.add.image(0, 472, speech.speaker).setDepth(3).setScrollFactor(0).setOrigin(0,0);
@@ -254,7 +257,7 @@
 
         tutorial.text = this.add.text(128, 472, speech.text).setDepth(3).setScrollFactor(0).setOrigin(0,0);
 
-        tutorial.textBtn = this.add.image(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive().setOrigin(0,0);
+        tutorial.textBtn = this.add.sprite(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive().setOrigin(0,0);
         tutorial.textBtn.name = 'textBtn';
 
         //Create animation for narration button
@@ -264,17 +267,13 @@
             frameRate: 2,
             repeat: -1
         });
-        //tutorial.textBtn.anims.play('aDown');//?
+        this.anims.play('aDown', [tutorial.textBtn]);
 
         //Variables that activate tutorial events (make sets of characters visible/interactive)
         tutorial.bugsMoved = false;
         tutorial.farmersDead = false;
         tutorial.cowhandsDead = false;
         tutorial.flagDestroyed = false;
-
-        //Create farmer objectlayer from JSON then corresponding sprite group
-        tutorial.farmerLayer = tutorial.map.getObjectLayer('farmer')['objects'];
-        tutorial.farmers = this.add.group();
 
         //Create cowhands objectlayer from JSON then corresponding sprite group
         tutorial.cowhandLayer = tutorial.map.getObjectLayer('cowhand')['objects'];
@@ -317,12 +316,11 @@
         });
 
         //Instantiate the cowhands on the map
+        tutorial.genderCount = 0;
         tutorial.cowhandLayer.forEach(object => {
-            //Randomly select the gender of the cowhands
-            var gender;
-            var prefix;
-            var randInt01 = Math.floor(Math.random()*2); //Randomly selects 0 or 1
-            if (randInt01 == 1){
+            //selects the gender of the cowhands
+            tutorial.genderCount ++;
+            if (tutorial.genderCount == 1){
                 gender = "cowboy";
                 prefix = "cb";
             } else {
@@ -389,10 +387,9 @@
 
         //Instantiate the farmers on the map
         tutorial.farmerLayer.forEach(object => {
-            //Randomly select the gender of the farmers
-            var gender;
-            var randInt = Math.floor(Math.random()*2 + 1); //Randomly selects 1 or 2
-            if (randInt == 1){
+            //select the gender of the farmers
+            tutorial.genderCount ++;
+            if (tutorial.genderCount == 3){
                 gender = "farmer";
             } else {
                 gender = "farmwoman";
@@ -414,12 +411,13 @@
 
         //Instantiate objectives on the map
         tutorial.objectiveLayer.forEach(object=>{
-            let obj = tutorial.objectives.create(object.x, object.y - object.height, 'red');
+            let obj = tutorial.objectives.create(object.x, object.y - object.height, 'flag');
             obj.name = 'objective';
             obj.setDepth(1);
             obj.setOrigin(0);
             obj.disableInteractive();
-            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=10
+            obj.visible = false;
+            tutorial.terrainGrid[Math.floor(obj.y/obj.height)][Math.floor(obj.x/obj.width)]=11;
         })
 
         //Create movement tile group
@@ -448,9 +446,9 @@
 
         //Camera moves when marker is outside dead zone
         tutorial.cam = this.cameras.main;
-        tutorial.cam.setPosition(0, 0);
-        tutorial.cam.setDeadzone(700,500);
-        tutorial.cam.startFollow(tutorial.marker, true);
+        tutorial.cam.centerOn(0, 0);
+        //tutorial.cam.setDeadzone(700,500);
+        //tutorial.cam.startFollow(tutorial.marker, true);
         tutorial.cam.setBounds(0,0, 48*32, 22*32);
         
         //Initializes pathfinder
@@ -475,6 +473,10 @@
         //CLICK LISTNER
         this.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
+            if (gameObject.name != null || gameObject.name != undefined){
+                console.log("game object clicked:", gameObject.name);    //###
+            }
+
             if (gameObject.name == 'bug' && gameObject.spent == false && tutorial.myTurn && tutorial.currentBug == null){
                 tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.currentBug = gameObject;
@@ -518,7 +520,10 @@
                         if (tutorial.bugsMoved == false){
                             tutorial.checkActFarmers();
                             console.log('bugsMoved2:', tutorial.bugsMoved);
+
                             if (tutorial.bugsMoved == true){ //once bugs have moved, go to next narrative phase
+                                farmer1 = tutorial.farmers.getChildren()[0];
+                                tutorial.cam.centerOn(farmer1.x, farmer1.y);
                                 curNar = narQueue[1];
                                 speech = curNar.shift();
                                 tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
@@ -588,6 +593,8 @@
                     tutorial.checkActCowhands();
 
                     if (tutorial.farmersDead == true){   //move along narrative if last farmer just killed
+                        cowhand1 = tutorial.cowhands.getChildren()[0];
+                        tutorial.cam.centerOn(cowhand1.x, cowhand1.y);
                         curNar = narQueue[2];
                         speech = curNar.shift();
                         tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
@@ -597,6 +604,8 @@
                     tutorial.checkActFlags();
 
                     if (tutorial.cowhandsDead == true){
+                        flag1 = tutorial.objectives.getChildren()[0];
+                        tutorial.cam.centerOn(flag1.x, flag1.y);
                         curNar = narQueue[3];
                         speech = curNar.shift();
                         tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
@@ -604,7 +613,7 @@
                 }
             }
 
-            else if (gameObject.name = 'textBtn'){   //###
+            else if (gameObject.name = 'textBtn'){
                 if (curNar.length != 0){
                     speech = curNar.shift();
                     tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
@@ -901,7 +910,7 @@
             }
         });
 
-        if (allMoved == true) //activate farmers
+        if (allMoved == true) //activate farmers if bugs have moved
         {
             tutorial.bugsMoved = true;
 
@@ -922,37 +931,31 @@
                 cowhand.visible = true;
             });
         }
-        else {
-            console.log('a farmer is still alive');//?
-        }
     }
 
     tutorial.checkActFlags = function(){
         var numCowhandsAlive = tutorial.cowhands.getChildren().length;
         if (numCowhandsAlive == 0){
             tutorial.cowhandsDead = true;
-            /*
-            tutorial.flags.getChildren().forEach(flag =>{
+            
+            tutorial.objectives.getChildren().forEach(flag =>{
                 flag.setInteractive();
                 flag.visible = true;
             });
-            */ 
-        }
-        else {
-            console.log('a cowhand is still alive');//?
         }
     }
 
-    //Makes a text box with progression button and image of speaker ###
+    //Makes a text box with progression button and image of speaker
     tutorial.makeTextBox = function (imageName, orientation = 'left', text, end = false){
-        console.log('imagename:', imageName, '\norientation:', orientation, '\ntext', '\nend:', end);//?
-
+        
+        //Arrange textbox images so that speaker is on the left
         if (orientation == 'left'){
             tutorial.speaker.setPosition(0, 472).setFlipX(false);
             tutorial.textBtn.setPosition(768, 568).setInteractive();
             tutorial.text.setPosition(128, 472);
             tutorial.nextTurn.setPosition(0, 504);
         } 
+        //Arrange textbox images so that the speaker is on the right
         else if (orientation == 'right'){
             tutorial.speaker.setPosition(672, 472).setFlipX(true);
             tutorial.textBtn.setPosition(640, 568);
@@ -971,14 +974,15 @@
         tutorial.nextTurn.visible = false;
         tutorial.nextTurn.disableInteractive();
 
+        //There is no speaker image when instructions are given
         if (imageName == 'instructions'){
             tutorial.speaker.visible = false;
             
-            if (end == true){
+            if (end == true){   //disable text button at the end of a narrative script
                 tutorial.textBtn.visible = false;
                 tutorial.textBtn.disableInteractive();
 
-                if (tutorial.bugsMoved == true){
+                if (tutorial.bugsMoved == true){    //Player can click next turn after learning to move the bugs
                     tutorial.nextTurn.visible = true;
                     tutorial.nextTurn.setInteractive();
                 }

@@ -106,7 +106,7 @@ Stage1.key = 'stage1'
 
         //used for consume function
         Stage1.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => {Stage1.eatMode = true; this.input.setDefaultCursor('url(./src/sprites/eat.cur), pointer');});
+        this.input.keyboard.on('keydown-E', () => Stage1.eatMode = true);
 
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
@@ -220,7 +220,6 @@ Stage1.key = 'stage1'
             con.add(con.bar);
 
             con.name = "bug";
-            con.setDepth(1);
             con.spr.setDepth(1);
             con.bar.setDepth(2);
             con.spr.setOrigin(0);
@@ -472,7 +471,7 @@ Stage1.key = 'stage1'
                         Stage1.paths = [];
                     }
                 }
-                Stage1.moveTiles.clear(true, true); //get rid of move tiles
+                Stage1.moveTiles.clear(true); //get rid of move tiles
             }
 
             //end turn
@@ -507,7 +506,7 @@ Stage1.key = 'stage1'
                 if (distanceS < attackRangeS && bug.spent != true){
                     Stage1.aimcone.setVisible(false);//no ghost aimcones
 
-                    Stage1.moveTiles.clear(true, true); //get rid of move tiles
+                    Stage1.moveTiles.clear(true); //get rid of move tiles
                     Stage1.paths = [];
         
                     bug.spent = true;
@@ -527,17 +526,14 @@ Stage1.key = 'stage1'
                         Stage1.spawn(gameObject);
                         gameObject.destroy();
                     }
+                    
                     //objectives check
-                    if (Stage1.objectives.getChildren().length == 0){
-                        Stage1.music.stop();                      
-                        game.scene.stop('stage1');
-                        game.scene.start('win');
-                        
+                    if (Stage1.objectives.children.length == 0){
+                        alert('You Win');
                     }
                 }
             }
             Stage1.eatMode = false; //resets eatMode after a click
-            Stage1.scene.input.setDefaultCursor('default');
         }, Stage1);
 
         //Periodically play environmental noises
@@ -632,7 +628,7 @@ Stage1.key = 'stage1'
             });
         }
         timeline.play();
-        Stage1.moveTiles.clear(true, true);
+        Stage1.moveTiles.clear(true);
     }
 
     Stage1.update = function(time, delta){
@@ -692,7 +688,6 @@ Stage1.key = 'stage1'
             con.name = "bug";
             con.spr.setDepth(1);
             con.bar.setDepth(2);
-            con.setDepth(1);
             con.spr.setOrigin(0);
             con.bar.setOrigin(0);
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
@@ -732,40 +727,32 @@ Stage1.key = 'stage1'
                 setTimeout(function(){
                     Stage1.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
-                },  900*i, cowhand);
+                }, 1000 + 4000*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
-                }, 300 + 900*i, cowhand);
+                }, 2000 + 4000*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     Stage1.updateHealth(alien); // update the healthbar to show the damage
                     //alien.spr.setTint(0xe36d59);
-                }, 600 + 900*i, alien);
+                }, 3000 + 4000*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
-                        //checks to see if that was the last alien. If so, you lose
-                        if(Stage1.bugs.getChildren().length == 0){
-                            //Stage1.scene.registry.destroy();
-                            //Stage1.scene.events.off();
-                            Stage1.music.stop();
-                            game.scene.stop('stage1');
-                            game.scene.start('lose');
-                        }
                     }
-                }, 900 + 900*i)
+                }, 4000 + 4000*i)
 
                 //Re-enable player input after shooting finishes
                 if (i == shotHitPairs.length - 1){
                     setTimeout(function(){
                         Stage1.scene.input.enabled = true;
-                    }, 900 + 900*i);
+                    }, 4000 + 4000*i);
                 }
             } 
         }
@@ -805,6 +792,22 @@ Stage1.key = 'stage1'
                 tar = targets2[rand];
                 pair = {shooter: cowhand, target: tar};
                 cowhandShots.push(pair);
+                /*
+                var enemyInterval = setInterval(function(){
+                    let rand = Math.floor(Math.random()*targets2.length); //Randomly selects a target
+                    //damage that target
+                    tar = targets2[rand];
+                    Stage1.cam.centerOn(tar.x, tar.y);
+                    tar.health -= 1;
+                    Stage1.updateHealth(tar); // update the healthbar to show the damage
+                    //tar.setTint(0xe36d59);
+                    Stage1.playSound('shoot');
+                    if (tar.health < 1){
+                        tar.destroy();
+                    }
+                }, 200)
+                setTimeout(() => {clearInterval(enemyInterval);}, 200 * targets2.length);
+                */
             } 
             else{ //Only rotate if no contacts
                 var randInt03 = Math.floor(Math.random()*4); //Randomly selects 0, 1, 2, or 3

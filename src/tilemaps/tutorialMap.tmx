@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="12" nextobjectid="211">
+<map version="1.4" tiledversion="2020.09.22" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="13" nextobjectid="214">
  <editorsettings>
   <export target="tutorialMap.json" format="json"/>
  </editorsettings>
@@ -114,6 +114,10 @@
  <objectgroup id="8" name="cowhand">
   <object id="150" gid="9" x="768" y="128" width="32" height="32"/>
   <object id="151" gid="9" x="768" y="160" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup id="12" name="objective">
+  <object id="211" gid="40" x="129" y="417" width="32" height="32"/>
+  <object id="212" gid="40" x="193" y="416" width="32" height="32"/>
  </objectgroup>
  <layer id="9" name="top" width="48" height="22" opacity="0.31">
   <data encoding="csv">

@@ -818,42 +818,34 @@
                 setTimeout(function(){
                     tutorial.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
-                },  900*i, cowhand);
+                }, 1000 + 4000*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
-                }, 300 + 900*i, cowhand);
+                }, 2000 + 4000*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     tutorial.updateHealth(alien); // update the healthbar to show the damage
                     //alien.spr.setTint(0xe36d59);
-                }, 600 + 900*i, alien);
+                }, 3000 + 4000*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
-                        //checks to see if that was the last alien. If so, you lose
-                        if(tutorial.bugs.getChildren().length == 0){
-                            //tutorial.scene.registry.destroy();
-                            //tutorial.scene.events.off();
-                            tutorial.music.stop();
-                            game.scene.stop('stage1');
-                            game.scene.start('lose');
-                        }
                     }
-                }, 900 + 900*i)
+                }, 4000 + 4000*i)
 
                 //Re-enable player input after shooting finishes
                 if (i == shotHitPairs.length - 1){
                     setTimeout(function(){
                         tutorial.scene.input.enabled = true;
-                    }, 900 + 900*i);
+                    }, 4000 + 4000*i);
                 }
-            } 
+            }
         }
         else{
             tutorial.scene.input.enabled = true;

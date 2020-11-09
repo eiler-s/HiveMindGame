@@ -140,7 +140,6 @@
         tutorial.sfx.train = tutorial.scene.sound.add('train', {volume: 0.1});
 
         //Define user turn, selected unit, and path storage
-        tutorial.myTurn = true;
         tutorial.currentBug = null;
         tutorial.paths = [];
 
@@ -374,7 +373,6 @@
                 if (this.dir == 3){
                     tutorial.aimcone.setRotation(0.5*3.14159).setPosition(this.x+16, this.y-48);
                 }
-                //console.log(this.dir);
             });
             obj.on('pointerout', function (pointer) {
                tutorial.aimcone.setVisible(false);
@@ -471,13 +469,10 @@
         tutorial.finder.setAcceptableTiles(tutorial.acceptableTiles);
 
         //CLICK LISTNER
-        this.input.on('gameobjectdown', function (pointer, gameObject) {
+        tutorial.scene.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.name != null || gameObject.name != undefined){
-                console.log("game object clicked:", gameObject.name);    //###
-            }
 
-            if (gameObject.name == 'bug' && gameObject.spent == false && tutorial.myTurn && tutorial.currentBug == null){
+            if (gameObject.name == 'bug' && gameObject.spent == false && tutorial.currentBug == null){
                 tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.currentBug = gameObject;
                 tutorial.map.setLayer('terrain');
@@ -508,7 +503,7 @@
                 }
             }
             //If the player has already selected a unit, show available move tiles
-            else if (gameObject.name == 'red' && tutorial.myTurn){
+            else if (gameObject.name == 'red'){
                 //Check each availble path to see if selected tile is in range
                 for (var i = 0; i < tutorial.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
@@ -519,7 +514,6 @@
                         //If all of the bugs have moved, activate the farmers
                         if (tutorial.bugsMoved == false){
                             tutorial.checkActFarmers();
-                            console.log('bugsMoved2:', tutorial.bugsMoved);
 
                             if (tutorial.bugsMoved == true){ //once bugs have moved, go to next narrative phase
                                 farmer1 = tutorial.farmers.getChildren()[0];
@@ -537,7 +531,7 @@
             }
 
             //end turn
-            else if (gameObject.name == 'nextTurn' && tutorial.myTurn){
+            else if (gameObject.name == 'nextTurn'){
                 tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.endTurn();
             }
@@ -554,7 +548,7 @@
             //  Swarmed the six hundred
         
             //If the player moves the bug to a human then the human will be killed
-            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && tutorial.myTurn && tutorial.currentBug != null && !tutorial.currentBug.inMotion){
+            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && tutorial.currentBug != null && !tutorial.currentBug.inMotion){
                 let bug = tutorial.currentBug;
 
                 let attackRange = 1.8;
@@ -800,14 +794,13 @@
     }
 
     tutorial.endTurn = function(){
-        tutorial.myTurn = false;
+        tutorial.scene.input.enabled = false;
         tutorial.returnFire();
 
         tutorial.bugs.getChildren().forEach(bug =>{
             bug.spent = false;
             bug.spr.clearTint();
         });
-        tutorial.myTurn = true;
     }
 
     tutorial.returnFire = function(){
@@ -845,6 +838,13 @@
                         alien.destroy();
                     }
                 }, 4000 + 4000*i)
+
+                //Re-enable player input after shooting finishes
+                if (i == shotHitPairs.length - 1){
+                    setTimeout(function(){
+                        tutorial.scene.input.enabled = true;
+                    }, 4000 + 4000*i);
+                }
             }
         }
     }
@@ -866,10 +866,8 @@
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
                     //0,1,2,3 | down, left, right, up
-                    //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
                     if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) 
                         || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 0)){
-                        //console.log("you are one ugly motherfucker")
                         targets2.push(tar);
                     }
                 }

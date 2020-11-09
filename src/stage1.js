@@ -128,7 +128,6 @@ Stage1.key = 'stage1'
         Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
 
         //Define user turn, selected unit, and path storage
-        Stage1.myTurn = true;
         Stage1.currentBug = null;
         Stage1.paths = [];
 
@@ -403,7 +402,7 @@ Stage1.key = 'stage1'
 
         //Camera moves when marker is outside dead zone
         Stage1.cam = this.cameras.main;
-        tutorial.cam.setPosition(0, 0);
+        Stage1.cam.setPosition(0, 0);
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, (48)*32, 22*32);
@@ -430,9 +429,9 @@ Stage1.key = 'stage1'
         Stage1.finder.setAcceptableTiles(Stage1.acceptableTiles);
 
         //CLICK LISTNER
-        this.input.on('gameobjectdown', function (pointer, gameObject) {
+        Stage1.scene.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
-            if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.myTurn && Stage1.currentBug == null){
+            if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.currentBug == null){
                 Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
@@ -463,7 +462,7 @@ Stage1.key = 'stage1'
                 }
             }
             //If the player has already selected a unit, show available move tiles
-            else if (gameObject.name == 'red' && Stage1.myTurn){
+            else if (gameObject.name == 'red'){
                 //Check each availble path to see if selected tile is in range
                 for (var i = 0; i < Stage1.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
@@ -476,7 +475,7 @@ Stage1.key = 'stage1'
             }
 
             //end turn
-            else if (gameObject.name == 'nextTurn' && Stage1.myTurn){
+            else if (gameObject.name == 'nextTurn'){
                 Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.endTurn();
             }
@@ -493,7 +492,7 @@ Stage1.key = 'stage1'
             //  Swarmed the six hundred
         
             //If the player moves the bug to a human then the human will be killed
-            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && Stage1.myTurn && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
+            else if ((gameObject.name == 'cowhand' || gameObject.name == 'farmer' || gameObject.name == 'objective') && Stage1.currentBug != null && !Stage1.currentBug.inMotion){
                 let bug = Stage1.currentBug;
 
                 let attackRange = 1.8;
@@ -514,17 +513,17 @@ Stage1.key = 'stage1'
                     bug.spr.setTint(0x808080);
                     Stage1.currentBug = null;
                     if(gameObject.name != 'objective'){
-                        tutorial.playSound('cowhandDeath');
+                        Stage1.playSound('cowhandDeath');
                     }
 
                     if (gameObject.name == 'objective'){
                         gameObject.destroy();
                     }
-                    else if (tutorial.eatMode){
-                        tutorial.consume(gameObject, bug);
+                    else if (Stage1.eatMode){
+                        Stage1.consume(gameObject, bug);
                     }
                     else{
-                        tutorial.spawn(gameObject);
+                        Stage1.spawn(gameObject);
                         gameObject.destroy();
                     }
                     
@@ -704,14 +703,13 @@ Stage1.key = 'stage1'
     }
 
     Stage1.endTurn = function(){
-        Stage1.myTurn = false;
+        Stage1.scene.input.enabled = false;
         Stage1.returnFire();
 
         Stage1.bugs.getChildren().forEach(bug =>{
             bug.spent = false;
             bug.spr.clearTint();
         });
-        Stage1.myTurn = true;
     }
 
     Stage1.returnFire = function(){
@@ -749,7 +747,17 @@ Stage1.key = 'stage1'
                         alien.destroy();
                     }
                 }, 4000 + 4000*i)
-            }
+
+                //Re-enable player input after shooting finishes
+                if (i == shotHitPairs.length - 1){
+                    setTimeout(function(){
+                        Stage1.scene.input.enabled = true;
+                    }, 4000 + 4000*i);
+                }
+            } 
+        }
+        else{
+            Stage1.scene.input.enabled = true;
         }
     }
     

@@ -513,13 +513,18 @@ Stage1.key = 'stage1'
                     bug.spent = true;
                     bug.spr.setTint(0x808080);
                     Stage1.currentBug = null;
-                    Stage1.playSound('cowhandDeath');
+                    if(gameObject.name != 'objective'){
+                        tutorial.playSound('cowhandDeath');
+                    }
 
-                    if (Stage1.eatMode){
-                        Stage1.consume(gameObject, bug);
+                    if (gameObject.name == 'objective'){
+                        gameObject.destroy();
+                    }
+                    else if (tutorial.eatMode){
+                        tutorial.consume(gameObject, bug);
                     }
                     else{
-                        Stage1.spawn(gameObject);
+                        tutorial.spawn(gameObject);
                         gameObject.destroy();
                     }
                     

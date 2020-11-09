@@ -246,16 +246,16 @@
         });
 
         //Start tutorial narative
-        var curNar = narQueue[0];
-        var speech = curNar.shift();
+        tutorial.curNar = narQueue[0];
+        tutorial.speech = tutorial.curNar.shift();
 
         //Create textbox images
         tutorial.textbox = this.add.rectangle(0, 472, 800, 228, 0x696969).setDepth(3).setScrollFactor(0).setOrigin(0,0);
 
-        tutorial.speaker = this.add.image(0, 472, speech.speaker).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+        tutorial.speaker = this.add.image(0, 472, tutorial.speech.speaker).setDepth(3).setScrollFactor(0).setOrigin(0,0);
         tutorial.speaker.visible = false;
 
-        tutorial.text = this.add.text(128, 472, speech.text).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+        tutorial.text = this.add.text(128, 472, tutorial.speech.text).setDepth(3).setScrollFactor(0).setOrigin(0,0);
 
         tutorial.textBtn = this.add.sprite(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive().setOrigin(0,0);
         tutorial.textBtn.name = 'textBtn';
@@ -267,7 +267,7 @@
             frameRate: 2,
             repeat: -1
         });
-        this.anims.play('aDown', [tutorial.textBtn]);
+        tutorial.textBtn.anims.play('aDown');
 
         //Variables that activate tutorial events (make sets of characters visible/interactive)
         tutorial.bugsMoved = false;
@@ -523,10 +523,12 @@
 
                             if (tutorial.bugsMoved == true){ //once bugs have moved, go to next narrative phase
                                 farmer1 = tutorial.farmers.getChildren()[0];
-                                tutorial.cam.centerOn(farmer1.x, farmer1.y);
-                                curNar = narQueue[1];
-                                speech = curNar.shift();
-                                tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                                setTimeout(function(){
+                                    tutorial.cam.centerOn(farmer1.x, farmer1.y);
+                                    tutorial.curNar = narQueue[1];
+                                    tutorial.speech = tutorial.curNar.shift();
+                                    tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
+                                }, 2000);
                             }
                         }
                     }
@@ -572,9 +574,14 @@
                     bug.spent = true;
                     bug.spr.setTint(0x808080);
                     tutorial.currentBug = null;
-                    tutorial.playSound('cowhandDeath');
+                    if(gameObject.name != 'objective'){
+                        tutorial.playSound('cowhandDeath');
+                    }
 
-                    if (tutorial.eatMode){
+                    if (gameObject.name == 'objective'){
+                        gameObject.destroy();
+                    }
+                    else if (tutorial.eatMode){
                         tutorial.consume(gameObject, bug);
                     }
                     else{
@@ -594,10 +601,12 @@
 
                     if (tutorial.farmersDead == true){   //move along narrative if last farmer just killed
                         cowhand1 = tutorial.cowhands.getChildren()[0];
-                        tutorial.cam.centerOn(cowhand1.x, cowhand1.y);
-                        curNar = narQueue[2];
-                        speech = curNar.shift();
-                        tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                        setTimeout(function(){
+                            tutorial.cam.centerOn(cowhand1.x, cowhand1.y);
+                            tutorial.curNar = narQueue[2];
+                            tutorial.speech = tutorial.curNar.shift();
+                            tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
+                        }, 2000);
                     }
                 } 
                 else if (tutorial.cowhandsDead == false){
@@ -605,18 +614,20 @@
 
                     if (tutorial.cowhandsDead == true){
                         flag1 = tutorial.objectives.getChildren()[0];
-                        tutorial.cam.centerOn(flag1.x, flag1.y);
-                        curNar = narQueue[3];
-                        speech = curNar.shift();
-                        tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+                        setTimeout(function(){
+                            tutorial.cam.centerOn(flag1.x, flag1.y);
+                            tutorial.curNar = narQueue[3];
+                            tutorial.speech = tutorial.curNar.shift();
+                            tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
+                        }, 2000);
                     }
                 }
             }
 
-            else if (gameObject.name = 'textBtn'){
-                if (curNar.length != 0){
-                    speech = curNar.shift();
-                    tutorial.makeTextBox(speech.speaker, speech.orientation, speech.text, speech.end);
+            else if (gameObject.name == 'textBtn'){
+                if (tutorial.curNar.length != 0){
+                    tutorial.speech = tutorial.curNar.shift();
+                    tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
                 }
             }
             tutorial.eatMode = false; //resets eatMode after a click

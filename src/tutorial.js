@@ -230,10 +230,10 @@
             con.bar = this.add.sprite(0,32,"bar");
             con.add(con.spr);
             con.add(con.bar);
-
             con.name = "bug";
             con.spr.setDepth(1);
             con.bar.setDepth(2);
+            con.setDepth(1);
             con.spr.setOrigin(0);
             con.bar.setOrigin(0);
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);

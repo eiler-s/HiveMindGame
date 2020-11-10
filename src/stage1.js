@@ -722,8 +722,8 @@ Stage1.key = 'stage1'
     Stage1.returnFire = function(){
         let shotHitPairs = Stage1.getCowhandShots();
         if (shotHitPairs.length > 0){
-
-            for (let i = 0; i < shotHitPairs.length; i++){
+            let i = 0;
+            for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
@@ -764,12 +764,11 @@ Stage1.key = 'stage1'
                 }, 900 + 900*i)
 
                 //Re-enable player input after shooting finishes
-                if (i == shotHitPairs.length - 1){
-                    setTimeout(function(){
-                        Stage1.scene.input.enabled = true;
-                    }, 900 + 900*i);
-                }
+                
             } 
+            setTimeout(function(){
+                Stage1.scene.input.enabled = true;
+            }, 900 + 900*i);
         }
         else{
             Stage1.scene.input.enabled = true;

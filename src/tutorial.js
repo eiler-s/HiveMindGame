@@ -230,10 +230,10 @@
             con.bar = this.add.sprite(0,32,"bar");
             con.add(con.spr);
             con.add(con.bar);
-
             con.name = "bug";
             con.spr.setDepth(1);
             con.bar.setDepth(2);
+            con.setDepth(1);
             con.spr.setOrigin(0);
             con.bar.setOrigin(0);
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
@@ -818,34 +818,42 @@
                 setTimeout(function(){
                     tutorial.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
-                }, 1000 + 4000*i, cowhand);
+                },  900*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
-                }, 2000 + 4000*i, cowhand);
+                }, 300 + 900*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     tutorial.updateHealth(alien); // update the healthbar to show the damage
                     //alien.spr.setTint(0xe36d59);
-                }, 3000 + 4000*i, alien);
+                }, 600 + 900*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
+                        //checks to see if that was the last alien. If so, you lose
+                        if(tutorial.bugs.getChildren().length == 0){
+                            //tutorial.scene.registry.destroy();
+                            //tutorial.scene.events.off();
+                            tutorial.music.stop();
+                            game.scene.stop('stage1');
+                            game.scene.start('lose');
+                        }
                     }
-                }, 4000 + 4000*i)
+                }, 900 + 900*i)
 
                 //Re-enable player input after shooting finishes
                 if (i == shotHitPairs.length - 1){
                     setTimeout(function(){
                         tutorial.scene.input.enabled = true;
-                    }, 4000 + 4000*i);
+                    }, 900 + 900*i);
                 }
-            }
+            } 
         }
         else{
             tutorial.scene.input.enabled = true;

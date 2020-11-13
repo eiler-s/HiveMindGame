@@ -21,6 +21,7 @@ Menu.create = function() {
             game.scene.start('tutorial');
         }
         else if (gameObject.name == 'notutorial'){
+            game.scene.stop('menu');
             game.scene.start('stage1');
         }
     }, Menu);

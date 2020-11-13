@@ -761,7 +761,10 @@ Stage1.key = 'stage1'
                             game.scene.start('lose');
                         }
                     }
-                }, 900 + 900*i);
+                }, 900 + 900*i)
+
+                //Re-enable player input after shooting finishes
+                
             } 
             setTimeout(function(){
                 Stage1.scene.input.enabled = true;

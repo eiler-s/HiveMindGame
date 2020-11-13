@@ -247,9 +247,10 @@
         //Start tutorial narative
         tutorial.curNar = narQueue[0];
         tutorial.speech = tutorial.curNar.shift();
-
+        graphics = this.add.graphics();
         //Create textbox images
         tutorial.textbox = this.add.rectangle(0, 472, 800, 228, 0x696969).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+        
 
         tutorial.speaker = this.add.image(0, 472, tutorial.speech.speaker).setDepth(3).setScrollFactor(0).setOrigin(0,0);
         tutorial.speaker.visible = false;
@@ -258,7 +259,6 @@
 
         tutorial.textBtn = this.add.sprite(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive().setOrigin(0,0);
         tutorial.textBtn.name = 'textBtn';
-
         //Create animation for narration button
         this.anims.create({
             key: 'aDown',
@@ -447,9 +447,9 @@
         //Camera moves when marker is outside dead zone
         tutorial.cam = this.cameras.main;
         tutorial.cam.centerOn(0, 0);
-        //tutorial.cam.setDeadzone(700,500);
-        //tutorial.cam.startFollow(tutorial.marker, true);
-        tutorial.cam.setBounds(0,0, 48*32, 22*32);
+        tutorial.cam.startFollow(tutorial.marker, true);
+        tutorial.cam.setDeadzone(700, 500);
+        tutorial.cam.setBounds(0,0, 29*32, 15*32);
         
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
@@ -575,6 +575,8 @@
                     }
 
                     if (gameObject.name == 'objective'){
+                        tutorial.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+                        tutorial.finder.setGrid(tutorial.terrainGrid);
                         gameObject.destroy();
                     }
                     else if (tutorial.eatMode){
@@ -727,14 +729,19 @@
     tutorial.update = function(time, delta){
         tutorial.controls.update(delta)
         var worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
-
+        
         //Rounds the cursor location to the nearest tile
         var pointerTileX = tutorial.map.worldToTileX(worldPoint.x);
         var pointerTileY = tutorial.map.worldToTileY(worldPoint.y);
-
+        if (pointerTileX >= 0/32 && pointerTileY >= 472/32){
+            tutorial.cam.stopFollow();
+        }
+        else{
+            tutorial.cam.startFollow(tutorial.marker, true);
+        }
         //Places the marker around the selected tile
         tutorial.marker.x = tutorial.map.tileToWorldX(pointerTileX);
-        tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);
+        tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);        
     }
 
     //Returns the ID of a tile at a given coordinate

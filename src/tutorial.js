@@ -319,6 +319,8 @@
         tutorial.cowhandLayer.forEach(object => {
             //selects the gender of the cowhands
             tutorial.genderCount ++;
+            var gender;
+            var prefix;
             if (tutorial.genderCount == 1){
                 gender = "cowboy";
                 prefix = "cb";
@@ -326,7 +328,6 @@
                 gender = "cowgirl";
                 prefix = "cg";
             }
-            
             //create cowhand and identify position on grid
             let obj = tutorial.cowhands.create(object.x, object.y - object.height, gender);
             obj.name = "cowhand";
@@ -386,6 +387,7 @@
         //Instantiate the farmers on the map
         tutorial.farmerLayer.forEach(object => {
             //select the gender of the farmers
+            var gender;
             tutorial.genderCount ++;
             if (tutorial.genderCount == 3){
                 gender = "farmer";

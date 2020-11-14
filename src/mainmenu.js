@@ -18,6 +18,7 @@ Menu.create = function() {
     Menu.notutorial = this.add.image(400, 420, 'notutorial').setName('notutorial').setScale(2).setInteractive();
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'tutorial'){
+            game.scene.stop('menu');
             game.scene.start('tutorial');
         }
         else if (gameObject.name == 'notutorial'){

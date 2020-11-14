@@ -534,7 +534,6 @@ Stage1.key = 'stage1'
                         Stage1.music.stop();                      
                         game.scene.stop('stage1');
                         game.scene.start('win');
-                        
                     }
                 }
             }
@@ -761,10 +760,7 @@ Stage1.key = 'stage1'
                             game.scene.start('lose');
                         }
                     }
-                }, 900 + 900*i)
-
-                //Re-enable player input after shooting finishes
-                
+                }, 900 + 900*i);
             } 
             setTimeout(function(){
                 Stage1.scene.input.enabled = true;

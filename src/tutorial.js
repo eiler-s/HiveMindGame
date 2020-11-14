@@ -257,6 +257,7 @@
         tutorial.text = this.add.text(128, 472, tutorial.speech.text).setDepth(3).setScrollFactor(0).setOrigin(0,0);
 
         tutorial.textBtn = this.add.sprite(768, 568, 'arrows').setDepth(3).setScrollFactor(0).setInteractive().setOrigin(0,0);
+        tutorial.textBtn.setPosition(640, 568);
         tutorial.textBtn.name = 'textBtn';
 
         //Create animation for narration button
@@ -568,6 +569,7 @@
                     bug.spent = true;
                     bug.spr.setTint(0x808080);
                     tutorial.currentBug = null;
+
                     if(gameObject.name != 'objective'){
                         tutorial.playSound('cowhandDeath');
                     }
@@ -582,10 +584,12 @@
                         tutorial.spawn(gameObject);
                         gameObject.destroy();
                     }
-                    
+                    console.log('num obj:', tutorial.objectives.getChildren().length);//###
                     //objectives check
-                    if (tutorial.objectives.children.length == 0){
-                        alert('You Win');
+                    if (tutorial.objectives.getChildren().length == 0){
+                        tutorial.music.stop();                      
+                        game.scene.stop('tutorial');
+                        game.scene.start('win');
                     }
                 }
 
@@ -600,7 +604,7 @@
                             tutorial.curNar = narQueue[2];
                             tutorial.speech = tutorial.curNar.shift();
                             tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
-                        }, 2000);
+                        }, 1000);
                     }
                 } 
                 else if (tutorial.cowhandsDead == false){
@@ -613,7 +617,7 @@
                             tutorial.curNar = narQueue[3];
                             tutorial.speech = tutorial.curNar.shift();
                             tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
-                        }, 2000);
+                        }, 1000);
                     }
                 }
             }
@@ -806,8 +810,8 @@
     tutorial.returnFire = function(){
         let shotHitPairs = tutorial.getCowhandShots();
         if (shotHitPairs.length > 0){
-
-            for (let i = 0; i < shotHitPairs.length; i++){
+            let i = 0;
+            for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
@@ -838,22 +842,16 @@
                         alien.destroy();
                         //checks to see if that was the last alien. If so, you lose
                         if(tutorial.bugs.getChildren().length == 0){
-                            //tutorial.scene.registry.destroy();
-                            //tutorial.scene.events.off();
                             tutorial.music.stop();
-                            game.scene.stop('stage1');
+                            game.scene.stop('tutorial');
                             game.scene.start('lose');
                         }
                     }
-                }, 900 + 900*i)
-
-                //Re-enable player input after shooting finishes
-                if (i == shotHitPairs.length - 1){
-                    setTimeout(function(){
-                        tutorial.scene.input.enabled = true;
-                    }, 900 + 900*i);
-                }
-            } 
+                }, 900 + 900*i);
+            }
+            setTimeout(function(){
+                tutorial.scene.input.enabled = true;
+            }, 900 + 900*i);
         }
         else{
             tutorial.scene.input.enabled = true;
@@ -971,14 +969,12 @@
         //Arrange textbox images so that speaker is on the left
         if (orientation == 'left'){
             tutorial.speaker.setPosition(0, 472).setFlipX(false);
-            tutorial.textBtn.setPosition(768, 568).setInteractive();
             tutorial.text.setPosition(128, 472);
             tutorial.nextTurn.setPosition(0, 504);
         } 
         //Arrange textbox images so that the speaker is on the right
         else if (orientation == 'right'){
             tutorial.speaker.setPosition(672, 472).setFlipX(true);
-            tutorial.textBtn.setPosition(640, 568);
             tutorial.text.setPosition(0, 472);
             tutorial.nextTurn.setPosition(672, 504);
         }

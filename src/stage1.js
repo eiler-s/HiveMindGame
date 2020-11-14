@@ -534,7 +534,6 @@ Stage1.key = 'stage1'
                         Stage1.music.stop();                      
                         game.scene.stop('stage1');
                         game.scene.start('win');
-                        
                     }
                 }
             }

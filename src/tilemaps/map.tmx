@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="13" nextobjectid="210">
+<map version="1.4" tiledversion="2020.09.22" orientation="orthogonal" renderorder="right-down" width="48" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="13" nextobjectid="210">
  <editorsettings>
   <export target="map.json" format="json"/>
  </editorsettings>
@@ -223,6 +223,6 @@
 </data>
  </layer>
  <objectgroup id="10" name="bug">
-  <object id="204" gid="11" x="32" y="128" width="32" height="32"/>
+  <object id="204" gid="11" x="96.1871" y="385.635" width="32" height="32"/>
  </objectgroup>
 </map>

@@ -411,10 +411,11 @@ Stage1.key = 'stage1'
 
         //Camera moves when marker is outside dead zone
         Stage1.cam = this.cameras.main;
-        Stage1.cam.setPosition(0, 0);
+        Stage1.cam.centerOn(44*32, 11*32);
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
         Stage1.cam.setBounds(0,0, 48*32, 22*32);
+        Stage1.cam.pan(4*32, 11*32, 2000);
         //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
 

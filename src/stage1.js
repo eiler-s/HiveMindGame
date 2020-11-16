@@ -736,6 +736,8 @@ Stage1.key = 'stage1'
 
     Stage1.endTurn = function(){
         Stage1.scene.input.enabled = false;
+        Stage1.nextTurn.setTintFill(0xffffff);
+        setTimeout(function(){ Stage1.nextTurn.clearTint(); }, 300);
         let waitTime = Stage1.returnFire();
 
         setTimeout(function(){

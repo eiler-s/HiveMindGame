@@ -14,8 +14,12 @@ Lose.create = function() {
     Lose.playAgain = this.add.image(400, 300, 'playAgainButton').setName('playAgain').setScale(2).setInteractive();
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'playAgain'){
-            game.scene.stop('lose');
-            game.scene.start('menu');
+            Lose.playAgain.setTintFill(0xffffff);
+            setTimeout(function(){ Lose.playAgain.clearTint(); }, 300);
+            setTimeout(function(){
+                game.scene.stop('lose');
+                game.scene.start('menu');
+            }, 600);
         }
     }, Lose);
 }

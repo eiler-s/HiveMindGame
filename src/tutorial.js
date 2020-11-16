@@ -448,7 +448,6 @@
         //Camera moves when marker is outside dead zone
         tutorial.cam = this.cameras.main;
         tutorial.cam.centerOn(0, 0);
-        tutorial.cam.startFollow(tutorial.marker, true);
         tutorial.cam.setDeadzone(700, 500);
         tutorial.cam.setBounds(0,0, 25*32, 15*32);
         //tutorial.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
@@ -523,7 +522,7 @@
                             if (tutorial.bugsMoved == true){ //once bugs have moved, go to next narrative phase
                                 farmer1 = tutorial.farmers.getChildren()[0];
                                 setTimeout(function(){
-                                    tutorial.cam.centerOn(farmer1.x, farmer1.y);
+                                    tutorial.cam.pan(farmer1.x, farmer1.y, 1000);
                                     tutorial.curNar = narQueue[1];
                                     tutorial.speech = tutorial.curNar.shift();
                                     tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
@@ -606,7 +605,7 @@
                     if (tutorial.farmersDead == true){   //move along narrative if last farmer just killed
                         cowhand1 = tutorial.cowhands.getChildren()[0];
                         setTimeout(function(){
-                            tutorial.cam.centerOn(cowhand1.x, cowhand1.y);
+                            tutorial.cam.pan(cowhand1.x, cowhand1.y,1000);
                             tutorial.curNar = narQueue[2];
                             tutorial.speech = tutorial.curNar.shift();
                             tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
@@ -619,7 +618,7 @@
                     if (tutorial.cowhandsDead == true){
                         flag1 = tutorial.objectives.getChildren()[0];
                         setTimeout(function(){
-                            tutorial.cam.centerOn(flag1.x, flag1.y);
+                            tutorial.cam.pan(flag1.x, flag1.y,1000);
                             tutorial.curNar = narQueue[3];
                             tutorial.speech = tutorial.curNar.shift();
                             tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
@@ -629,10 +628,14 @@
             }
 
             else if (gameObject.name == 'textBtn'){
-                if (tutorial.curNar.length != 0){
-                    tutorial.speech = tutorial.curNar.shift();
-                    tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
-                }
+                tutorial.textBtn.setTintFill(0xffffff);
+                setTimeout(function(){ tutorial.textBtn.clearTint(); }, 300);
+                setTimeout(function(){
+                    if (tutorial.curNar.length != 0){
+                        tutorial.speech = tutorial.curNar.shift();
+                        tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
+                    }
+                }, 600);
             }
             tutorial.eatMode = false; //resets eatMode after a click
         }, tutorial);
@@ -810,6 +813,8 @@
 
     tutorial.endTurn = function(){
         tutorial.scene.input.enabled = false;
+        tutorial.nextTurn.setTintFill(0xffffff);
+        setTimeout(function(){ Stage1.tutorial.clearTint(); }, 300);
         let waitTime = tutorial.returnFire();
 
         setTimeout(function(){
@@ -1005,8 +1010,14 @@
             tutorial.nextTurn.setPosition(672, 504);
         }
 
-        tutorial.speaker.visible = true;
-        tutorial.speaker.setTexture(imageName);
+        //There is no speaker image when instructions are given
+        if (imageName == 'instructions'){
+            tutorial.speaker.visible = false;
+        }
+        else{
+            tutorial.speaker.visible = true;
+            tutorial.speaker.setTexture(imageName);
+        }
 
         tutorial.textBtn.visible = true;
         tutorial.textBtn.setInteractive();
@@ -1015,19 +1026,14 @@
 
         tutorial.nextTurn.visible = false;
         tutorial.nextTurn.disableInteractive();
-
-        //There is no speaker image when instructions are given
-        if (imageName == 'instructions'){
-            tutorial.speaker.visible = false;
             
-            if (end == true){   //disable text button at the end of a narrative script
-                tutorial.textBtn.visible = false;
-                tutorial.textBtn.disableInteractive();
+        if (end == true){   //disable text button at the end of a narrative script
+            tutorial.textBtn.visible = false;
+            tutorial.textBtn.disableInteractive();
 
-                if (tutorial.bugsMoved == true){    //Player can click next turn after learning to move the bugs
-                    tutorial.nextTurn.visible = true;
-                    tutorial.nextTurn.setInteractive();
-                }
+            if (tutorial.bugsMoved == true){    //Player can click next turn after learning to move the bugs
+                tutorial.nextTurn.visible = true;
+                tutorial.nextTurn.setInteractive();
             }
         }
     }
@@ -1088,11 +1094,11 @@
             orientation: 'left',
             end: true,
             text: "Instructions:\n"+
-            "Use the cursor keys to move the camera around the map.\n"+
-            "Left-click on an alien to see where it can move.\n"+
-            "Available move positions are indicated with red tiles.\n"+ 
-            "Left-click on a red tile to move the alien to the destination.\n"+ 
-            "Move each alien. An alien can only move once a turn."
+            "(1)Use the cursor keys to move the camera around the map.\n"+
+            "(2)Left-click on an alien to see where it can move.\n"+
+            "(3)Available move positions are indicated with red tiles.\n"+ 
+            "(3)Left-click on a red tile to move the alien to the destination.\n"+ 
+            "(4)Move each alien. An alien can only move once a turn."
         }
     ];
 
@@ -1179,13 +1185,13 @@
             orientation: 'left',
             end: true,
             text: "Instructions:\n"+
-            "Click the next turn button (or press spacebar) to start the next turn.\n"+
-            "In a turn an alien can perform a single action: move, eat, or kill.\n"+
-            "Move an alien to a tile next to or diagonal of a human to eat/kill it\n"+
-            "in the next turn. To kill a human, click the alien then the human.\n"+
+            "(1)Click the next turn button (or press spacebar) to start the next turn.\n"+
+            "(2)In a turn an alien can perform a single action: move, eat, or kill.\n"+
+            "(3)Move an alien to a tile next to or diagonal of a human to eat/kill it\n"+
+            "in the next turn. (4)To kill a human, click the alien then the human.\n"+
             "A low health alien may (or may not) spawn after killing a human.\n"+
-            "To eat, left click the alien then press the 'e' key to enter eat mode.\n"+
-            "Then click the human to be eaten. This will heal the aliens health."
+            "(5)To eat, left click the alien then press the 'e' key to enter eat mode.\n"+
+            "Then click the human to be eaten. This will heal the alien's health."
         }
     ];
 
@@ -1234,9 +1240,9 @@
             text: "Instructions:\n"+
             "Eliminate the remaining humans. Be careful when approaching cowhands. \n"+
             "After each turn, cowhands will either rotate their orientation or \n"+
-            "shoot an alien. Hover the cursor over an cowhand to see their attack range.\n"+
-            "Moving an alien into a cowhand's attack range will result in the \n"+
-            "alien being shot and losing health.  Also, cowhands can shoot over \n"+
+            "shoot an alien. (1)Hover the cursor over an cowhand to see their attack range.\n"+
+            "(2)Moving an alien into a cowhand's attack range will result in the \n"+
+            "alien being shot and losing health. (a single alien)  Also, cowhands can shoot over \n"+
             "trenches and through trees."
         }
     ];
@@ -1273,8 +1279,8 @@
             orientation: 'left',
             end: true,
             text: "Instructions:\n"+
-            "Move the aliens over the Texas flag to tear it down. The objective \n"+
-            "of the game is to remove all the Texas flags in a game level."
+            "(1)Move the aliens over the Texas flag to tear it down. The objective \n"+
+            "(2)of the game is to remove all the Texas flags in a game level."
         }
     ];
 

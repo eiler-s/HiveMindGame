@@ -450,7 +450,7 @@
         tutorial.cam.centerOn(0, 0);
         tutorial.cam.startFollow(tutorial.marker, true);
         tutorial.cam.setDeadzone(700, 500);
-        tutorial.cam.setBounds(0,0, 29*32, 15*32);
+        tutorial.cam.setBounds(0,0, 25*32, 15*32);
         
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();

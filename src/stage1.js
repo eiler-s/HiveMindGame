@@ -505,14 +505,15 @@ Stage1.key = 'stage1'
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
+                    Stage1.currentBug = null;
+
                     Stage1.aimcone.setVisible(false);//no ghost aimcones
 
                     Stage1.moveTiles.clear(true, true); //get rid of move tiles
                     Stage1.paths = [];
-        
-                    bug.spent = true;
-                    bug.spr.setTint(0x808080);
+                    
                     Stage1.currentBug = null;
+
                     if(gameObject.name != 'objective'){
                         Stage1.playSound('cowhandDeath');
                     }
@@ -521,13 +522,28 @@ Stage1.key = 'stage1'
                         Stage1.terrainGrid[Math.floor(gameObject.y/gameObject.height)][Math.floor(gameObject.x/gameObject.width)]=1;
                         Stage1.finder.setGrid(Stage1.terrainGrid);
                         gameObject.destroy();
+                        
+                        bug.spent = true;
+                        bug.spr.setTint(0x808080);
                     }
                     else if (Stage1.eatMode){
-                        Stage1.consume(gameObject, bug);
+                        if (bug.health >= 4){
+                            Stage1.eatMode = false; //resets eatMode after a click
+                            Stage1.scene.input.setDefaultCursor('default');
+                        } else {
+                            Stage1.consume(gameObject, bug);
+
+                            bug.spent = true;
+                            bug.spr.setTint(0x808080);
+                        }
                     }
+
                     else{
                         Stage1.spawn(gameObject);
                         gameObject.destroy();
+                        
+                        bug.spent = true;
+                        bug.spr.setTint(0x808080);
                     }
                     //objectives check
                     if (Stage1.objectives.getChildren().length == 0){
@@ -536,6 +552,7 @@ Stage1.key = 'stage1'
                         game.scene.start('win');
                         
                     }
+    
                 }
             }
             Stage1.eatMode = false; //resets eatMode after a click

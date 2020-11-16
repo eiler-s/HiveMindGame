@@ -1,9 +1,6 @@
 var Stage1 ={};
 Stage1.key = 'stage1'
     Stage1.playSound=function(name){
-        /*if (name == 'cowhandDeath'){
-            
-        }*/
         switch (name){
             case 'cowhandDeath':
                 Stage1.sfx.cowhandDeath.play();
@@ -417,7 +414,7 @@ Stage1.key = 'stage1'
         Stage1.cam.setPosition(0, 0);
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
-        Stage1.cam.setBounds(0,0, (48)*32, 22*32);
+        Stage1.cam.setBounds(0,0, 48*32, 22*32);
         //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
 
@@ -740,57 +737,66 @@ Stage1.key = 'stage1'
         Stage1.scene.input.enabled = false;
         Stage1.returnFire();
 
-        Stage1.bugs.getChildren().forEach(bug =>{
-            bug.spent = false;
-            bug.spr.clearTint();
-        });
+        //checks to see if that was the last alien. If so, you lose
+        if(Stage1.bugs.getChildren().length == 0){
+            Stage1.music.stop();
+            game.scene.stop('stage1');
+            game.scene.start('lose');
+        }
+        else{
+            Stage1.bugs.getChildren().forEach(bug =>{
+                bug.spent = false;
+                bug.spr.clearTint();
+            });
+        }
     }
 
     Stage1.returnFire = function(){
         let shotHitPairs = Stage1.getCowhandShots();
         if (shotHitPairs.length > 0){
             let i = 0;
+            let old_x = Stage1.cam.x;
+            let old_y = Stage1.cam.y;
+            Stage1.cam.stopFollow();
+            Stage1.cam.setZoom(3);
+
             for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
                 let alien = pair.target;
-                Stage1.cam.centerOn(alien.x, alien.y);
                 
                 //The cowboy tints white for 1 second a second after centering camera, indicating shot
                 setTimeout(function(){
+                    Stage1.cam.centerOn((alien.x + cowhand.x)/2, (alien.y + cowhand.y)/2);
                     Stage1.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
+                    Stage1.cam.flash(300);
                 },  900*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
+                    Stage1.cam.resetFX();
                 }, 300 + 900*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     Stage1.updateHealth(alien); // update the healthbar to show the damage
-                    //alien.spr.setTint(0xe36d59);
                 }, 600 + 900*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
-                        //checks to see if that was the last alien. If so, you lose
-                        if(Stage1.bugs.getChildren().length == 0){
-                            //Stage1.scene.registry.destroy();
-                            //Stage1.scene.events.off();
-                            Stage1.music.stop();
-                            game.scene.stop('stage1');
-                            game.scene.start('lose');
-                        }
                     }
                 }, 900 + 900*i);
             } 
             setTimeout(function(){
+                Stage1.cam.startFollow(Stage1.marker, true);
+                Stage1.cam.setPosition(old_x,old_y);
+                Stage1.cam.setZoom(1);
                 Stage1.scene.input.enabled = true;
             }, 900 + 900*i);
         }

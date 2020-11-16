@@ -451,6 +451,8 @@
         tutorial.cam.startFollow(tutorial.marker, true);
         tutorial.cam.setDeadzone(700, 500);
         tutorial.cam.setBounds(0,0, 29*32, 15*32);
+        tutorial.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
+        tutorial.temp.strokeRect(50,50,tutorial.cam.deadzone.width,tutorial.cam.deadzone.height);
         
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
@@ -808,20 +810,14 @@
 
     tutorial.endTurn = function(){
         tutorial.scene.input.enabled = false;
-        tutorial.returnFire();
+        let waitTime = tutorial.returnFire();
 
-        //checks to see if that was the last alien. If so, you lose
-        if(tutorial.bugs.getChildren().length == 0){
-            tutorial.music.stop();
-            game.scene.stop('stage1');
-            game.scene.start('lose');
-        }
-        else{
+        setTimeout(function(){
             tutorial.bugs.getChildren().forEach(bug =>{
                 bug.spent = false;
                 bug.spr.clearTint();
             });
-        }
+        }, waitTime);
     }
 
     tutorial.returnFire = function(){
@@ -856,6 +852,7 @@
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
+                    alien.spr.setTint(0xDC143C);
                     tutorial.updateHealth(alien); // update the healthbar to show the damage
                 }, 600 + 900*i, alien);
 
@@ -863,6 +860,13 @@
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
+
+                        //checks to see if that was the last alien. If so, you lose
+                        if(tutorial.bugs.getChildren().length == 0){
+                            tutorial.music.stop();
+                            game.scene.stop('stage1');
+                            game.scene.start('lose');
+                        }
                     }
                 }, 900 + 900*i);
             } 
@@ -872,9 +876,11 @@
                 tutorial.cam.setZoom(1);
                 tutorial.scene.input.enabled = true;
             }, 900 + 900*i);
+            return 900 + 900*i;
         }
         else{
             tutorial.scene.input.enabled = true;
+            return 0;
         }
     }
     

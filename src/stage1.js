@@ -735,20 +735,14 @@ Stage1.key = 'stage1'
 
     Stage1.endTurn = function(){
         Stage1.scene.input.enabled = false;
-        Stage1.returnFire();
+        let waitTime = Stage1.returnFire();
 
-        //checks to see if that was the last alien. If so, you lose
-        if(Stage1.bugs.getChildren().length == 0){
-            Stage1.music.stop();
-            game.scene.stop('stage1');
-            game.scene.start('lose');
-        }
-        else{
+        setTimeout(function(){
             Stage1.bugs.getChildren().forEach(bug =>{
                 bug.spent = false;
                 bug.spr.clearTint();
             });
-        }
+        }, waitTime);
     }
 
     Stage1.returnFire = function(){
@@ -783,6 +777,7 @@ Stage1.key = 'stage1'
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
+                    alien.spr.setTint(0xDC143C);
                     Stage1.updateHealth(alien); // update the healthbar to show the damage
                 }, 600 + 900*i, alien);
 
@@ -790,6 +785,13 @@ Stage1.key = 'stage1'
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
+
+                        //checks to see if that was the last alien. If so, you lose
+                        if(Stage1.bugs.getChildren().length == 0){
+                            Stage1.music.stop();
+                            game.scene.stop('stage1');
+                            game.scene.start('lose');
+                        }
                     }
                 }, 900 + 900*i);
             } 
@@ -799,9 +801,11 @@ Stage1.key = 'stage1'
                 Stage1.cam.setZoom(1);
                 Stage1.scene.input.enabled = true;
             }, 900 + 900*i);
+            return 900 + 900*i;
         }
         else{
             Stage1.scene.input.enabled = true;
+            return 0;
         }
     }
     

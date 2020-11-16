@@ -451,8 +451,8 @@
         tutorial.cam.startFollow(tutorial.marker, true);
         tutorial.cam.setDeadzone(700, 500);
         tutorial.cam.setBounds(0,0, 25*32, 15*32);
-        tutorial.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
-        tutorial.temp.strokeRect(50,50,tutorial.cam.deadzone.width,tutorial.cam.deadzone.height);
+        //tutorial.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
+        //tutorial.temp.strokeRect(50,50,tutorial.cam.deadzone.width,tutorial.cam.deadzone.height);
         
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();

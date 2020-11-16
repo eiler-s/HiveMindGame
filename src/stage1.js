@@ -1,9 +1,6 @@
 var Stage1 ={};
 Stage1.key = 'stage1'
     Stage1.playSound=function(name){
-        /*if (name == 'cowhandDeath'){
-            
-        }*/
         switch (name){
             case 'cowhandDeath':
                 Stage1.sfx.cowhandDeath.play();
@@ -102,11 +99,22 @@ Stage1.key = 'stage1'
         });
     }
 
+    toggleEatMode = function(){
+        if (Stage1.eatMode){
+            Stage1.eatMode = false; 
+            Stage1.scene.input.setDefaultCursor('default');
+
+        }else{
+            Stage1.eatMode = true; 
+            Stage1.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+        }
+    }
+
     Stage1.create=function(){
 
         //used for consume function
         Stage1.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => {Stage1.eatMode = true; this.input.setDefaultCursor('url(./src/sprites/eat.cur), pointer');});
+        this.input.keyboard.on('keydown-E', toggleEatMode);
 
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
@@ -403,10 +411,11 @@ Stage1.key = 'stage1'
 
         //Camera moves when marker is outside dead zone
         Stage1.cam = this.cameras.main;
-        Stage1.cam.setPosition(0, 0);
+        Stage1.cam.centerOn(44*32, 11*32);
         Stage1.cam.setDeadzone(700,500);
         Stage1.cam.startFollow(Stage1.marker, true);
-        Stage1.cam.setBounds(0,0, (48)*32, 22*32);
+        Stage1.cam.setBounds(0,0, 48*32, 22*32);
+        Stage1.cam.pan(4*32, 11*32, 2000);
         //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
 
@@ -505,14 +514,15 @@ Stage1.key = 'stage1'
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
+                    Stage1.currentBug = null;
+
                     Stage1.aimcone.setVisible(false);//no ghost aimcones
 
                     Stage1.moveTiles.clear(true, true); //get rid of move tiles
                     Stage1.paths = [];
-        
-                    bug.spent = true;
-                    bug.spr.setTint(0x808080);
+                    
                     Stage1.currentBug = null;
+
                     if(gameObject.name != 'objective'){
                         Stage1.playSound('cowhandDeath');
                     }
@@ -521,13 +531,28 @@ Stage1.key = 'stage1'
                         Stage1.terrainGrid[Math.floor(gameObject.y/gameObject.height)][Math.floor(gameObject.x/gameObject.width)]=1;
                         Stage1.finder.setGrid(Stage1.terrainGrid);
                         gameObject.destroy();
+                        
+                        bug.spent = true;
+                        bug.spr.setTint(0x808080);
                     }
                     else if (Stage1.eatMode){
-                        Stage1.consume(gameObject, bug);
+                        if (bug.health >= 4){
+                            Stage1.eatMode = false; //resets eatMode after a click
+                            Stage1.scene.input.setDefaultCursor('default');
+                        } else {
+                            Stage1.consume(gameObject, bug);
+
+                            bug.spent = true;
+                            bug.spr.setTint(0x808080);
+                        }
                     }
+
                     else{
                         Stage1.spawn(gameObject);
                         gameObject.destroy();
+                        
+                        bug.spent = true;
+                        bug.spr.setTint(0x808080);
                     }
                     //objectives check
                     if (Stage1.objectives.getChildren().length == 0){
@@ -535,6 +560,7 @@ Stage1.key = 'stage1'
                         game.scene.stop('stage1');
                         game.scene.start('win');
                     }
+    
                 }
             }
             Stage1.eatMode = false; //resets eatMode after a click
@@ -710,51 +736,59 @@ Stage1.key = 'stage1'
 
     Stage1.endTurn = function(){
         Stage1.scene.input.enabled = false;
-        Stage1.returnFire();
+        let waitTime = Stage1.returnFire();
 
-        Stage1.bugs.getChildren().forEach(bug =>{
-            bug.spent = false;
-            bug.spr.clearTint();
-        });
+        setTimeout(function(){
+            Stage1.bugs.getChildren().forEach(bug =>{
+                bug.spent = false;
+                bug.spr.clearTint();
+            });
+        }, waitTime);
     }
 
     Stage1.returnFire = function(){
         let shotHitPairs = Stage1.getCowhandShots();
         if (shotHitPairs.length > 0){
             let i = 0;
+            let old_x = Stage1.cam.x;
+            let old_y = Stage1.cam.y;
+            Stage1.cam.stopFollow();
+            Stage1.cam.setZoom(3);
+
             for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
                 let alien = pair.target;
-                Stage1.cam.centerOn(alien.x, alien.y);
                 
                 //The cowboy tints white for 1 second a second after centering camera, indicating shot
                 setTimeout(function(){
+                    Stage1.cam.centerOn((alien.x + cowhand.x)/2, (alien.y + cowhand.y)/2);
                     Stage1.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
+                    Stage1.cam.flash(300);
                 },  900*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
+                    Stage1.cam.resetFX();
                 }, 300 + 900*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
+                    alien.spr.setTint(0xDC143C);
                     Stage1.updateHealth(alien); // update the healthbar to show the damage
-                    //alien.spr.setTint(0xe36d59);
                 }, 600 + 900*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
+
                         //checks to see if that was the last alien. If so, you lose
                         if(Stage1.bugs.getChildren().length == 0){
-                            //Stage1.scene.registry.destroy();
-                            //Stage1.scene.events.off();
                             Stage1.music.stop();
                             game.scene.stop('stage1');
                             game.scene.start('lose');
@@ -763,11 +797,16 @@ Stage1.key = 'stage1'
                 }, 900 + 900*i);
             } 
             setTimeout(function(){
+                Stage1.cam.startFollow(Stage1.marker, true);
+                Stage1.cam.setPosition(old_x,old_y);
+                Stage1.cam.setZoom(1);
                 Stage1.scene.input.enabled = true;
             }, 900 + 900*i);
+            return 900 + 900*i;
         }
         else{
             Stage1.scene.input.enabled = true;
+            return 0;
         }
     }
     

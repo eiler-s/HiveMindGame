@@ -801,55 +801,66 @@
         tutorial.scene.input.enabled = false;
         tutorial.returnFire();
 
-        tutorial.bugs.getChildren().forEach(bug =>{
-            bug.spent = false;
-            bug.spr.clearTint();
-        });
+        //checks to see if that was the last alien. If so, you lose
+        if(tutorial.bugs.getChildren().length == 0){
+            tutorial.music.stop();
+            game.scene.stop('stage1');
+            game.scene.start('lose');
+        }
+        else{
+            tutorial.bugs.getChildren().forEach(bug =>{
+                bug.spent = false;
+                bug.spr.clearTint();
+            });
+        }
     }
 
     tutorial.returnFire = function(){
         let shotHitPairs = tutorial.getCowhandShots();
         if (shotHitPairs.length > 0){
             let i = 0;
+            let old_x = tutorial.cam.x;
+            let old_y = tutorial.cam.y;
+            tutorial.cam.stopFollow();
+            tutorial.cam.setZoom(3);
+
             for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
                 let alien = pair.target;
-                tutorial.cam.centerOn(alien.x, alien.y);
                 
                 //The cowboy tints white for 1 second a second after centering camera, indicating shot
                 setTimeout(function(){
+                    tutorial.cam.centerOn((alien.x + cowhand.x)/2, (alien.y + cowhand.y)/2);
                     tutorial.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
+                    tutorial.cam.flash(300);
                 },  900*i, cowhand);
     
                 //Cowboy returns to original tint a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
+                    tutorial.cam.resetFX();
                 }, 300 + 900*i, cowhand);
                 
                 //The alien tints red a secnd after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     tutorial.updateHealth(alien); // update the healthbar to show the damage
-                    //alien.spr.setTint(0xe36d59);
                 }, 600 + 900*i, alien);
 
                 //Allow time for the user to see what happened
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
-                        //checks to see if that was the last alien. If so, you lose
-                        if(tutorial.bugs.getChildren().length == 0){
-                            tutorial.music.stop();
-                            game.scene.stop('tutorial');
-                            game.scene.start('lose');
-                        }
                     }
                 }, 900 + 900*i);
-            }
+            } 
             setTimeout(function(){
+                tutorial.cam.startFollow(tutorial.marker, true);
+                tutorial.cam.setPosition(old_x,old_y);
+                tutorial.cam.setZoom(1);
                 tutorial.scene.input.enabled = true;
             }, 900 + 900*i);
         }

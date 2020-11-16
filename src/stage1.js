@@ -102,11 +102,22 @@ Stage1.key = 'stage1'
         });
     }
 
+    toggleEatMode = function(){
+        if (Stage1.eatMode){
+            Stage1.eatMode = false; 
+            Stage1.scene.input.setDefaultCursor('default');
+
+        }else{
+            Stage1.eatMode = true; 
+            Stage1.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+        }
+    }
+
     Stage1.create=function(){
 
         //used for consume function
         Stage1.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => {Stage1.eatMode = true; this.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');});
+        this.input.keyboard.on('keydown-E', toggleEatMode);
 
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  

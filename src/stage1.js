@@ -389,8 +389,14 @@ Stage1.key = 'stage1'
         Stage1.moveTiles = this.add.group();
 
         //Assigns arrow keys to cursors
-        Stage1.cursors = this.input.keyboard.createCursorKeys();
-
+        //Stage1.cursors = this.input.keyboard.createCursorKeys();
+        //Assigns wasd keys to cursors
+        Stage1.cursors = this.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+        });
         //Move main camera with cursors
         var controlConfig = {
             camera: this.cameras.main,

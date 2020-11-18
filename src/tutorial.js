@@ -116,7 +116,7 @@
 
         //used for consume function
         tutorial.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => tutorial.eatMode = true);
+        this.input.keyboard.on('keydown-E', tutorial.toggleEatMode);
 
         //make the next turn button
         tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).disableInteractive().setName("nextTurn");
@@ -433,7 +433,7 @@
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D,
         });
-        
+
         //Move main camera with cursors
         var controlConfig = {
             camera: this.cameras.main,
@@ -460,6 +460,9 @@
         tutorial.cam.setBounds(0,0, 25*32, 15*32);
         //tutorial.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //tutorial.temp.strokeRect(50,50,tutorial.cam.deadzone.width,tutorial.cam.deadzone.height);
+        
+        //message when eat when full
+        tutorial.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
         
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
@@ -591,7 +594,16 @@
                         gameObject.destroy();
                     }
                     else if (tutorial.eatMode){
-                        tutorial.consume(gameObject, bug);
+                        if (bug.health >= 4){
+                            tutorial.eatMode = false; //resets eatMode after a click
+                            tutorial.famished.setPosition(bug.x + 16, bug.y).setVisible(true);
+                            setTimeout(() => {tutorial.famished.setVisible(false)}, 3000);
+                            tutorial.scene.input.setDefaultCursor('default');
+                        } else {
+                            tutorial.consume(gameObject, bug);
+                            bug.spent = true;
+                            bug.spr.setTint(0x808080);
+                        }
                     }
                     else{
                         tutorial.spawn(gameObject);
@@ -755,6 +767,17 @@
         //Places the marker around the selected tile
         tutorial.marker.x = tutorial.map.tileToWorldX(pointerTileX);
         tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);        
+    }
+
+    tutorial.toggleEatMode = function(){
+        if (tutorial.eatMode){
+            tutorial.eatMode = false; 
+            tutorial.scene.input.setDefaultCursor('default');
+
+        }else{
+            tutorial.eatMode = true; 
+            tutorial.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+        }
     }
 
     //Returns the ID of a tile at a given coordinate

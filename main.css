@@ -1,3 +1,11 @@
 body{
     background-color: cornflowerblue;
 }
+
+@font-face{
+    font-family: 'Eater';
+    src: url(https://fonts.googleapis.com/css?family=Eater);
+    font-weight: 400;
+    font-weight: normal;
+
+}

@@ -99,7 +99,7 @@ Stage1.key = 'stage1'
         });
     }
 
-    toggleEatMode = function(){
+    Stage1.toggleEatMode = function(){
         if (Stage1.eatMode){
             Stage1.eatMode = false; 
             Stage1.scene.input.setDefaultCursor('default');
@@ -114,7 +114,7 @@ Stage1.key = 'stage1'
 
         //used for consume function
         Stage1.eatMode = false;
-        this.input.keyboard.on('keydown-E', toggleEatMode);
+        this.input.keyboard.on('keydown-E', Stage1.toggleEatMode);
 
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
@@ -424,7 +424,10 @@ Stage1.key = 'stage1'
         Stage1.cam.pan(4*32, 11*32, 2000);
         //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
+        
+        //message when eat when full
         Stage1.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
+        
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -545,8 +548,8 @@ Stage1.key = 'stage1'
                         if (bug.health >= 4){
                             Stage1.eatMode = false; //resets eatMode after a click
                             Stage1.famished.setPosition(bug.x + 16, bug.y).setVisible(true);
-                            setTimeout(() => {Stage1.famished.setVisible(false)}, 3000);
                             Stage1.scene.input.setDefaultCursor('default');
+                            setTimeout(() => {Stage1.famished.setVisible(false)}, 3000);
                         } else {
                             Stage1.consume(gameObject, bug);
 

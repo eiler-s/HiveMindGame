@@ -424,7 +424,7 @@ Stage1.key = 'stage1'
         Stage1.cam.pan(4*32, 11*32, 2000);
         //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
-
+        Stage1.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -544,6 +544,8 @@ Stage1.key = 'stage1'
                     else if (Stage1.eatMode){
                         if (bug.health >= 4){
                             Stage1.eatMode = false; //resets eatMode after a click
+                            Stage1.famished.setPosition(bug.x + 16, bug.y).setVisible(true);
+                            setTimeout(() => {Stage1.famished.setVisible(false)}, 3000);
                             Stage1.scene.input.setDefaultCursor('default');
                         } else {
                             Stage1.consume(gameObject, bug);

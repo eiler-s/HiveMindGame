@@ -463,7 +463,10 @@
         
         //message when eat when full
         tutorial.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
+        //transition scenes
+        tutorial.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
         
+        tutorial.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
         tutorial.finder.setGrid(tutorial.terrainGrid);
@@ -654,6 +657,7 @@
                 }
             }
             tutorial.eatMode = false; //resets eatMode after a click
+            tutorial.scene.input.setDefaultCursor('default');
         }, tutorial);
         
         //Periodically play environmental noises
@@ -840,14 +844,39 @@
 
     tutorial.endTurn = function(){
         tutorial.scene.input.enabled = false;
-        let waitTime = tutorial.returnFire();
+        tutorial.scene.tweens.add({
+            targets: tutorial.cowboyTransition,
+            alpha: {value: 1, duration: 10, ease: 'Linear'},
+            hold: 10,
+            yoyo: true,
+            loop: 0,
+            useFrames:true,
+            onComplete: function(){
+                let waitTime = tutorial.returnFire();;
+                setTimeout(function(){
+                    tutorial.bugs.getChildren().forEach(bug =>{
+                        bug.spent = false;
+                        bug.spr.clearTint();
+                    });
+                    tutorial.scene.tweens.add({
+                        targets: tutorial.alienTransition,
+                        alpha: {value: 1, duration: 10, ease: 'Linear'},
+                        hold: 10,
+                        yoyo: true,
+                        loop: 0,
+                        useFrames:true
+                    });
+                }, waitTime+10);
+            }
+        });
+        /*let waitTime = tutorial.returnFire();
 
         setTimeout(function(){
             tutorial.bugs.getChildren().forEach(bug =>{
                 bug.spent = false;
                 bug.spr.clearTint();
             });
-        }, waitTime);
+        }, waitTime);*/
     }
 
     tutorial.returnFire = function(){

@@ -7,5 +7,11 @@ body{
     src: url(https://fonts.googleapis.com/css?family=Eater);
     font-weight: 400;
     font-weight: normal;
+}
 
+@font-face{
+    font-family: 'Ewert';
+    src: url(https://fonts.googleapis.com/css?family=Ewert);
+    font-weight: 400;
+    font-weight: normal;
 }

@@ -427,7 +427,10 @@ Stage1.key = 'stage1'
         
         //message when eat when full
         Stage1.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
+        //transition screens
+        Stage1.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
         
+        Stage1.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -747,14 +750,31 @@ Stage1.key = 'stage1'
 
     Stage1.endTurn = function(){
         Stage1.scene.input.enabled = false;
-        let waitTime = Stage1.returnFire();
-
-        setTimeout(function(){
-            Stage1.bugs.getChildren().forEach(bug =>{
-                bug.spent = false;
-                bug.spr.clearTint();
-            });
-        }, waitTime);
+        Stage1.scene.tweens.add({
+            targets: Stage1.cowboyTransition,
+            alpha: {value: 1, duration: 10, ease: 'Linear'},
+            hold: 10,
+            yoyo: true,
+            loop: 0,
+            useFrames:true,
+            onComplete: function(){
+                let waitTime = Stage1.returnFire();;
+                setTimeout(function(){
+                    Stage1.bugs.getChildren().forEach(bug =>{
+                        bug.spent = false;
+                        bug.spr.clearTint();
+                    });
+                    Stage1.scene.tweens.add({
+                        targets: Stage1.alienTransition,
+                        alpha: {value: 1, duration: 10, ease: 'Linear'},
+                        hold: 10,
+                        yoyo: true,
+                        loop: 0,
+                        useFrames:true
+                    });
+                }, waitTime+10);
+            }
+        });
     }
 
     Stage1.returnFire = function(){

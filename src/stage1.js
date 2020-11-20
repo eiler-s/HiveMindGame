@@ -340,7 +340,6 @@ Stage1.key = 'stage1'
                 if (this.dir == 3){
                     Stage1.aimcone.setRotation(0.5*3.14159).setPosition(this.x+16, this.y-48);
                 }
-                //console.log(this.dir);
             });
             obj.on('pointerout', function (pointer) {
                Stage1.aimcone.setVisible(false);
@@ -409,15 +408,21 @@ Stage1.key = 'stage1'
         Stage1.marker.lineStyle(3, 0xffffff, 1);
         Stage1.marker.strokeRect(0,0, Stage1.map.tileWidth, Stage1.map.tileHeight);
 
-        //Camera moves when marker is outside dead zone
+        //Set up camera and map bounds, pan from flags to starting position
         Stage1.cam = this.cameras.main;
-        Stage1.cam.centerOn(44*32, 11*32);
-        Stage1.cam.setDeadzone(700,500);
-        Stage1.cam.startFollow(Stage1.marker, true);
+        Stage1.scene.input.enabled = false;
         Stage1.cam.setBounds(0,0, 48*32, 22*32);
-        Stage1.cam.pan(4*32, 11*32, 2000);
-        //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
-        //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
+        Stage1.cam.centerOn(44*32, 11*32);
+        setTimeout(function(){
+            Stage1.cam.pan(4*32, 11*32, 2000);
+        }, 1000);
+        setTimeout(function(){
+            Stage1.cam.setDeadzone(700,500);
+            Stage1.scene.input.enabled = true;
+            Stage1.cam.startFollow(Stage1.marker, true);
+            //Stage1.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
+            //Stage1.temp.strokeRect(50,50,Stage1.cam.deadzone.width,Stage1.cam.deadzone.height);
+        }, 3000);
 
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
@@ -458,10 +463,7 @@ Stage1.key = 'stage1'
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     Stage1.finder.findPath(Stage1.originX, Stage1.originY, squares[i].x, squares[i].y, function(path){
-                        if (path === null){ //If there is a tile that's chosen that's impossible to get to, path would be null.
-                            //console.log("path not found")
-                        }
-                        else{
+                        if (path !== null){ //If there is a tile that's chosen that's impossible to get to, path would be null.
                             //If the most direct path is greater than 5, then it won't be displayed
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 Stage1.pathStorage(path)
@@ -735,83 +737,144 @@ Stage1.key = 'stage1'
     }
 
     Stage1.endTurn = function(){
+        //Turn off user input
         Stage1.scene.input.enabled = false;
+        Stage1.cam.stopFollow();
+
+        //Make the end turn button show that it was clicked
         Stage1.nextTurn.setTintFill(0xffffff);
         setTimeout(function(){ Stage1.nextTurn.clearTint(); }, 300);
+
+        //do cowhand turn and get the amount of time it takes
         let waitTime = Stage1.returnFire();
 
         setTimeout(function(){
-            Stage1.bugs.getChildren().forEach(bug =>{
-                bug.spent = false;
-                bug.spr.clearTint();
-            });
+            //Reactivate user input
+            Stage1.cam.startFollow(Stage1.marker, true);
+            Stage1.cam.setBounds(0,0, 48*32, 22*32);
+            Stage1.scene.input.enabled = true;
+
+            //Reactivate bugs if the player's swarm has not been obliterated
+            if (Stage1.bugs.getChildren().length > 0){
+                Stage1.bugs.getChildren().forEach(bug =>{
+                    bug.spent = false;
+                    bug.spr.clearTint();
+                });
+            }
+            else {  //if all aliens are dead then player loses
+                setTimeout(function(){
+                    Stage1.music.stop();
+                    game.scene.stop('stage1');
+                    game.scene.start('lose');
+                }, waitTime + 500);
+            }
         }, waitTime);
     }
 
     Stage1.returnFire = function(){
         let shotHitPairs = Stage1.getCowhandShots();
+        shotHitPairs = Stage1.dontShootDeadAliens(shotHitPairs);
+
         if (shotHitPairs.length > 0){
-            let i = 0;
             let old_x = Stage1.cam.x;
             let old_y = Stage1.cam.y;
-            Stage1.cam.stopFollow();
             Stage1.cam.setZoom(3);
 
+            let i = 0;
             for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
                 let alien = pair.target;
                 
-                //The cowboy tints white for 1 second a second after centering camera, indicating shot
-                setTimeout(function(){
+                //The cowboy tints white for 1/3 a second a second after centering camera, indicating shot
+                setTimeout(function(){ 
                     Stage1.cam.centerOn((alien.x + cowhand.x)/2, (alien.y + cowhand.y)/2);
                     Stage1.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
-                    Stage1.cam.flash(300);
-                },  900*i, cowhand);
+                    Stage1.cam.flash(500);
+                }, 1500*i, cowhand);
     
-                //Cowboy returns to original tint a second after the shot
+                //Cowboy returns to original tint 1/3 a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
                     Stage1.cam.resetFX();
-                }, 300 + 900*i, cowhand);
+                }, 500 + 1500*i, cowhand);
                 
-                //The alien tints red a secnd after the cowboy untints white, indicating hit
+                //The alien tints red 1/3 a second after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     alien.spr.setTint(0xDC143C);
                     Stage1.updateHealth(alien); // update the healthbar to show the damage
-                }, 600 + 900*i, alien);
+                }, 1000 + 1500*i, alien);
 
-                //Allow time for the user to see what happened
+                //Destroy dead aliens and record that they died.
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
-
-                        //checks to see if that was the last alien. If so, you lose
-                        if(Stage1.bugs.getChildren().length == 0){
-                            Stage1.music.stop();
-                            game.scene.stop('stage1');
-                            game.scene.start('lose');
-                        }
                     }
-                }, 900 + 900*i);
+                }, 1500 + 1500*i);
             } 
+
+            //Reset camera after cowhands shots fired
             setTimeout(function(){
-                Stage1.cam.startFollow(Stage1.marker, true);
-                Stage1.cam.setPosition(old_x,old_y);
                 Stage1.cam.setZoom(1);
+                Stage1.cam.setPosition(old_x,old_y);
                 Stage1.scene.input.enabled = true;
-            }, 900 + 900*i);
-            return 900 + 900*i;
+            }, 1500*i);
+
+            return 1500*i;
         }
         else{
-            Stage1.scene.input.enabled = true;
             return 0;
         }
     }
     
+    //Removes cowhand shots at aliens that died earlier during the round of fire
+    Stage1.dontShootDeadAliens = function (shotHitPairs){
+        let shotsAtAliveAliens = [];
+
+        //filter for shots at living aliens, not dead ones
+        for (let i=0; i < shotHitPairs.length; i++){
+            let thisAlien = shotHitPairs[i].target;
+            let futureHealth = thisAlien.health;
+            let alreadyCleaned = false;
+
+            //check if shots at this alien were already filtered from shotHitPairs
+            for (let j = 0; j < shotsAtAliveAliens.length; j++){
+                let cleanedAlien = shotsAtAliveAliens[j].target;
+
+                //if this alien is the same as a cleanedAlien, then it has already been cleaned
+                if (thisAlien.x == cleanedAlien.x && thisAlien.y == cleanedAlien.y){
+                    alreadyCleaned = true;
+                    break;
+                }
+            }
+
+            //if shots at this alien have not been cleaned, clean them
+            if (!alreadyCleaned){
+                //looks ahead to later shots at this alien
+                for (let k=i; k < shotHitPairs.length; k++){
+                    let thatAlien = shotHitPairs[i].target;
+
+                    //if this alien is the same as that alien then it is being shot at again
+                    if (thisAlien.x == thatAlien.x && thisAlien.y == thatAlien.y){
+                        //if this alien is still alive at that time, shoot it again
+                        if (futureHealth > 0){
+                            shotsAtAliveAliens.push(shotHitPairs[k]);
+                            futureHealth -= 1;
+                        }
+                        else {    //if this alien is dead, don't take any more shots at it
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return shotsAtAliveAliens;
+    }
+
+    //Gets all the aliens that cowhands will shoot
     Stage1.getCowhandShots = function (){
         var cowhandShots = [];
 
@@ -829,10 +892,8 @@ Stage1.key = 'stage1'
                 if(distanceS < attackRangeS){
                     //now check if the cowhand is facing the right way
                     //0,1,2,3 | down, left, right, up
-                    //console.log("X: " + distX + "\nY: " + distY + "\nDir: " + cowhand.dir);
                     if ((distY <= -1*Math.abs(distX) && cowhand.dir == 3) || (distX <= -1*Math.abs(distY) && cowhand.dir == 1) 
                         || (distX >= Math.abs(distY) && cowhand.dir == 2) || (distY >= Math.abs(distX) && cowhand.dir == 0)){
-                        //console.log("you are one ugly motherfucker")
                         targets2.push(tar);
                     }
                 }

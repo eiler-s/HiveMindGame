@@ -493,10 +493,7 @@
                 for (var i=0; i < squares.length; i++){
                     //Use a callback function to filter the path finder for acceptable paths
                     tutorial.finder.findPath(tutorial.originX, tutorial.originY, squares[i].x, squares[i].y, function(path){
-                        if (path === null){ //If there is a tile that's chosen that's impossible to get to, path would be null.
-                            //console.log("path not found")
-                        }
-                        else{
+                        if (path !== null){ //If there is a tile that's chosen that's impossible to get to, path would be null.
                             //If the most direct path is greater than 5, then it won't be displayed
                             if (path.length <= 5 && path.length != 0){  //Store each acceptable path's tile destination
                                 tutorial.pathStorage(path)
@@ -812,83 +809,143 @@
     }
 
     tutorial.endTurn = function(){
+        //Turn off user input
         tutorial.scene.input.enabled = false;
+        tutorial.cam.stopFollow();
+
+        //Make the end turn button show that it was clicked
         tutorial.nextTurn.setTintFill(0xffffff);
-        setTimeout(function(){ Stage1.tutorial.clearTint(); }, 300);
+        setTimeout(function(){ tutorial.nextTurn.clearTint(); }, 300);
+
+        //do cowhand turn and get the amount of time it takes
         let waitTime = tutorial.returnFire();
 
         setTimeout(function(){
-            tutorial.bugs.getChildren().forEach(bug =>{
-                bug.spent = false;
-                bug.spr.clearTint();
-            });
+            //Reactivate user input
+            tutorial.cam.startFollow(tutorial.marker, true);
+            tutorial.cam.setBounds(0,0, 48*32, 22*32);
+            tutorial.scene.input.enabled = true;
+
+            //Reactivate bugs if the player's swarm has not been obliterated
+            if (tutorial.bugs.getChildren().length > 0){
+                tutorial.bugs.getChildren().forEach(bug =>{
+                    bug.spent = false;
+                    bug.spr.clearTint();
+                });
+            }
+            else {  //if all aliens are dead then player loses
+                setTimeout(function(){
+                    tutorial.music.stop();
+                    game.scene.stop('tutorial');
+                    game.scene.start('lose');
+                }, waitTime + 500);
+            }
         }, waitTime);
     }
 
     tutorial.returnFire = function(){
         let shotHitPairs = tutorial.getCowhandShots();
+        shotHitPairs = tutorial.dontShootDeadAliens(shotHitPairs);
+
         if (shotHitPairs.length > 0){
-            let i = 0;
             let old_x = tutorial.cam.x;
             let old_y = tutorial.cam.y;
-            tutorial.cam.stopFollow();
             tutorial.cam.setZoom(3);
 
+            let i = 0;
             for (i; i < shotHitPairs.length; i++){
                 //Camera is recentered on a new pair every 4 seconds
                 let pair = shotHitPairs[i];
                 let cowhand = pair.shooter;
                 let alien = pair.target;
                 
-                //The cowboy tints white for 1 second a second after centering camera, indicating shot
-                setTimeout(function(){
+                //The cowboy tints white for 1/3 a second a second after centering camera, indicating shot
+                setTimeout(function(){ 
                     tutorial.cam.centerOn((alien.x + cowhand.x)/2, (alien.y + cowhand.y)/2);
                     tutorial.playSound('shoot');  //takes two seconds to play
                     cowhand.setTintFill(0xFFFFFF);
-                    tutorial.cam.flash(300);
-                },  900*i, cowhand);
+                    tutorial.cam.flash(500);
+                }, 1500*i, cowhand);
     
-                //Cowboy returns to original tint a second after the shot
+                //Cowboy returns to original tint 1/3 a second after the shot
                 setTimeout(function(){ 
                     cowhand.clearTint();
                     tutorial.cam.resetFX();
-                }, 300 + 900*i, cowhand);
+                }, 500 + 1500*i, cowhand);
                 
-                //The alien tints red a secnd after the cowboy untints white, indicating hit
+                //The alien tints red 1/3 a second after the cowboy untints white, indicating hit
                 setTimeout(function(){ 
                     alien.health -= 1;
                     alien.spr.setTint(0xDC143C);
                     tutorial.updateHealth(alien); // update the healthbar to show the damage
-                }, 600 + 900*i, alien);
+                }, 1000 + 1500*i, alien);
 
-                //Allow time for the user to see what happened
+                //Destroy dead aliens and record that they died.
                 setTimeout(function(){ 
                     if (alien.health < 1){
                         alien.destroy();
-
-                        //checks to see if that was the last alien. If so, you lose
-                        if(tutorial.bugs.getChildren().length == 0){
-                            tutorial.music.stop();
-                            game.scene.stop('stage1');
-                            game.scene.start('lose');
-                        }
                     }
-                }, 900 + 900*i);
+                }, 1500 + 1500*i);
             } 
+
+            //Reset camera after cowhands shots fired
             setTimeout(function(){
-                tutorial.cam.startFollow(tutorial.marker, true);
-                tutorial.cam.setPosition(old_x,old_y);
                 tutorial.cam.setZoom(1);
+                tutorial.cam.setPosition(old_x,old_y);
                 tutorial.scene.input.enabled = true;
-            }, 900 + 900*i);
-            return 900 + 900*i;
+            }, 1500*i);
+
+            return 1500*i;
         }
         else{
-            tutorial.scene.input.enabled = true;
             return 0;
         }
     }
     
+    //Removes cowhand shots at aliens that died earlier during the round of fire
+    tutorial.dontShootDeadAliens = function (shotHitPairs){
+        let shotsAtAliveAliens = [];
+
+        //filter for shots at living aliens, not dead ones
+        for (let i=0; i < shotHitPairs.length; i++){
+            let thisAlien = shotHitPairs[i].target;
+            let futureHealth = thisAlien.health;
+            let alreadyCleaned = false;
+
+            //check if shots at this alien were already filtered from shotHitPairs
+            for (let j = 0; j < shotsAtAliveAliens.length; j++){
+                let cleanedAlien = shotsAtAliveAliens[j].target;
+
+                //if this alien is the same as a cleanedAlien, then it has already been cleaned
+                if (thisAlien.x == cleanedAlien.x && thisAlien.y == cleanedAlien.y){
+                    alreadyCleaned = true;
+                    break;
+                }
+            }
+
+            //if shots at this alien have not been cleaned, clean them
+            if (!alreadyCleaned){
+                //looks ahead to later shots at this alien
+                for (let k=i; k < shotHitPairs.length; k++){
+                    let thatAlien = shotHitPairs[i].target;
+
+                    //if this alien is the same as that alien then it is being shot at again
+                    if (thisAlien.x == thatAlien.x && thisAlien.y == thatAlien.y){
+                        //if this alien is still alive at that time, shoot it again
+                        if (futureHealth > 0){
+                            shotsAtAliveAliens.push(shotHitPairs[k]);
+                            futureHealth -= 1;
+                        }
+                        else {    //if this alien is dead, don't take any more shots at it
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return shotsAtAliveAliens;
+    }
+
     tutorial.getCowhandShots = function (){
         var cowhandShots = [];
 

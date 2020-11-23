@@ -16,6 +16,8 @@ Stage1.key = 'stage1'
                 break;
             case 'train':
                 Stage1.sfx.train.play();
+            case 'eat':
+                Stage1.sfx.eat.play();
         }
     }
 
@@ -34,9 +36,10 @@ Stage1.key = 'stage1'
         Stage1.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
 
         Stage1.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
-        Stage1.scene.load.audio('shoot', './Sound/shoot.mp3')
-        Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
-        Stage1.scene.load.audio('train', './Sound/train.mp3')
+        Stage1.scene.load.audio('shoot', './Sound/shoot.mp3');
+        Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3');
+        Stage1.scene.load.audio('train', './Sound/train.mp3');
+        Stage1.scene.load.audio('eat', './Sound/eat.mp3');
 
         //loads background
         Stage1.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
@@ -105,6 +108,7 @@ Stage1.key = 'stage1'
             Stage1.scene.input.setDefaultCursor('default');
 
         }else{
+            Stage1.playSound('eat');
             Stage1.eatMode = true; 
             Stage1.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
         }
@@ -134,6 +138,8 @@ Stage1.key = 'stage1'
         Stage1.sfx.shoot = Stage1.scene.sound.add('shoot', {volume: 0.1});
         Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
         Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
+        Stage1.sfx.eat = Stage1.scene.sound.add('eat', {volume: 0.1});
+
 
         //Define user turn, selected unit, and path storage
         Stage1.currentBug = null;

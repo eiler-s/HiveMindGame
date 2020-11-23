@@ -49,7 +49,7 @@
         //Load tilemap images and map layout files
         tutorial.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         tutorial.scene.load.image('red', './src/sprites/red.png');
-        tutorial.scene.load.tilemapTiledJSON('map', './src/tilemaps/tutorialMap.json');
+        tutorial.scene.load.tilemapTiledJSON('tutmap', './src/tilemaps/tutorialMap.json');
         tutorial.scene.load.image('flag', './Sprites/terrain/Texas_flag.png');
 
         //Load next turn utton
@@ -162,7 +162,7 @@
 
         //Create game map and tileset
         var config = {
-            key: 'map',
+            key: 'tutmap',
             tileWidth: 32,
             tileHeight: 32
         }

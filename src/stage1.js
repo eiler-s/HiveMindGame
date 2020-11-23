@@ -450,6 +450,7 @@ Stage1.key = 'stage1'
                 Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
+                gameObject.isSelected = true;
 
                 //Determine origin of unit's move range
                 Stage1.originX = Math.floor(gameObject.x/32);
@@ -565,6 +566,13 @@ Stage1.key = 'stage1'
     
                 }
             }
+            //Click a selected bug to deselect it
+            else if (gameObject.name == 'bug' && gameObject.isSelected && gameObject.spent == false){
+                Stage1.moveTiles.clear(true); //get rid of move tiles
+                Stage1.currentBug = null;
+                gameObject.isSelected = false;
+            }
+
             Stage1.eatMode = false; //resets eatMode after a click
             Stage1.scene.input.setDefaultCursor('default');
         }, Stage1);
@@ -759,6 +767,7 @@ Stage1.key = 'stage1'
                 Stage1.bugs.getChildren().forEach(bug =>{
                     bug.spent = false;
                     bug.spr.clearTint();
+                    bug.isSelected = false;
                 });
             }
             else {  //if all aliens are dead then player loses

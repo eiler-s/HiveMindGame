@@ -112,11 +112,22 @@
         });
     }
 
+    toggleEatMode = function(){
+        if (tutorial.eatMode){
+            tutorial.eatMode = false; 
+            tutorial.scene.input.setDefaultCursor('default');
+
+        }else{
+            tutorial.eatMode = true; 
+            tutorial.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+        }
+    }
+
     tutorial.create=function(){
 
         //used for consume function
         tutorial.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => tutorial.eatMode = true);
+        this.input.keyboard.on('keydown-E', toggleEatMode);
 
         //make the next turn button
         tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).disableInteractive().setName("nextTurn");
@@ -480,6 +491,7 @@
                 tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.currentBug = gameObject;
                 tutorial.map.setLayer('terrain');
+                gameObject.isSelected = true;
 
                 //Determine origin of unit's move range
                 tutorial.originX = Math.floor(gameObject.x/32);
@@ -580,11 +592,22 @@
                         gameObject.destroy();
                     }
                     else if (tutorial.eatMode){
-                        tutorial.consume(gameObject, bug);
+                        if (bug.health >= 4){
+                            tutorial.eatMode = false; //resets eatMode after a click
+                            tutorial.scene.input.setDefaultCursor('default');
+                        } else {
+                            tutorial.consume(gameObject, bug);
+
+                            bug.spent = true;
+                            bug.spr.setTint(0x808080);
+                        }
                     }
                     else{
                         tutorial.spawn(gameObject);
                         gameObject.destroy();
+
+                        bug.spent = true;
+                        bug.spr.setTint(0x808080);
                     }
                     console.log('num obj:', tutorial.objectives.getChildren().length);//###
                     //objectives check
@@ -634,7 +657,14 @@
                     }
                 }, 600);
             }
+            else if (gameObject.name == 'bug' && gameObject.isSelected && gameObject.spent == false){
+                tutorial.moveTiles.clear(true); //get rid of move tiles
+                tutorial.currentBug = null;
+                gameObject.isSelected = false;
+            }
+
             tutorial.eatMode = false; //resets eatMode after a click
+            tutorial.scene.input.setDefaultCursor('default');
         }, tutorial);
         
         //Periodically play environmental noises
@@ -823,7 +853,7 @@
         setTimeout(function(){
             //Reactivate user input
             tutorial.cam.startFollow(tutorial.marker, true);
-            tutorial.cam.setBounds(0,0, 48*32, 22*32);
+            tutorial.cam.setBounds(0,0, 25*32, 15*32);
             tutorial.scene.input.enabled = true;
 
             //Reactivate bugs if the player's swarm has not been obliterated
@@ -831,6 +861,7 @@
                 tutorial.bugs.getChildren().forEach(bug =>{
                     bug.spent = false;
                     bug.spr.clearTint();
+                    bug.isSelected = false;
                 });
             }
             else {  //if all aliens are dead then player loses

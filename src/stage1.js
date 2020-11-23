@@ -112,6 +112,11 @@ Stage1.key = 'stage1'
 
     Stage1.create=function(){
 
+        //turn counter
+        Stage1.turnCounter = this.add.text(620,20, "Turns: 1").setDepth(12).setScrollFactor(0);
+        Stage1.turnCounter.setFont('georgia').setFontSize(30).setFontStyle('bold').setColor('black');
+        Stage1.turnCounter.turn = 1;
+        Stage1.turnCounter.inc = () => {Stage1.turnCounter.turn++; Stage1.turnCounter.setText("Turns: " + Stage1.turnCounter.turn);}
         //used for consume function
         Stage1.eatMode = false;
         this.input.keyboard.on('keydown-E', toggleEatMode);
@@ -737,6 +742,7 @@ Stage1.key = 'stage1'
     Stage1.endTurn = function(){
         Stage1.scene.input.enabled = false;
         Stage1.nextTurn.setTintFill(0xffffff);
+        Stage1.turnCounter.inc();
         setTimeout(function(){ Stage1.nextTurn.clearTint(); }, 300);
         let waitTime = Stage1.returnFire();
 

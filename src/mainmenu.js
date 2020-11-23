@@ -18,12 +18,20 @@ Menu.create = function() {
     Menu.notutorial = this.add.image(400, 420, 'notutorial').setName('notutorial').setScale(2).setInteractive();
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'tutorial'){
-            game.scene.stop('menu');
-            game.scene.start('tutorial');
+            Menu.tutorial.setTintFill(0xffffff);
+            setTimeout(function(){ Menu.tutorial.clearTint(); }, 300);
+            setTimeout(function(){
+                game.scene.stop('menu');
+                game.scene.start('tutorial');
+            }, 600);
         }
         else if (gameObject.name == 'notutorial'){
-            game.scene.stop('menu');
-            game.scene.start('stage1');
+            Menu.notutorial.setTintFill(0xffffff);
+            setTimeout(function(){ Menu.notutorial.clearTint(); }, 300);
+            setTimeout(function(){
+                game.scene.stop('menu');
+                game.scene.start('stage1');
+            }, 600);
         }
     }, Menu);
 }

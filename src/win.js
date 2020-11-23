@@ -13,8 +13,12 @@ Win.create = function() {
     Win.playAgain = this.add.image(400, 300, 'playAgainButton').setName('playAgain').setScale(2).setInteractive();
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'playAgain'){
-            game.scene.stop('win');
-            game.scene.start('menu');
+            Win.playAgain.setTintFill(0xffffff);
+            setTimeout(function(){ Win.playAgain.clearTint(); }, 300);
+            setTimeout(function(){
+                game.scene.stop('win');
+                game.scene.start('menu');
+            }, 600);
         }
     }, Win);
 }

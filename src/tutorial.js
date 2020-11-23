@@ -16,6 +16,8 @@
                 break;
             case 'train':
                 tutorial.sfx.train.play();
+            case 'eat' :
+                tutorial.sfx.eat.play();
         }
     }
 
@@ -34,9 +36,11 @@
         tutorial.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         tutorial.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
         tutorial.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
-        tutorial.scene.load.audio('shoot', './Sound/shoot.mp3')
-        tutorial.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3')
-        tutorial.scene.load.audio('train', './Sound/train.mp3')
+        tutorial.scene.load.audio('shoot', './Sound/shoot.mp3');
+        tutorial.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3');
+        tutorial.scene.load.audio('train', './Sound/train.mp3');
+        tutorial.scene.load.audio('eat', './Sound/eat.mp3');
+
 
         //loads background
         tutorial.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
@@ -112,11 +116,23 @@
         });
     }
 
+    tutorial.toggleEatMode = function(){
+        if (tutorial.eatMode){
+            tutorial.eatMode = false; 
+            tutorial.scene.input.setDefaultCursor('default');
+
+        }else{
+            tutorial.playSound('eat');
+            tutorial.eatMode = true; 
+            tutorial.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+        }
+    }
+
     tutorial.create=function(){
 
         //used for consume function
         tutorial.eatMode = false;
-        this.input.keyboard.on('keydown-E', () => tutorial.eatMode = true);
+        this.input.keyboard.on('keydown-E', tutorial.toggleEatMode);
 
         //make the next turn button
         tutorial.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).disableInteractive().setName("nextTurn");
@@ -138,6 +154,7 @@
         tutorial.sfx.shoot = tutorial.scene.sound.add('shoot', {volume: 0.1});
         tutorial.sfx.hawk = tutorial.scene.sound.add('hawk', {volume: 0.1});
         tutorial.sfx.train = tutorial.scene.sound.add('train', {volume: 0.1});
+        tutorial.sfx.eat = tutorial.scene.sound.add('eat', {volume: 0.1});
 
         //Define user turn, selected unit, and path storage
         tutorial.currentBug = null;
@@ -638,6 +655,8 @@
                 }, 600);
             }
             tutorial.eatMode = false; //resets eatMode after a click
+            tutorial.scene.input.setDefaultCursor('default');
+
         }, tutorial);
         
         //Periodically play environmental noises
@@ -814,7 +833,7 @@
     tutorial.endTurn = function(){
         tutorial.scene.input.enabled = false;
         tutorial.nextTurn.setTintFill(0xffffff);
-        setTimeout(function(){ Stage1.tutorial.clearTint(); }, 300);
+        setTimeout(function(){ tutorial.nextTurn.clearTint(); }, 300);
         let waitTime = tutorial.returnFire();
 
         setTimeout(function(){

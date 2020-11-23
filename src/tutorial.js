@@ -442,7 +442,14 @@
         tutorial.moveTiles = this.add.group();
 
         //Assigns arrow keys to cursors
-        tutorial.cursors = this.input.keyboard.createCursorKeys();
+        //tutorial.cursors = this.input.keyboard.createCursorKeys();
+        //Assigns wasd keys to cursors
+        tutorial.cursors = this.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+        });
 
         //Move main camera with cursors
         var controlConfig = {
@@ -470,6 +477,12 @@
         //tutorial.temp = this.add.graphics().setScrollFactor(0); //shows dead zone for camera
         //tutorial.temp.strokeRect(50,50,tutorial.cam.deadzone.width,tutorial.cam.deadzone.height);
         
+        //message when eat when full
+        tutorial.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
+        //transition scenes
+        tutorial.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
+        
+        tutorial.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
         tutorial.finder.setGrid(tutorial.terrainGrid);
@@ -600,7 +613,16 @@
                         gameObject.destroy();
                     }
                     else if (tutorial.eatMode){
-                        tutorial.consume(gameObject, bug);
+                        if (bug.health >= 4){
+                            tutorial.eatMode = false; //resets eatMode after a click
+                            tutorial.famished.setPosition(bug.x + 16, bug.y).setVisible(true);
+                            setTimeout(() => {tutorial.famished.setVisible(false)}, 3000);
+                            tutorial.scene.input.setDefaultCursor('default');
+                        } else {
+                            tutorial.consume(gameObject, bug);
+                            bug.spent = true;
+                            bug.spr.setTint(0x808080);
+                        }
                     }
                     else{
                         tutorial.spawn(gameObject);
@@ -656,7 +678,6 @@
             }
             tutorial.eatMode = false; //resets eatMode after a click
             tutorial.scene.input.setDefaultCursor('default');
-
         }, tutorial);
         
         //Periodically play environmental noises
@@ -772,6 +793,17 @@
         tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);        
     }
 
+    tutorial.toggleEatMode = function(){
+        if (tutorial.eatMode){
+            tutorial.eatMode = false; 
+            tutorial.scene.input.setDefaultCursor('default');
+
+        }else{
+            tutorial.eatMode = true; 
+            tutorial.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+        }
+    }
+
     //Returns the ID of a tile at a given coordinate
     tutorial.getTileID = function(x,y){
         /**
@@ -832,16 +864,37 @@
 
     tutorial.endTurn = function(){
         tutorial.scene.input.enabled = false;
-        tutorial.nextTurn.setTintFill(0xffffff);
-        setTimeout(function(){ tutorial.nextTurn.clearTint(); }, 300);
-        let waitTime = tutorial.returnFire();
-
+        tutorial.scene.tweens.add({
+            targets: tutorial.cowboyTransition,
+            alpha: {value: 1, duration: 10, ease: 'Linear'},
+            hold: 10,
+            yoyo: true,
+            loop: 0,
+            useFrames:true,
+            onComplete: function(){
+                let waitTime = tutorial.returnFire();;
+                setTimeout(function(){
+                    tutorial.bugs.getChildren().forEach(bug =>{
+                        bug.spent = false;
+                        bug.spr.clearTint();
+                    });
+                    tutorial.scene.tweens.add({
+                        targets: tutorial.alienTransition,
+                        alpha: {value: 1, duration: 10, ease: 'Linear'},
+                        hold: 10,
+                        yoyo: true,
+                        loop: 0,
+                        useFrames:true
+                    });
+                }, waitTime+10);
+            }
+        });
         setTimeout(function(){
             tutorial.bugs.getChildren().forEach(bug =>{
                 bug.spent = false;
                 bug.spr.clearTint();
             });
-        }, waitTime);
+        }, waitTime);*/
     }
 
     tutorial.returnFire = function(){

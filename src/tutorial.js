@@ -480,9 +480,9 @@
         //message when eat when full
         tutorial.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
         //transition scenes
-        tutorial.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
+        tutorial.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0).setDepth(4);
         
-        tutorial.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
+        tutorial.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0).setDepth(4);
         //Initializes pathfinder
         tutorial.finder = new EasyStar.js();
         tutorial.finder.setGrid(tutorial.terrainGrid);
@@ -596,7 +596,7 @@
                 if (distanceS < attackRangeS && bug.spent != true){
                     tutorial.aimcone.setVisible(false);//no ghost aimcones
 
-                    tutorial.moveTiles.clear(true); //get rid of move tiles
+                    tutorial.moveTiles.clear(true, true); //get rid of move tiles
                     tutorial.paths = [];
         
                     bug.spent = true;
@@ -608,7 +608,7 @@
                     }
 
                     if (gameObject.name == 'objective'){
-                        tutorial.terrainGrid[Math.floor(enemyTarget.y/enemyTarget.height)][Math.floor(enemyTarget.x/enemyTarget.width)]=1;
+                        tutorial.terrainGrid[Math.floor(gameObject.y/gameObject.height)][Math.floor(gameObject.x/gameObject.width)]=1;
                         tutorial.finder.setGrid(tutorial.terrainGrid);
                         gameObject.destroy();
                     }
@@ -772,7 +772,7 @@
             });
         }
         timeline.play();
-        tutorial.moveTiles.clear(true);
+        tutorial.moveTiles.clear(true, true);
     }
 
     tutorial.update = function(time, delta){
@@ -782,12 +782,12 @@
         //Rounds the cursor location to the nearest tile
         var pointerTileX = tutorial.map.worldToTileX(worldPoint.x);
         var pointerTileY = tutorial.map.worldToTileY(worldPoint.y);
-        if (pointerTileX >= 0/32 && pointerTileY >= 472/32){
+        /*if (pointerTileX >= 0/32 && pointerTileY >= 472/32){
             tutorial.cam.stopFollow();
         }
         else{
             tutorial.cam.startFollow(tutorial.marker, true);
-        }
+        }*/
         //Places the marker around the selected tile
         tutorial.marker.x = tutorial.map.tileToWorldX(pointerTileX);
         tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);        
@@ -844,7 +844,7 @@
             con.bar = tutorial.scene.add.sprite(0,32,"bar");
             con.add(con.spr);
             con.add(con.bar);
-
+            con.setDepth(3)
             con.name = "bug";
             con.spr.setDepth(1);
             con.bar.setDepth(2);
@@ -864,6 +864,9 @@
 
     tutorial.endTurn = function(){
         tutorial.scene.input.enabled = false;
+        tutorial.nextTurn.setTintFill(0xffffff);
+        setTimeout(function(){ tutorial.nextTurn.clearTint(); }, 300);
+        let waitTime;
         tutorial.scene.tweens.add({
             targets: tutorial.cowboyTransition,
             alpha: {value: 1, duration: 10, ease: 'Linear'},
@@ -872,7 +875,7 @@
             loop: 0,
             useFrames:true,
             onComplete: function(){
-                let waitTime = tutorial.returnFire();;
+                waitTime = tutorial.returnFire();;
                 setTimeout(function(){
                     tutorial.bugs.getChildren().forEach(bug =>{
                         bug.spent = false;
@@ -894,7 +897,7 @@
                 bug.spent = false;
                 bug.spr.clearTint();
             });
-        }, waitTime);*/
+        }, waitTime);
     }
 
     tutorial.returnFire = function(){

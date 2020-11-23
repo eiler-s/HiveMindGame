@@ -439,9 +439,9 @@ Stage1.key = 'stage1'
         //message when eat when full
         Stage1.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
         //transition screens
-        Stage1.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
+        Stage1.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0).setDepth(4);
         
-        Stage1.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0);
+        Stage1.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0).setDepth(4);
         //Initializes pathfinder
         Stage1.finder = new EasyStar.js();
         Stage1.finder.setGrid(Stage1.terrainGrid);
@@ -465,7 +465,7 @@ Stage1.key = 'stage1'
         Stage1.scene.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
             if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.currentBug == null){
-                Stage1.moveTiles.clear(true); //get rid of move tiles
+                Stage1.moveTiles.clear(true, true); //get rid of move tiles
                 Stage1.currentBug = gameObject;
                 Stage1.map.setLayer('terrain');
 
@@ -764,7 +764,7 @@ Stage1.key = 'stage1'
         Stage1.nextTurn.setTintFill(0xffffff);
         Stage1.turnCounter.inc();
         setTimeout(function(){ Stage1.nextTurn.clearTint(); }, 300);
-        let waitTime = Stage1.returnFire();
+        let waitTime;
         Stage1.scene.tweens.add({
             targets: Stage1.cowboyTransition,
             alpha: {value: 1, duration: 10, ease: 'Linear'},
@@ -773,7 +773,7 @@ Stage1.key = 'stage1'
             loop: 0,
             useFrames:true,
             onComplete: function(){
-                let waitTime = Stage1.returnFire();;
+                waitTime = Stage1.returnFire();
                 setTimeout(function(){
                     Stage1.bugs.getChildren().forEach(bug =>{
                         bug.spent = false;

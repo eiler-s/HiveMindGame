@@ -771,6 +771,9 @@ Stage1.key = 'stage1'
     }
 
     Stage1.endTurn = function(){
+        if (!Stage1.scene.input.enabled){
+            return;
+        }
         //Turn off user input
         Stage1.scene.input.enabled = false;
         Stage1.cam.stopFollow();
@@ -782,7 +785,7 @@ Stage1.key = 'stage1'
         let waitTime;
         Stage1.scene.tweens.add({
             targets: Stage1.cowboyTransition,
-            alpha: {value: 1, duration: 10, ease: 'Linear'},
+            alpha: {value: 1, duration: 20, ease: 'Linear'},
             hold: 10,
             yoyo: true,
             loop: 0,
@@ -806,7 +809,7 @@ Stage1.key = 'stage1'
 
                         Stage1.scene.tweens.add({
                             targets: Stage1.alienTransition,
-                            alpha: {value: 1, duration: 10, ease: 'Linear'},
+                            alpha: {value: 1, duration: 20, ease: 'Linear'},
                             hold: 10,
                             yoyo: true,
                             loop: 0,

@@ -870,6 +870,9 @@
     }
 
     tutorial.endTurn = function(){
+        if (!tutorial.scene.input.enabled){
+            return;
+        }
         //Turn off user input
         tutorial.scene.input.enabled = false;
         tutorial.cam.stopFollow();
@@ -881,7 +884,7 @@
         let waitTime;
         tutorial.scene.tweens.add({
             targets: tutorial.cowboyTransition,
-            alpha: {value: 1, duration: 10, ease: 'Linear'},
+            alpha: {value: 1, duration: 20, ease: 'Linear'},
             hold: 10,
             yoyo: true,
             loop: 0,
@@ -905,7 +908,7 @@
 
                         tutorial.scene.tweens.add({
                             targets: tutorial.alienTransition,
-                            alpha: {value: 1, duration: 10, ease: 'Linear'},
+                            alpha: {value: 1, duration: 20, ease: 'Linear'},
                             hold: 10,
                             yoyo: true,
                             loop: 0,

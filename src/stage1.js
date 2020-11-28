@@ -803,6 +803,15 @@ Stage1.key = 'stage1'
                             bug.spr.clearTint();
                             bug.isSelected = false;
                         });
+
+                        Stage1.scene.tweens.add({
+                            targets: Stage1.alienTransition,
+                            alpha: {value: 1, duration: 10, ease: 'Linear'},
+                            hold: 10,
+                            yoyo: true,
+                            loop: 0,
+                            useFrames:true
+                        });
                     }
                     else {  //if all aliens are dead then player loses
                         setTimeout(function(){
@@ -811,15 +820,6 @@ Stage1.key = 'stage1'
                             game.scene.start('lose');
                         }, waitTime + 500);
                     }
-
-                    Stage1.scene.tweens.add({
-                        targets: Stage1.alienTransition,
-                        alpha: {value: 1, duration: 10, ease: 'Linear'},
-                        hold: 10,
-                        yoyo: true,
-                        loop: 0,
-                        useFrames:true
-                    });
                 }, waitTime+10);
             }
         });

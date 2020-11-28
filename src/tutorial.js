@@ -902,6 +902,15 @@
                             bug.spr.clearTint();
                             bug.isSelected = false;
                         });
+
+                        tutorial.scene.tweens.add({
+                            targets: tutorial.alienTransition,
+                            alpha: {value: 1, duration: 10, ease: 'Linear'},
+                            hold: 10,
+                            yoyo: true,
+                            loop: 0,
+                            useFrames:true
+                        });
                     }
                     else {  //if all aliens are dead then player loses
                         setTimeout(function(){
@@ -910,15 +919,6 @@
                             game.scene.start('lose');
                         }, waitTime + 500);
                     }
-
-                    tutorial.scene.tweens.add({
-                        targets: tutorial.alienTransition,
-                        alpha: {value: 1, duration: 10, ease: 'Linear'},
-                        hold: 10,
-                        yoyo: true,
-                        loop: 0,
-                        useFrames:true
-                    });
                 }, waitTime+10);
             }
         });

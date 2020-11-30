@@ -502,7 +502,10 @@
         }
         tutorial.finder.setAcceptableTiles(tutorial.acceptableTiles);
 
-        //CLICK LISTNER
+        //Event emitters used to control progress of tutorial, see listeners above the narrative json
+        var emitter = new Phaser.Events.EventEmitter();
+
+        //CLICK LISTNER ###
         tutorial.scene.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
             console.log('gameobject:',gameObject.name);//###
@@ -666,17 +669,11 @@
                     }
                 }
             }
-
+            //moves along tutorial narrative when textbutton clicked
             else if (gameObject.name == 'textBtn'){
-                tutorial.textBtn.setTintFill(0xffffff);
-                setTimeout(function(){ tutorial.textBtn.clearTint(); }, 300);
-                setTimeout(function(){
-                    if (tutorial.curNar.length != 0){
-                        tutorial.speech = tutorial.curNar.shift();
-                        tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
-                    }
-                }, 600);
+                emitter.emit('arrowClick');
             }
+            //deselect a bug if it is already selected by clicking on it again
             else if (gameObject.name == 'bug' && gameObject.isSelected && gameObject.spent == false){
                 tutorial.moveTiles.clear(true); //get rid of move tiles
                 tutorial.currentBug = null;
@@ -789,12 +786,7 @@
         //Rounds the cursor location to the nearest tile
         var pointerTileX = tutorial.map.worldToTileX(worldPoint.x);
         var pointerTileY = tutorial.map.worldToTileY(worldPoint.y);
-        /*if (pointerTileX >= 0/32 && pointerTileY >= 472/32){
-            tutorial.cam.stopFollow();
-        }
-        else{
-            tutorial.cam.startFollow(tutorial.marker, true);
-        }*/
+
         //Places the marker around the selected tile
         tutorial.marker.x = tutorial.map.tileToWorldX(pointerTileX);
         tutorial.marker.y = tutorial.map.tileToWorldY(pointerTileY);        
@@ -1174,6 +1166,95 @@
                 tutorial.nextTurn.setInteractive();
             }
         }
+    }
+
+    //Activate and handle event listener for the arrow click
+    tutorial.listenArrowClicked = function(){
+        emitter.on('arrowClick', handleArrowClicked, this);
+    }
+    tutorial.handleArrowClicked = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+
+        tutorial.textBtn.setTintFill(0xffffff);
+        setTimeout(function(){ tutorial.textBtn.clearTint(); }, 300);
+        setTimeout(function(){
+            if (tutorial.curNar.length != 0){
+                tutorial.speech = tutorial.curNar.shift();
+                tutorial.makeTextBox(tutorial.speech.speaker, tutorial.speech.orientation, tutorial.speech.text, tutorial.speech.end);
+            }
+        }, 600);
+    }
+
+    //Activate and handle event listener for the arrow click
+    tutorial.listenAlienMoved = function(){
+        emitter.on('oneAlienMoved', handleAlienMoved, this);
+    }
+    tutorial.handleAlienMoved = function(){
+        emitter.off('oneAlienMoved', handleAlienMoved, this);    //deactivate listener
+    }
+
+    //Activate and handle event listener for the arrow click
+    tutorial.listenAllAliensMoved = function(){
+        emitter.on('allAliensMoved', handleAllAliensMoved, this);
+    }
+    tutorial.handleAllAliensMoved = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle event listener for the arrow click
+    tutorial.listenNextClicked = function(){
+        emitter.on('nextClick', handleNextClicked, this);
+    }
+    tutorial.handleNextClicked = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle listener for the arrow click
+    tutorial.listenFarmerKilled = function(){
+        emitter.on('oneFarmerDead', handleFarmerKilled, this);
+    }
+    tutorial.handleFarmerKilled = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle listener for the arrow click
+    tutorial.listenAllFarmersKilled = function(){
+        emitter.on('allFarmersDead', handleAllFarmersKilled, this);
+    }
+    tutorial.handleAllFarmersKilled = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle listener for the arrow click
+    tutorial.listenEatModeEntered = function(){
+        emitter.on('enterEat', handleEatModeEntered, this);
+    }
+    tutorial.handleEatModeEntered = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle listener for the arrow click
+    tutorial.listenEatModeExited = function(){
+        emitter.on('exitEat', handleEatModeExited, this);
+    }
+    tutorial.handleEatModeExited = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle listener for the arrow click
+    tutorial.listenAllCowhandsKilled = function(){
+        emitter.on('allCowhandsDead', handleAllCowhandsKilled, this);
+    }
+    tutorial.handleAllCowhandsKilled = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
+    }
+
+    //Activate and handle listener for the arrow click
+    tutorial.listenAllFlagsDestroyed = function(){
+        emitter.on('allFlagsDestroyed', handleAllFlagsDestroyed, this);
+    }
+    tutorial.handleAllFlagsDestroyed = function(){
+        emitter.off('arrowClick', handleArrowClicked, this);    //deactivate listener
     }
 
     var introBugNar = [

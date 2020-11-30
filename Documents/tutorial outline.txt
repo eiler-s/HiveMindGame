@@ -1,275 +1,224 @@
 /**
-alien's land
-motive
+<dont allow space bar>
+<incorporate turn counter>
+<remove center ons>
+<put a second space between cowhand turn and aliens turn>
+*/
 
-move aliens
-learn to select and deselect
-learn to move to red tile
-
-farmers appear
-explain that aliens can only do one thing each turn
-need to click next turn to reactivate alien
-need to move directly next to a farmer
-learn to eat and kill
-spawning
-healing
-
-cowhands appear
-explain that can be shot
-explain that will only shoot one alien at a time
-explain that they will stay looking in one direction
-explain that can hover over them to see their range
-
-flag appears
-explain that the object of the game is not to kill all the cowhands, but to destroy the flags
-explain that can move around map in a bigger map.
- */
-
-var introBugNar = [
+var narQueue = [
     {
-        speaker: 'instructions',
+        speaker: 'AlienBig',
         orientation: 'left',
-        end: false,
-        text: "Hive Queen:\n"+
-        "Howdy y'all! Ah know what y'all must be thinkin': why in high hell \n"+
-        "did we hafta land on this dustbowl of a planet? Well, ah'll have \n"+
-        "ya'll know that our interstella' hiveminds been running low on rations \n"+
-        "this season and we need fixins fast. Now conquer this backwater and \n"+
-        "see what y'all can rustle up! (Left-click the arrow to continue...)"
-    },
-    {
-        speaker: 'alienBig',
-        orientation: 'left',
-        end: false,
+        arrow: true,
+        callbacks: [disableAliens, listenArrowClicked],
         text: "Alien1:\n"+
-        "Ah'll be damned, this planet is so dry ah'm spitting cotton!"
+        "Howdy! Ah know what yah must be thinkin': why in high hell \n"+
+        "did we hafta land on this dusty backwater of a planet? Well, ah'll \n"+
+        "have you know that our interstella' hiveminds been running low \n"+
+        "on rations this season. Lets see what grub we can rustle up! \n"+
+	    "(Left-click the arrow to continue the narrative for game instructions)"
     },
     {
         speaker: 'alienBig',
         orientation: 'right',
-        end: false,
+        arrow: true,
+        callbacks: [listenArrowClicked],
         text: "Alien2:\n"+
-        "And its hot enough to fry eggs on the sidewalk too, ah reckon."
-    },
-    {
-        speaker: 'alienBig',
-        orientation: 'left',
-        end: false,
-        text: "Alien1:\n"+
-        "Word around the galaxy has it that the locals here are some sort \n"+
-        "of bovine primeapes. Dumb as boxes of rocks too. Ah've heard that \n"+
-        "they fry up real good though."
+        "Word around the galaxy has it that the locals here are some kind \n"+
+        "of human primeape. They're dumb as a box of rocks too. Ah've heard \n"+
+        "that they fry up real nice though, so lets get ranching! \n"+
+	    "(Left-click the arrow to continue the narrative for game instructions)"
     },
     {
         speaker: 'alienBig',
         orientation: 'right',
-        end: false,
+        callbacks: [enableAliens, listenAlienMoved],
         text: "Alien2:\n"+
-        "Primeape? Sounds mo' like primerib to me, ha! Lets grill 'em up \n"+
-        "medium-rare."
+	    "Hey, you...Yeah, ah'm talking to you--the player of our alien \n"+
+	    "hivemind! Left-click on one of us aliens to see where ya can move \n"+
+	    "us. Click on a red tile to move the selected alien to that spot."
     },
     {
         speaker: 'alienBig',
         orientation: 'left',
-        end: false,
+        callbacks: [listenAllAliensMoved],
         text: "Alien1:\n"+
-        "Ah know just what yer thinkin'; afterall we are a hivemind specie. \n"+
-        "Whelp, we're burnin daylight, lets get to it."
-    },
-    {
-        speaker: 'instructions',
-        orientation: 'left',
-        end: true,
-        text: "Instructions:\n"+
-        
-        "(2)Left-click on an alien to see where it can move.\n"+
-        "(3)Available move positions are indicated with red tiles.\n"+ 
-        "(3)Left-click on a red tile to move the alien to the destination.\n"+ 
-        "(4)Move each alien. An alien can only move once a turn."
-    }
-];
-
-var introFarmerNar = [
-    {
-        speaker: 'alienBig',
-        orientation: 'left',
-        end: false,
-        text: "Alien1:\n"+
-        "Why, we must be riding a gravy train with biscuit wheels! Lucky fer \n"+
-        "us theres some primeape cattle nearby."
+        "Did someone say primeape? Sounds mo' like primerib to me, ha! \n"+
+        "Hey hivemind player, an alien can only do one action each turn. \n"+
+        "That's why my partner there is greyed-out and ya can't select them. \n"+
+        "Ah gotsta get mah primeape grilled medium-rare so move me too dammit!"
     },
     {
         speaker: 'alienBig',
         orientation: 'right',
-        end: false,
+        next: true,
+        callbacks: [listenNextClicked],
         text: "Alien2:\n"+
-        "Lets get huntin'!"
+        "Alright, alright, you're doing just fine. Click the 'Next Turn' \n"+
+	    "button to reactivate us so that we can do more actions like movin' \n"+
+        "an' killin'."
+    },
+    {
+        speaker: 'alienBig',
+        orientation: 'left',
+        callbacks: [listenAllAliensMoved],
+        text: "Alien1:\n"+
+        "Why, we must be riding a gravy train with biscuit wheels! Lucky \n"+
+        "fer us theres some primeape cattle nearby. Looks like a couple of \n"+
+	    "farmers. They won't hurt us none, but ah hope that thems good \n"+
+	    "eatin'. Hivemind player, move both of us directly next to, or \n"
+        "just diagonal of them so that we can attack them."
     },
     {
         speaker: 'farmerBig',
         orientation: 'left',
-        end: false,
+        arrow: true,
+        callbacks: [disableAliens, listenArrowClicked],
         text: "Farmer:\n"+
         "I'll be, Marge! Those look like some Yankees or something over \n"+
         "yonder. I'll have them know that they're as welcome here as an \n"+
-        "outhouse breeze. Quick, get the kids back to the homestead."
+        "outhouse breeze. Quick, get the kids back to the homestead. \n"+
+	    "(Click the arrow button)"
     },
     {
         speaker: 'farmwomanBig',
         orientation: 'right',
-        end: false,
+        arrow: true,
+        callbacks: [listenArrowClicked],
         text: "Farmwoman:\n"+
-        "Were you raised in a barn, Bill? Sure, they look about as friendly \n"+
-        "as fire ants but thats no way to treat newcomers. Come hell or high \n"+
-        "water, we're going to give them some southern hospitality."
+        "listen you raised in a barn, Bill? Sure, they look about as friendly \n"+
+        "as fire ants but come hell or high water we're going to show them \n"+
+        "some southern hospitality. Kids, company's coming; add a cup of water \n"+
+        "to the soup. \n"+
+        "(Click the arrow button)"
     },
     {
-        speaker: 'farmerBig',
+        speaker: 'alienBig',
         orientation: 'left',
-        end: false,
-        text: "Farmer:\n"+
-        "Bless your heart, Marge. Its may be rough living out here on the \n"+
-        "range but you've never been nothing but sweetness and light. Kids, \n"+
-        "companys coming; add a cup of water to the soup."
-    },
+        next: true,
+        callbacks: [enableAliens, listenFarmerKilled],
+        text: "Alien1:\n"+
+        "Would ya look at that? If that primeape cow's brain listen dynamite \n"+
+        "she wouldn't even be able to blow her own nose. Once an alien is on \n"+
+	    "a tile next to a primeape, select that alien then click on the primeape \n"+
+	    "to kill it. Remember that an alien can only do one action each turn, \n"+
+        "so be sure to click 'Next Turn' beforehand! We won't eat the calves \n"+
+        "of course, they're as thin as fiddle strings, just ain't no meat on them."
+    }, (condition: kill a farmer)
     {
         speaker: 'alienBig',
         orientation: 'right',
-        end: false,
+        next: true,
+        callbacks: [listenAllFarmersKilled],
         text: "Alien2:\n"+
-        "Would ya look at that? If that primeape steer's brain was dynamite \n"+
-        "he wouldn't even be able to blow his own nose. This is goin' to be \n"+
-        "easy as pie."
+        "If we've gotsta round up so many primeape cattle we're goin' to \n"+
+        "need a regular ranching team. Sometimes when a primeape is killed a \n"+
+	    "low-health alien will spawn where that primeape listen. You can see an \n"+
+	    "alien's health shown in the green bar below it. Now slaughter the \n"+
+	    "other farmer so that we can lay some eggs in its hide. An' quit \n"+
+        "draggin' your feet will ya?"
     },
-    {
-        speaker: 'alienBig',
-        orientation: 'left',
-        end: false,
-        text: "Alien1:\n"+
-        "Say, Ah've been doin' some thinkin'..."
-    },
-    {
-        speaker: 'alienBig',
-        orientation: 'right',
-        end: false,
-        text: "Alien2:\n"+
-        "And ah know just what yer've thunk and ah suppose that yer right. \n"+
-        "If we've gotsta round up so many primeape cattle we're goin' to  \n"+
-        "need more help."
-    },
-    {
-        speaker: 'alienBig',
-        orientation: 'left',
-        end: false,
-        text: "Alien1:\n"+
-        "Damn straight. Once we slaughter the adults, lets lay some eggs in \n"+
-        "their hides to make some more of us. Thata way we can gets ourselves \n"+
-        "a regular ranching team. Let the primeape calves run off though; \n"+
-        "they're as thin as fiddle strings, just ain't no meat on 'em."
-    },
-    {
-        speaker: 'instructions',
-        orientation: 'left',
-        end: true,
-        text: "Instructions:\n"+
-        "(1)Click the next turn button (or press spacebar) to start the next turn.\n"+
-        "(2)In a turn an alien can perform a single action: move, eat, or kill.\n"+
-        "(3)Move an alien to a tile next to or diagonal of a human to eat/kill it\n"+
-        "in the next turn. (4)To kill a human, click the alien then the human.\n"+
-        "A low health alien may (or may not) spawn after killing a human.\n"+
-        "(5)To eat, left click the alien then press the 'e' key to enter eat mode.\n"+
-        "Then click the human to be eaten. This will heal the alien's health."
-    }
-];
-
-var introCowhandNar = [
     {
         speaker: 'cowboyBig',
         orientation: 'left',
-        end: false,
+        arrow: true,
+        callbacks: [disableAliens, listenArrowClicked],
         text: "Cowboy:\n"+
-        "Those kids came running into town faster than greased lightnin'! \n"+
+	    "Those kids came running into town faster than greased lightnin'! \n"+
         "Bill may have been a snot-slinging drunk and Marge as dull as a \n"+
-        "mashed-potato sandwich, but thems were damned good people. I'll show \n"+
-        "whicheva' revolving sons of *****s that ate those kids parents some \n"+
-        "real Texas justice. Mmmhm yep, Ima string them up by a strong oak \n"+
-        "tree."
+        "mashed-potato sandwich, but thems listen damned good people. I'll \n"+
+        "show whicheva' revolving sons of *****s that killed them some real \n"+
+        "Texas justice. Mmmhm, yep, im'a string them up by a strong oak tree. \n"+
     },
     {
         speaker: 'cowgirlBig',
         orientation: 'right',
-        end: false,
+        arrow: true,
+        callbacks: [listenArrowClicked],
         text: "Cowgirl:\n"+
         "Hey now, Sheriff, don't be getting as dark as the devil's riding \n"+
-        "boots. We're gonna carry those vagabonds back to town and give them \n"+
-        "a fair trial...THEN we'll have ourselves a hangin'!"
+        "boots. We're gonna carry those vagabonds back to town and give \n"+
+        "them a fair trial...THEN we'll have ourselves a hangin'! \n"+
+	    "(Cowhands have their own turn in the game and can shoot at aliens) \n"+
+	    "(Hover the cursor over each cowhand to see their current attack range)"
     },
     {
         speaker: 'cowboyBig',
         orientation: 'left',
-        end: false,
+        next: true,
+        callbacks: [enableTurnTrans, enableAliens, listenNextClicked],
         text: "Cowboy:\n"+
         "Well would'ya look at that, I can see them right over that there \n"+
         "gully. 'In lookit them, they're ugly as sin. Lets go teach them not \n"+
-        "to mess with Texas!"
+        "to mess with Texas. \n"+
+	    "(Each turn, cowhands can change the direction that they are facing) \n"+
+	    "(Click 'Next Turn')"
     },
     {
         speaker: 'cowgirlBig',
         orientation: 'right',
-        end: false,
+        next: true,
+        callbacks: [listenNextClicked],
         text: "Cowgirl:\n"+
-        "Yee-haw!!!"
+        "Yee-haw!!! \n"+
+        "(If aliens are in a cowhand's attack range, then the cowhand will \n"+
+        "randomly shoot at a single alien on their turn instead of facing \n"+
+        "a different direction) \n"+
+        "(Move both the aliens towards the cowhands then click 'Next Turn')"
     },
-    {
-        speaker: 'instructions',
-        orientation: 'left',
-        end: true,
-        text: "Instructions:\n"+
-        "Eliminate the remaining humans. Be careful when approaching cowhands. \n"+
-        "After each turn, cowhands will either rotate their orientation or \n"+
-        "shoot an alien. (1)Hover the cursor over an cowhand to see their attack range.\n"+
-        "(2)Moving an alien into a cowhand's attack range will result in the \n"+
-        "alien being shot and losing health. (a single alien)  Also, cowhands can shoot over \n"+
-        "trenches and through trees."
-    }
-];
-
-var introFlagNar = [
     {
         speaker: 'alienBig',
         orientation: 'left',
-        end: false,
+        callbacks: [disableAliens, disableCowhands, enableEatMode, listenEatModeEntered],
         text: "Alien1:\n"+
-        "Fer a moment there, ah though that we'd got ourselves caught in \n"+
-        "our own lasso. Heck, ah was sweatin' like a whore in church!"
+        "Ah'll be damned, this planet is so dry ah'm spitting cotton! \n"+
+        "Whelp, ah needta wet mah jaw with some sweet primeape barbeque. \n"+
+        "Hivemind player, prepare to enter eat mode. If ya kill a primeape in \n"+
+        "eat mode then the selected alien will gain more health. Select an \n"+
+        "alien then press the 'E' key on the keyboard to enter eat mode."
     },
     {
         speaker: 'alienBig',
         orientation: 'right',
-        end: false,
+        callback: [listenEatModeExited],
         text: "Alien2:\n"+
-        "Bah, ah reckon we whipped 'em like a redheaded stepchild. These \n"+
-        "ones were tastier too, nice an' tender bites. Ah think we should \n"+
-        "set up a ranch in these parts."
+        "Wooowee! The teeth on that cursor look downright ferocious. \n"+
+        "But ya best watch out, if ya kill a primeape in eat mode then there \n"+
+        "is no chance in hell that an alien will spawn in their place, unlike \n"+
+        "when ya kill it without eat mode. Also, an alien with full health \n"+
+        "can't use eat mode to kill priemapes because its health is already \n"+
+        "full. Exit eat mode by pressing the 'E' key again."
     },
     {
         speaker: 'alienBig',
         orientation: 'left',
-        end: false,
+        next: true,
+        callback: [enableAliens, enableCowhands, listenAllCowhandsKilled],
         text: "Alien1:\n"+
-        "Sho' thin', its been a hulluva time. We gotsta do somethin' about \n"+
-        "that flag over there, ah'll be damned it we fly someone else's \n"+
-        "brand on our land."
+        "Ah reckon that it's time for us to whip those cowhands like a \n"+
+        "red-headed stepchild. Remember that using eat mode is just like \n"+
+        "normal killin' 'cause you gotta be right next to a human to eat \n"+
+        "them. We're burnin daylight so lets get to it!."
     },
     {
-        speaker: 'instructions',
+        speaker: 'alienBig',
         orientation: 'left',
-        end: true,
-        text: "Instructions:\n"+
-        "(1)Use the cursor keys to move the camera around the map.\n"+
-        "(1)Move the aliens over the Texas flag to tear it down. The objective \n"+
-        "(2)of the game is to remove all the Texas flags in a game level."
+        arrow: true,
+        callbacks: [disableAliens, listenArrowClicked],
+        text: "Alien1:\n"+
+        "Fer a moment there, ah thought that we'd got ourselves caught in \n"+
+        "our own lasso. Heck, ah listen sweatin' like a whore in church when \n"+
+        "they started shootin' at us! Anyhow, it's been a helluva time and \n"+
+        "I think that we should set up ranch in these parts."
+    },
+    {
+        speaker: 'alienBig',
+        orientation: 'right',
+        next: true,
+        callback: [enableAliens, listenAllFlagsDestroyed],
+        text: "Alien2:\n"+
+        "we gotsta do somethin' about those flags over there, I'll be damned \n"+
+        "if we fly someone else's brand on our land. Destroy them the same \n"+
+        "way that ya kill primeapes; its the only way to win a game level!"
     }
 ];
-
-var narQueue = [introBugNar, introFarmerNar, introCowhandNar, introFlagNar];

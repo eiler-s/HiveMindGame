@@ -8,6 +8,7 @@ Menu.preload = function() {
     Menu.scene.load.image('tutorial', './Sprites/signs/Tutorial.png');   
     //Menu.scene.load.image('select', './Sprites/signs/level select.png');
     Menu.scene.load.image('notutorial', './Sprites/signs/notutorial.png');
+    Menu.scene.load.image('credits', './Sprites/signs/credits.png');
     
 }
 
@@ -16,6 +17,7 @@ Menu.create = function() {
     Menu.tutorial = this.add.image(400, 300, 'tutorial').setName('tutorial').setScale(2).setInteractive();
     //Menu.select = this.add.image(300, 360, 'select').setName('select').setScale(2).setInteractive(true);
     Menu.notutorial = this.add.image(400, 420, 'notutorial').setName('notutorial').setScale(2).setInteractive();
+    Menu.credits = this.add.image(400, 540, 'credits').setName('credits').setScale(2).setInteractive();
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'tutorial'){
             Menu.tutorial.setTintFill(0xffffff);
@@ -31,6 +33,14 @@ Menu.create = function() {
             setTimeout(function(){
                 game.scene.stop('menu');
                 game.scene.start('stage1');
+            }, 600);
+        }
+        else if (gameObject.name == 'credits'){
+            Menu.credits.setTintFill(0xffffff);
+            setTimeout(function(){ Menu.credits.clearTint(); }, 300);
+            setTimeout(function(){
+                game.scene.stop('menu');
+                game.scene.start('credits');
             }, 600);
         }
     }, Menu);

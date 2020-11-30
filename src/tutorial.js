@@ -49,7 +49,7 @@
         //Load tilemap images and map layout files
         tutorial.scene.load.image('tilemap', "./src/sprites/tilemap.png");
         tutorial.scene.load.image('red', './src/sprites/red.png');
-        tutorial.scene.load.tilemapTiledJSON('map', './src/tilemaps/tutorialMap.json');
+        tutorial.scene.load.tilemapTiledJSON('tutmap', './src/tilemaps/tutorialMap.json');
         tutorial.scene.load.image('flag', './Sprites/terrain/Texas_flag.png');
 
         //Load next turn utton
@@ -162,7 +162,7 @@
 
         //Create game map and tileset
         var config = {
-            key: 'map',
+            key: 'tutmap',
             tileWidth: 32,
             tileHeight: 32
         }
@@ -870,6 +870,9 @@
     }
 
     tutorial.endTurn = function(){
+        if (!tutorial.scene.input.enabled){
+            return;
+        }
         //Turn off user input
         tutorial.scene.input.enabled = false;
         tutorial.cam.stopFollow();
@@ -881,7 +884,7 @@
         let waitTime;
         tutorial.scene.tweens.add({
             targets: tutorial.cowboyTransition,
-            alpha: {value: 1, duration: 10, ease: 'Linear'},
+            alpha: {value: 1, duration: 20, ease: 'Linear'},
             hold: 10,
             yoyo: true,
             loop: 0,
@@ -905,7 +908,7 @@
 
                         tutorial.scene.tweens.add({
                             targets: tutorial.alienTransition,
-                            alpha: {value: 1, duration: 10, ease: 'Linear'},
+                            alpha: {value: 1, duration: 20, ease: 'Linear'},
                             hold: 10,
                             yoyo: true,
                             loop: 0,

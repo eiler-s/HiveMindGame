@@ -1,0 +1,26 @@
+hey some cowhands have appeared
+cowhands are dangerous, they will shoot your aliens
+hover your mouse over a cowhand to see where they can shoot at
+when you press next turn cowhands will change the direction they are facing
+a cowhand will only shoot one alien that is in its range each turn
+cowhands can shoot over ravines and through trees
+go kill those cowhands
+
+good job
+
+hey look those flags appeared
+we cant have flags on our land
+when you are hunting and ranching you want to get rid of all the texas flags, you dont have to kill all the humans
+
+
+At start of actual game, show a text box that says:
+remove after the first turn is finished
+"
+If you don't know how to play try the tutorial from the main menu.
+Goal: Destroy all the Texas flags on the hivemind ranch!
+
+Use the W,A,S, and D keys to move the viewport around the map,
+or move the mouse near the edge of the map to move it in that direction
+
+Press the 'Next Turn' button (or spacebar) to start the next turn.
+"

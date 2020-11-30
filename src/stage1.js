@@ -125,7 +125,7 @@ Stage1.key = 'stage1';
         this.input.keyboard.on('keydown-E', Stage1.toggleEatMode);
 
         //make the next turn button
-        Stage1.nextTurn = this.add.image(0,408,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
+        Stage1.nextTurn = this.add.image(25,511,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
         Stage1.nextTurn.setOrigin(0,0);  
 
         //place an aimcone
@@ -616,6 +616,8 @@ Stage1.key = 'stage1';
         }, 100000)
 
         setTimeout(function(){
+            Stage1.nextTurn.setPosition(0,408);
+
             //Create textbox images
             Stage1.textbox = Stage1.scene.add.rectangle(0, 472, 800, 128, 0x696969).setDepth(3).setScrollFactor(0).setOrigin(0,0);
             Stage1.speaker = Stage1.scene.add.image(0, 472, 'alienBig').setDepth(3).setScrollFactor(0).setOrigin(0,0);

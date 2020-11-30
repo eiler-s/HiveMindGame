@@ -100,6 +100,15 @@ Stage1.key = 'stage1';
             frameWidth:32,
             frameHeight:32,
         });
+
+        //Load images for textboxes
+        Stage1.scene.load.image('alienBig','./Sprites/hunters/hunter2.png');
+        Stage1.scene.load.spritesheet('arrows','./Sprites/arrows/arrows.png',{
+            frameWidth:32,
+            frameHeight:32,
+            margin:1,
+            spacing:2
+        });
     }
 
     Stage1.create=function(){
@@ -116,7 +125,7 @@ Stage1.key = 'stage1';
         this.input.keyboard.on('keydown-E', Stage1.toggleEatMode);
 
         //make the next turn button
-        Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
+        Stage1.nextTurn = this.add.image(0,408,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
         Stage1.nextTurn.setOrigin(0,0);  
 
         //place an aimcone
@@ -581,6 +590,10 @@ Stage1.key = 'stage1';
                     }
                 }
             }
+            //moves along Stage1 narrative when textbutton clicked
+            else if (gameObject.name == 'textBtn'){
+                Stage1.emitter.emit('arrowClick');
+            }
             //deselect a bug if it is already selected by clicking on it again
             else if (gameObject.name == 'bug' && gameObject.isSelected && gameObject.spent == false){
                 Stage1.moveTiles.clear(true); //get rid of move tiles
@@ -601,6 +614,27 @@ Stage1.key = 'stage1';
                 Stage1.playSound('train');
             }
         }, 100000)
+
+        setTimeout(function(){
+            //Create textbox images
+            Stage1.textbox = Stage1.scene.add.rectangle(0, 472, 800, 128, 0x696969).setDepth(3).setScrollFactor(0).setOrigin(0,0);
+            Stage1.speaker = Stage1.scene.add.image(0, 472, 'alienBig').setDepth(3).setScrollFactor(0).setOrigin(0,0);
+            Stage1.text = Stage1.scene.add.text(128, 472, '').setDepth(3).setScrollFactor(0).setOrigin(0,0);
+            Stage1.textBtn = Stage1.scene.add.sprite(640, 568, 'arrows').setDepth(3).setScrollFactor(0).setOrigin(0,0);
+            Stage1.textBtn.name = 'textBtn';
+
+            //Create animation for narration button
+            Stage1.scene.anims.create({
+                key: 'aDown',
+                frames: Stage1.scene.anims.generateFrameNumbers('arrows', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
+            Stage1.textBtn.anims.play('aDown');
+
+            //Start the Stage1 narration
+            Stage1.progressStory();
+        }, 3000);
     }
 
     //Create a movement tile at a path's destination
@@ -990,4 +1024,76 @@ Stage1.key = 'stage1';
         else if (bug.health == 4){
             bug.bar.anims.play('health4');
         }
+    }
+
+    //Makes a text box with progression button and image of speaker
+    Stage1.makeTextBox = function (imageName, text, orientation = 'left', arrow = false, next = false){
+        Stage1.speaker.setTexture(imageName);
+        Stage1.text.setText(text);
+
+        //Arrange textbox images so that speaker is on the left
+        if (orientation == 'left'){
+            Stage1.speaker.setPosition(0, 472).setFlipX(false);
+            Stage1.text.setPosition(128, 472);
+            Stage1.textBtn.setPosition(768, 568);
+        } 
+        //Arrange textbox images so that the speaker is on the right
+        else if (orientation == 'right'){
+            Stage1.speaker.setPosition(672, 472).setFlipX(true);
+            Stage1.text.setPosition(0, 472);
+            Stage1.textBtn.setPosition(640, 568);
+        }
+
+        if (arrow = undefined || arrow == false){
+            Stage1.textBtn.visible = false;
+            Stage1.textBtn.disableInteractive();
+        }
+        else{
+
+            Stage1.textBtn.visible = true;
+            Stage1.textBtn.setInteractive();
+        }
+
+        if (next = undefined || next == false){
+            Stage1.nextTurn.visible = false;
+            Stage1.nextTurn.disableInteractive();
+        }
+        else{
+            Stage1.nextTurn.visible = true;
+            Stage1.nextTurn.setInteractive();
+        }
+    }
+
+    //Shifts the narrative and creates corresponding textbox
+    Stage1.progressStory = function(){
+        let dialogue = ""+
+        "If you don't know how to play, please reload and try the tutorial.\n"+
+        "Game Objective: Destroy all the Texas flags on the hivemind ranch!\n\n"+
+        "Use the W,A,S, and D keys to move the viewport around the map, or \n"+
+        "move the mouse near the edge of the map to move it in that direction.\n\n"+
+        "Press the 'Next Turn' button (or spacebar) to start the next turn.\n"+
+        "Click the arrow button to close this dialogue."
+
+        Stage1.makeTextBox('alienBig', dialogue, 'left', true, true);
+
+        //Run the callback functions associated with the dialogue
+        Stage1.listenArrowClicked();
+    }
+
+    //Activate and handle event listener for the arrow click
+    Stage1.listenArrowClicked = function(){
+        Stage1.emitter.on('arrowClick',Stage1.handleArrowClicked, this);
+    }
+    Stage1.handleArrowClicked = function(){
+        Stage1.emitter.off('arrowClick',Stage1.handleArrowClicked, this);    //deactivate listener
+
+        Stage1.textBtn.setTintFill(0xffffff);
+        setTimeout(function(){ Stage1.textBtn.clearTint(); }, 300);
+        setTimeout(function(){
+            Stage1.textbox.destroy();
+            Stage1.speaker.destroy();
+            Stage1.text.destroy();
+            Stage1.textBtn.destroy();
+            Stage1.nextTurn.setPosition(25, 511);
+        }, 600);
     }

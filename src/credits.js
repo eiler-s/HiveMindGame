@@ -1,17 +1,25 @@
 var Credits = {};
-var text = 'Attributions\n'+
-'easystar-0.4.3.js - https://easystarjs.com/\n'+
-'phaser.js - phaser.io\n'+
-'Music\n'+
-'Background Music - Fesliyan Studios\n'+
-'run - http://soundbible.com/1979-Cartoon-Running.html\n'+
-'shoot - http://soundbible.com/2071-Winchester-1873-Single-Shots.html\n'+
-'hawk - http://soundbible.com/1844-Hawk-Screeching.html\n'+
-'train - http://soundbible.com/2177-Steam-Train-Whistle.html\n'+
-'Credits\n'+
-'Kevin Woo\n'+
-'Eiler Schiotz\n'+
-'Henry Arjet';
+var text = 'Attributions:\n'+
+'easystar-0.4.3.js pathfinding - https://easystarjs.com/ \n'+
+'phaser.js game framework- phaser.io \n'+
+'\n'+
+'Background Music Credit Goes to Fesliyan Studios:\n'+
+'Riding Solo by David Fesliyan \n'+
+'Old West Gunslingers by Steve Oxen \n'+
+'Western Cowboy Ride by David Fesliyan \n'+
+'Rolling Hills by Cristiano Corradetti \n'+
+'\n'+
+'Sound Effects:\n'+
+'run sound effect from http://soundbible.com/1979-Cartoon-Running.html \n'+
+'shoot sound effect from http://soundbible.com/2071-Winchester-1873-Single-Shots.html \n'+
+'hawk sound effect from http://soundbible.com/1844-Hawk-Screeching.html \n'+
+'train sound effect from http://soundbible.com/2177-Steam-Train-Whistle.html \n'+
+'\n'+
+'Game Creation Credits:\n'+
+'Kevin Woo - programmer, game architect \n'+
+'Eiler Schiotz - programmer, sprite artist \n'+
+'Henry Arjet - programmer, level designer \n';
+
 Credits.key = 'credits';
 Credits.preload = function(){
     Credits.scene = this;

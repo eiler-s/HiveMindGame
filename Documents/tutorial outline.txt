@@ -1,16 +1,9 @@
-/**
-<dont allow space bar>
-<incorporate turn counter>
-<remove center ons>
-<put a second space between cowhand turn and aliens turn>
-*/
-
-var narQueue = [
+    tutorial.narQueue = [
     {
-        speaker: 'AlienBig',
+        speaker: 'alienBig',
         orientation: 'left',
         arrow: true,
-        callbacks: [disableAliens, listenArrowClicked],
+        callbacks: [tutorial.disableTurnTrans, tutorial.disableAliens, tutorial.listenArrowClicked],
         text: "Alien1:\n"+
         "Howdy! Ah know what yah must be thinkin': why in high hell \n"+
         "did we hafta land on this dusty backwater of a planet? Well, ah'll \n"+
@@ -22,7 +15,7 @@ var narQueue = [
         speaker: 'alienBig',
         orientation: 'right',
         arrow: true,
-        callbacks: [listenArrowClicked],
+        callbacks: [tutorial.listenArrowClicked],
         text: "Alien2:\n"+
         "Word around the galaxy has it that the locals here are some kind \n"+
         "of human primeape. They're dumb as a box of rocks too. Ah've heard \n"+
@@ -32,7 +25,7 @@ var narQueue = [
     {
         speaker: 'alienBig',
         orientation: 'right',
-        callbacks: [enableAliens, listenAlienMoved],
+        callbacks: [tutorial.enableAliens, tutorial.listenAlienMoved],
         text: "Alien2:\n"+
 	    "Hey, you...Yeah, ah'm talking to you--the player of our alien \n"+
 	    "hivemind! Left-click on one of us aliens to see where ya can move \n"+
@@ -41,7 +34,7 @@ var narQueue = [
     {
         speaker: 'alienBig',
         orientation: 'left',
-        callbacks: [listenAllAliensMoved],
+        callbacks: [tutorial.listenAllAliensMoved],
         text: "Alien1:\n"+
         "Did someone say primeape? Sounds mo' like primerib to me, ha! \n"+
         "Hey hivemind player, an alien can only do one action each turn. \n"+
@@ -52,7 +45,7 @@ var narQueue = [
         speaker: 'alienBig',
         orientation: 'right',
         next: true,
-        callbacks: [listenNextClicked],
+        callbacks: [tutorial.listenNextClicked],
         text: "Alien2:\n"+
         "Alright, alright, you're doing just fine. Click the 'Next Turn' \n"+
 	    "button to reactivate us so that we can do more actions like movin' \n"+
@@ -61,19 +54,19 @@ var narQueue = [
     {
         speaker: 'alienBig',
         orientation: 'left',
-        callbacks: [listenAllAliensMoved],
+        callbacks: [tutorial.activateFarmers, tutorial.listenAllAliensMoved],
         text: "Alien1:\n"+
         "Why, we must be riding a gravy train with biscuit wheels! Lucky \n"+
         "fer us theres some primeape cattle nearby. Looks like a couple of \n"+
 	    "farmers. They won't hurt us none, but ah hope that thems good \n"+
-	    "eatin'. Hivemind player, move both of us directly next to, or \n"
+	    "eatin'. Hivemind player, move both of us directly next to, or \n"+
         "just diagonal of them so that we can attack them."
     },
     {
         speaker: 'farmerBig',
         orientation: 'left',
         arrow: true,
-        callbacks: [disableAliens, listenArrowClicked],
+        callbacks: [tutorial.disableAliens, tutorial.listenArrowClicked],
         text: "Farmer:\n"+
         "I'll be, Marge! Those look like some Yankees or something over \n"+
         "yonder. I'll have them know that they're as welcome here as an \n"+
@@ -84,9 +77,9 @@ var narQueue = [
         speaker: 'farmwomanBig',
         orientation: 'right',
         arrow: true,
-        callbacks: [listenArrowClicked],
+        callbacks: [tutorial.listenArrowClicked],
         text: "Farmwoman:\n"+
-        "listen you raised in a barn, Bill? Sure, they look about as friendly \n"+
+        "Were you raised in a barn, Bill? Sure, they look about as friendly \n"+
         "as fire ants but come hell or high water we're going to show them \n"+
         "some southern hospitality. Kids, company's coming; add a cup of water \n"+
         "to the soup. \n"+
@@ -96,45 +89,45 @@ var narQueue = [
         speaker: 'alienBig',
         orientation: 'left',
         next: true,
-        callbacks: [enableAliens, listenFarmerKilled],
+        callbacks: [tutorial.enableAliens, tutorial.listenFarmerKilled],
         text: "Alien1:\n"+
-        "Would ya look at that? If that primeape cow's brain listen dynamite \n"+
-        "she wouldn't even be able to blow her own nose. Once an alien is on \n"+
-	    "a tile next to a primeape, select that alien then click on the primeape \n"+
-	    "to kill it. Remember that an alien can only do one action each turn, \n"+
-        "so be sure to click 'Next Turn' beforehand! We won't eat the calves \n"+
-        "of course, they're as thin as fiddle strings, just ain't no meat on them."
-    }, (condition: kill a farmer)
+        "If that primeape cow's brain was dynamite she wouldn't even be \n"+
+        "ble to blow her own nose. Once an alien is on a tile next to a \n"+
+	    "primeape, select that alien then click on the primeape to kill it. \n"+
+	    "Remember that an alien can only do one action each turn, so be sure \n"+
+        "to click 'Next Turn' beforehand! We won't eat the calves of course, \n"+
+        "they're as thin as fiddle strings, just ain't no meat on them."
+    },
     {
         speaker: 'alienBig',
         orientation: 'right',
         next: true,
-        callbacks: [listenAllFarmersKilled],
+        callbacks: [tutorial.listenAllFarmersKilled],
         text: "Alien2:\n"+
         "If we've gotsta round up so many primeape cattle we're goin' to \n"+
         "need a regular ranching team. Sometimes when a primeape is killed a \n"+
-	    "low-health alien will spawn where that primeape listen. You can see an \n"+
+	    "low-health alien will spawn where that primeape was. You can see an \n"+
 	    "alien's health shown in the green bar below it. Now slaughter the \n"+
 	    "other farmer so that we can lay some eggs in its hide. An' quit \n"+
-        "draggin' your feet will ya?"
+        "draggin' your feet, will ya?"
     },
     {
         speaker: 'cowboyBig',
         orientation: 'left',
         arrow: true,
-        callbacks: [disableAliens, listenArrowClicked],
+        callbacks: [tutorial.activateCowhands, tutorial.disableAliens, tutorial.listenArrowClicked],
         text: "Cowboy:\n"+
 	    "Those kids came running into town faster than greased lightnin'! \n"+
         "Bill may have been a snot-slinging drunk and Marge as dull as a \n"+
-        "mashed-potato sandwich, but thems listen damned good people. I'll \n"+
+        "mashed-potato sandwich, but thems were damned good people. I'll \n"+
         "show whicheva' revolving sons of *****s that killed them some real \n"+
-        "Texas justice. Mmmhm, yep, im'a string them up by a strong oak tree. \n"+
+        "Texas justice. Mmmhm, yep, im'a string them up by a strong oak tree. \n"
     },
     {
         speaker: 'cowgirlBig',
         orientation: 'right',
         arrow: true,
-        callbacks: [listenArrowClicked],
+        callbacks: [tutorial.listenArrowClicked],
         text: "Cowgirl:\n"+
         "Hey now, Sheriff, don't be getting as dark as the devil's riding \n"+
         "boots. We're gonna carry those vagabonds back to town and give \n"+
@@ -146,7 +139,7 @@ var narQueue = [
         speaker: 'cowboyBig',
         orientation: 'left',
         next: true,
-        callbacks: [enableTurnTrans, enableAliens, listenNextClicked],
+        callbacks: [tutorial.enableTurnTrans, tutorial.enableAliens, tutorial.listenNextClicked],
         text: "Cowboy:\n"+
         "Well would'ya look at that, I can see them right over that there \n"+
         "gully. 'In lookit them, they're ugly as sin. Lets go teach them not \n"+
@@ -158,7 +151,7 @@ var narQueue = [
         speaker: 'cowgirlBig',
         orientation: 'right',
         next: true,
-        callbacks: [listenNextClicked],
+        callbacks: [tutorial.listenNextClicked],
         text: "Cowgirl:\n"+
         "Yee-haw!!! \n"+
         "(If aliens are in a cowhand's attack range, then the cowhand will \n"+
@@ -169,7 +162,7 @@ var narQueue = [
     {
         speaker: 'alienBig',
         orientation: 'left',
-        callbacks: [disableAliens, disableCowhands, enableEatMode, listenEatModeEntered],
+        callbacks: [tutorial.disableCowhands, tutorial.activateEatMode, tutorial.listenEatModeEntered],
         text: "Alien1:\n"+
         "Ah'll be damned, this planet is so dry ah'm spitting cotton! \n"+
         "Whelp, ah needta wet mah jaw with some sweet primeape barbeque. \n"+
@@ -180,7 +173,7 @@ var narQueue = [
     {
         speaker: 'alienBig',
         orientation: 'right',
-        callback: [listenEatModeExited],
+        callbacks: [tutorial.disableAliens, tutorial.listenEatModeExited],
         text: "Alien2:\n"+
         "Wooowee! The teeth on that cursor look downright ferocious. \n"+
         "But ya best watch out, if ya kill a primeape in eat mode then there \n"+
@@ -193,7 +186,7 @@ var narQueue = [
         speaker: 'alienBig',
         orientation: 'left',
         next: true,
-        callback: [enableAliens, enableCowhands, listenAllCowhandsKilled],
+        callbacks: [tutorial.enableAliens, tutorial.enableCowhands, tutorial.listenAllCowhandsKilled],
         text: "Alien1:\n"+
         "Ah reckon that it's time for us to whip those cowhands like a \n"+
         "red-headed stepchild. Remember that using eat mode is just like \n"+
@@ -204,10 +197,10 @@ var narQueue = [
         speaker: 'alienBig',
         orientation: 'left',
         arrow: true,
-        callbacks: [disableAliens, listenArrowClicked],
+        callbacks: [tutorial.activateFlags, tutorial.disableAliens, tutorial.listenArrowClicked],
         text: "Alien1:\n"+
         "Fer a moment there, ah thought that we'd got ourselves caught in \n"+
-        "our own lasso. Heck, ah listen sweatin' like a whore in church when \n"+
+        "our own lasso. Heck, ah was sweatin' like a whore in church when \n"+
         "they started shootin' at us! Anyhow, it's been a helluva time and \n"+
         "I think that we should set up ranch in these parts."
     },
@@ -215,7 +208,7 @@ var narQueue = [
         speaker: 'alienBig',
         orientation: 'right',
         next: true,
-        callback: [enableAliens, listenAllFlagsDestroyed],
+        callbacks: [tutorial.enableAliens, tutorial.listenAllFlagsDestroyed],
         text: "Alien2:\n"+
         "we gotsta do somethin' about those flags over there, I'll be damned \n"+
         "if we fly someone else's brand on our land. Destroy them the same \n"+

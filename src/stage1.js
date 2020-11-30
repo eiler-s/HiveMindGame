@@ -1,5 +1,6 @@
-var Stage1 ={};
-Stage1.key = 'stage1'
+var Stage1 = {};
+Stage1.key = 'stage1';
+
     Stage1.playSound=function(name){
         switch (name){
             case 'cowhandDeath':
@@ -30,11 +31,10 @@ Stage1.key = 'stage1'
     
     Stage1.preload=function(){
         Stage1.scene = this;
+
         //Load audio files
-        //Thank you to Fesliyan Studios for background music.
         Stage1.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
         Stage1.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
-
         Stage1.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
         Stage1.scene.load.audio('shoot', './Sound/shoot.mp3');
         Stage1.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3');
@@ -102,32 +102,23 @@ Stage1.key = 'stage1'
         });
     }
 
-    Stage1.toggleEatMode = function(){
-        if (Stage1.eatMode){
-            Stage1.eatMode = false; 
-            Stage1.scene.input.setDefaultCursor('default');
-
-        }else{
-            Stage1.playSound('eat');
-            Stage1.eatMode = true; 
-            Stage1.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
-        }
-    }
-
     Stage1.create=function(){
+        graphics = this.add.graphics();
 
         //turn counter
         Stage1.turnCounter = this.add.text(620,20, "Turns: 1").setDepth(12).setScrollFactor(0);
         Stage1.turnCounter.setFont('georgia').setFontSize(30).setFontStyle('bold').setColor('black');
         Stage1.turnCounter.turn = 1;
         Stage1.turnCounter.inc = () => {Stage1.turnCounter.turn++; Stage1.turnCounter.setText("Turns: " + Stage1.turnCounter.turn);}
+        
         //used for consume function
         Stage1.eatMode = false;
         this.input.keyboard.on('keydown-E', Stage1.toggleEatMode);
 
         //make the next turn button
         Stage1.nextTurn = this.add.image(70,550,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
-        
+        Stage1.nextTurn.setOrigin(0,0);  
+
         //place an aimcone
         Stage1.aimcone = this.add.image(0,0,'aimcone').setDepth(5).setVisible(false);     
         
@@ -144,7 +135,6 @@ Stage1.key = 'stage1'
         Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
         Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
         Stage1.sfx.eat = Stage1.scene.sound.add('eat', {volume: 0.1});
-
 
         //Define user turn, selected unit, and path storage
         Stage1.currentBug = null;
@@ -237,7 +227,6 @@ Stage1.key = 'stage1'
             con.bar = this.add.sprite(0,32,"bar");
             con.add(con.spr);
             con.add(con.bar);
-
             con.name = "bug";
             con.setDepth(1);
             con.spr.setDepth(1);
@@ -407,6 +396,7 @@ Stage1.key = 'stage1'
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D,
         });
+
         //Move main camera with cursors
         var controlConfig = {
             camera: this.cameras.main,
@@ -445,7 +435,6 @@ Stage1.key = 'stage1'
         Stage1.famished = this.add.text(400,300, 'This alien is full').setDepth(3).setScrollFactor(0).setVisible(false).setOrigin(.5,.5);
         //transition screens
         Stage1.alienTransition = this.add.text(400, 300, 'Alien\'s Turn',{fontFamily:'Eater', fontSize: '50px', color: '#008040'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0).setDepth(4);
-        
         Stage1.cowboyTransition = this.add.text(400, 300, 'Cowboy\'s Turn',{fontFamily:'Rye', fontSize: '50px', color: '#000000'}).setOrigin(.5,.5).setScrollFactor(0).setAlpha(0).setDepth(4);
 
         //Initializes pathfinder
@@ -467,7 +456,10 @@ Stage1.key = 'stage1'
         }
         Stage1.finder.setAcceptableTiles(Stage1.acceptableTiles);
 
-        //CLICK LISTNER
+        //Event emitters used to control progress of Stage1, see listeners above the narrative json
+        Stage1.emitter = new Phaser.Events.EventEmitter();
+
+        //CLICK LISTENER
         Stage1.scene.input.on('gameobjectdown', function (pointer, gameObject) {
             //On their turn, the player can move units that have not yet done so
             if (gameObject.name == 'bug' && gameObject.spent == false && Stage1.currentBug == null){
@@ -513,7 +505,7 @@ Stage1.key = 'stage1'
 
             //end turn
             else if (gameObject.name == 'nextTurn'){
-                Stage1.moveTiles.clear(true); //get rid of move tiles
+                Stage1.moveTiles.clear(true, true); //get rid of move tiles
                 Stage1.endTurn();
             }
 
@@ -550,7 +542,7 @@ Stage1.key = 'stage1'
                     
                     Stage1.currentBug = null;
 
-                    if(gameObject.name != 'objective'){
+                    if (gameObject.name != 'objective'){
                         Stage1.playSound('cowhandDeath');
                     }
 
@@ -567,15 +559,13 @@ Stage1.key = 'stage1'
                             Stage1.eatMode = false; //resets eatMode after a click
                             Stage1.famished.setPosition(bug.x + 16, bug.y).setVisible(true);
                             Stage1.scene.input.setDefaultCursor('default');
-                            setTimeout(() => {Stage1.famished.setVisible(false)}, 3000);
+                            setTimeout(() => {Stage1.famished.setVisible(false);}, 3000);
                         } else {
                             Stage1.consume(gameObject, bug);
-
                             bug.spent = true;
                             bug.spr.setTint(0x808080);
                         }
                     }
-
                     else{
                         Stage1.spawn(gameObject);
                         gameObject.destroy();
@@ -589,10 +579,9 @@ Stage1.key = 'stage1'
                         game.scene.stop('stage1');
                         game.scene.start('win');
                     }
-    
                 }
             }
-            //Click a selected bug to deselect it
+            //deselect a bug if it is already selected by clicking on it again
             else if (gameObject.name == 'bug' && gameObject.isSelected && gameObject.spent == false){
                 Stage1.moveTiles.clear(true); //get rid of move tiles
                 Stage1.currentBug = null;
@@ -711,6 +700,19 @@ Stage1.key = 'stage1'
         Stage1.marker.y = Stage1.map.tileToWorldY(pointerTileY);
     }
 
+    Stage1.toggleEatMode = function(){
+        if (Stage1.eatMode){
+            Stage1.eatMode = false; 
+            Stage1.scene.input.setDefaultCursor('default');
+            Stage1.emitter.emit('exitEat');
+
+        }else{
+            Stage1.eatMode = true; 
+            Stage1.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+            Stage1.emitter.emit('enterEat');
+        }
+    }
+
     //Returns the ID of a tile at a given coordinate
     Stage1.getTileID = function(x,y){
         /**
@@ -751,11 +753,10 @@ Stage1.key = 'stage1'
             con.bar = Stage1.scene.add.sprite(0,32,"bar");
             con.add(con.spr);
             con.add(con.bar);
-
+            con.setDepth(1);
             con.name = "bug";
             con.spr.setDepth(1);
             con.bar.setDepth(2);
-            con.setDepth(1);
             con.spr.setOrigin(0);
             con.bar.setOrigin(0);
             var rect = new Phaser.Geom.Rectangle(0, 0, 32, 32);
@@ -779,6 +780,7 @@ Stage1.key = 'stage1'
         Stage1.nextTurn.setTintFill(0xffffff);
         Stage1.turnCounter.inc();
         setTimeout(function(){ Stage1.nextTurn.clearTint(); }, 300);
+        
         let waitTime;
         Stage1.scene.tweens.add({
             targets: Stage1.cowboyTransition,

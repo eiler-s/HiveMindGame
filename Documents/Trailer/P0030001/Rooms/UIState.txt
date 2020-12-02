@@ -1,0 +1,8 @@
+{
+Tab:int 1
+SourceViewID E00302V3
+Source {"id" : "E00302V3","t" : 5.2333,"sel" : {}}
+RecordViewID 000000012FDF401910
+Record {"id" : "E00301GA","t" : 61.1667,"in" : 277.6,"out" : 915.4667,"sel" : {}}
+Bin GZ0Z0000|
+}

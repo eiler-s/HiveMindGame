@@ -1,0 +1,23 @@
+{
+   "Components" : {
+      "FixedContentViewer" : {
+         "SourceVisible" : "bool=true",
+         "ProjectContents:View" : "int=1",
+         "ProjectContents:Minimised" : "bool=false",
+         "ProjectContents:Height" : "double=0.86292835",
+         "ProjectContents:Current" : "String=GZ0Z0000|",
+         "Libraries:Minimised" : "bool=false",
+         "Libraries:Height" : "double=0.12876428",
+         "BinHandle" : "String=GZ0Z0000|"
+      }
+   },
+   "Splits" : {
+      "Value" : 0.5995,
+      "Right" : {
+         "Value" : 0.4559
+      }
+   },
+   "Misc" : {
+      "TileSize" : "ISPLargeThumb"
+   }
+}

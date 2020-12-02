@@ -1,0 +1,26 @@
+{
+   "Components" : {
+      "FixedAudioViewer" : {
+         "WHAT_TIME" : "int=5",
+         "TIME_DISPLAY" : "String=elapsed",
+         "OUTPUT_CHASE_LTC" : "int=0",
+         "NAME" : "cookie=E00301GA",
+         "GROUPID" : "String=000000012FDF401910",
+         "CurrentTime" : "double=0.00000000",
+         "000000012FDF3E3C80000E5" : "String=-1.000000000000 -1.000000000000 1",
+         "000000012FDF3E3C8000072" : "String=-1.000000000000 -1.000000000000 1",
+         "000000012FDF3E3C8000060" : "String=-1.000000000000 -1.000000000000 1",
+         "000000012FDF3E3C800005D" : "String=-1.000000000000 -1.000000000000 1",
+         "000000012FDF3E3C800005A" : "String=-1.000000000000 -1.000000000000 1"
+      }
+   },
+   "Splits" : {
+      "Value" : 0.3728,
+      "Top" : {
+         "Value" : 0.25
+      }
+   },
+   "Misc" : {
+      "TileSize" : "ISPHugeThumb"
+   }
+}

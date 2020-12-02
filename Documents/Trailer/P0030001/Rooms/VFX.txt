@@ -1,0 +1,22 @@
+{
+   "Components" : {
+      "FixedViewer" : {
+         "WHAT_TIME" : "int=5",
+         "TIME_DISPLAY" : "String=elapsed",
+         "OUTPUT_CHASE_LTC" : "int=0",
+         "NAME" : "cookie=E00301GA",
+         "GROUPID" : "String=000000012FDF401910",
+         "CurrentTime" : "double=61.16666667",
+         "000000012FDF53738000057" : "String=277.600000000000 915.466666670000 1"
+      }
+   },
+   "Splits" : {
+      "Value" : 0.25,
+      "Right" : {
+         "Value" : 0.1485
+      }
+   },
+   "Misc" : {
+      "TileSize" : "ISPHugeThumb"
+   }
+}

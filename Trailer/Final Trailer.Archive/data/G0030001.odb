@@ -1,0 +1,6 @@
+"OLEDB:Rev 1"
+"Version:6"
+"OLEDB"
+"4","32","4","4","4","4","4","4"
+"text","text","text","text","text","dos_date","dos_date","text"
+"id","name","permanent","logCount","ExtID","ModTime","Created","children"

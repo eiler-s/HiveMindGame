@@ -1,0 +1,25 @@
+{
+   "Components" : {
+      "FixedContentManager" : {
+         "ProjectContents:View" : "int=3",
+         "ProjectContents:Minimised" : "bool=false",
+         "ProjectContents:Height" : "double=0.91826923",
+         "ProjectContents:Current" : "String=GZ0Z0074|",
+         "Libraries:Minimised" : "bool=true",
+         "Libraries:Height" : "double=0.06250000",
+         "BinHandle" : "String=GZ0Z0074|"
+      },
+      "SourceRecordViewerPanel" : {
+         "SourceVisible" : "bool=false"
+      }
+   },
+   "Splits" : {
+      "Value" : 0.3564,
+      "Top" : {
+         "Value" : 0.5669
+      }
+   },
+   "Misc" : {
+      "TileSize" : "ISPHugeThumb"
+   }
+}

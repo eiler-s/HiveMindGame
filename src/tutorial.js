@@ -472,7 +472,10 @@
                 tutorial.moveTiles.clear(true, true); //get rid of move tiles
                 tutorial.currentBug = gameObject;
                 tutorial.map.setLayer('terrain');
+
+                console.log('alienSelected event emitted')
                 gameObject.isSelected = true;
+                tutorial.emitter.emit('alienSelected');
 
                 //Determine origin of unit's move range
                 tutorial.originX = Math.floor(gameObject.x/32);
@@ -497,7 +500,7 @@
                 }
             }
             //If the player has already selected a unit, show available move tiles
-            else if (gameObject.name == 'red'){
+            else if (gameObject.name == 'red' && tutorial.alienDisabled !== true){
                 //Check each availble path to see if selected tile is in range
                 for (var i = 0; i < tutorial.paths.length; i++){
                     //If a selected tile is a path destination, move the bug to that destination
@@ -1179,12 +1182,29 @@
         tutorial.cowboyTransition.visible = false;
     }
 
+    //Allows aliens to be moved
+    tutorial.enableMoveTiles = function(){
+        tutorial.emitter.off('alienSelected', tutorial.handleDisableMoveTiles, this);
+        console.log('movetiles reactivated');
+        tutorial.alienDisabled = false;
+    }
+    
+    //Activates and handles event listener for preventing a selected alien's movement
+    tutorial.listenDisableMoveTiles = function(){
+        console.log('event heard, calling handler');
+        tutorial.emitter.on('alienSelected', tutorial.handleDisableMoveTiles, this);
+    }
+    tutorial.handleDisableMoveTiles = function(){
+        console.log('movetiles disabled');
+        tutorial.alienDisabled = true;
+    }
+
     //Activate and handle event listener for the arrow click
     tutorial.listenArrowClicked = function(){
-        tutorial.emitter.on('arrowClick',tutorial.handleArrowClicked, this);
+        tutorial.emitter.on('arrowClick', tutorial.handleArrowClicked, this);
     }
     tutorial.handleArrowClicked = function(){
-        tutorial.emitter.off('arrowClick',tutorial.handleArrowClicked, this);    //deactivate listener
+        tutorial.emitter.off('arrowClick', tutorial.handleArrowClicked, this);    //deactivate listener
 
         tutorial.textBtn.setTintFill(0xffffff);
         setTimeout(function(){ tutorial.textBtn.clearTint(); }, 300);
@@ -1195,82 +1215,82 @@
 
     //Activate and handle event listener for when an alien is moved
     tutorial.listenAlienMoved = function(){
-        tutorial.emitter.on('oneAlienMoved',tutorial.handleAlienMoved, this);
+        tutorial.emitter.on('oneAlienMoved', tutorial.handleAlienMoved, this);
     }
     tutorial.handleAlienMoved = function(){
-        tutorial.emitter.off('oneAlienMoved',tutorial.handleAlienMoved, this);    //deactivate listener
+        tutorial.emitter.off('oneAlienMoved', tutorial.handleAlienMoved, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle event listener for when all the aliens are moved
     tutorial.listenAllAliensMoved = function(){
-        tutorial.emitter.on('allAliensMoved',tutorial.handleAllAliensMoved, this);
+        tutorial.emitter.on('allAliensMoved', tutorial.handleAllAliensMoved, this);
     }
     tutorial.handleAllAliensMoved = function(){
-        tutorial.emitter.off('allAliensMoved',tutorial.handleAllAliensMoved, this);    //deactivate listener
+        tutorial.emitter.off('allAliensMoved', tutorial.handleAllAliensMoved, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle event listener for when next turn butto is clicked
     tutorial.listenNextClicked = function(){
-        tutorial.emitter.on('nextClick',tutorial.handleNextClicked, this);
+        tutorial.emitter.on('nextClick', tutorial.handleNextClicked, this);
     }
     tutorial.handleNextClicked = function(){
-        tutorial.emitter.off('nextClick',tutorial.handleNextClicked, this);    //deactivate listener
+        tutorial.emitter.off('nextClick', tutorial.handleNextClicked, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle listener for when a farmer is killed
     tutorial.listenFarmerKilled = function(){
-        tutorial.emitter.on('oneFarmerDead',tutorial.handleFarmerKilled, this);
+        tutorial.emitter.on('oneFarmerDead', tutorial.handleFarmerKilled, this);
     }
     tutorial.handleFarmerKilled = function(){
-        tutorial.emitter.off('oneFarmerDead',tutorial.handleFarmerKilled, this);    //deactivate listener
+        tutorial.emitter.off('oneFarmerDead', tutorial.handleFarmerKilled, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle listener for when all the farmers are killed
     tutorial.listenAllFarmersKilled = function(){
-        tutorial.emitter.on('allFarmersDead',tutorial.handleAllFarmersKilled, this);
+        tutorial.emitter.on('allFarmersDead', tutorial.handleAllFarmersKilled, this);
     }
     tutorial.handleAllFarmersKilled = function(){
-        tutorial.emitter.off('allFarmersDead',tutorial.handleAllFarmersKilled, this);    //deactivate listener
+        tutorial.emitter.off('allFarmersDead', tutorial.handleAllFarmersKilled, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle listener for when eat mode is activated
     tutorial.listenEatModeEntered = function(){
-        tutorial.emitter.on('enterEat',tutorial.handleEatModeEntered, this);
+        tutorial.emitter.on('enterEat', tutorial.handleEatModeEntered, this);
     }
     tutorial.handleEatModeEntered = function(){
-        tutorial.emitter.off('enterEat',tutorial.handleEatModeEntered, this);    //deactivate listener
+        tutorial.emitter.off('enterEat', tutorial.handleEatModeEntered, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle listener for when eat mode is exited
     tutorial.listenEatModeExited = function(){
-        tutorial.emitter.on('exitEat',tutorial.handleEatModeExited, this);
+        tutorial.emitter.on('exitEat', tutorial.handleEatModeExited, this);
     }
     tutorial.handleEatModeExited = function(){
-        tutorial.emitter.off('exitEat',tutorial.handleEatModeExited, this);    //deactivate listener
+        tutorial.emitter.off('exitEat', tutorial.handleEatModeExited, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle listener for when all the cowhands are killed
     tutorial.listenAllCowhandsKilled = function(){
-        tutorial.emitter.on('allCowhandsDead',tutorial.handleAllCowhandsKilled, this);
+        tutorial.emitter.on('allCowhandsDead', tutorial.handleAllCowhandsKilled, this);
     }
     tutorial.handleAllCowhandsKilled = function(){
-        tutorial.emitter.off('allCowhandsDead',tutorial.handleAllCowhandsKilled, this);    //deactivate listener
+        tutorial.emitter.off('allCowhandsDead', tutorial.handleAllCowhandsKilled, this);    //deactivate listener
         tutorial.progressStory();
     }
 
     //Activate and handle listener for when all the flags are destroyed
     tutorial.listenAllFlagsDestroyed = function(){
-        tutorial.emitter.on('allFlagsDestroyed',tutorial.handleAllFlagsDestroyed, this);
+        tutorial.emitter.on('allFlagsDestroyed', tutorial.handleAllFlagsDestroyed, this);
     }
     tutorial.handleAllFlagsDestroyed = function(){
-        tutorial.emitter.off('allFlagsDestroyed',tutorial.handleAllFlagsDestroyed, this);    //deactivate listener
+        tutorial.emitter.off('allFlagsDestroyed', tutorial.handleAllFlagsDestroyed, this);    //deactivate listener
         tutorial.progressStory();
     }
 
@@ -1438,7 +1458,7 @@
         {
             speaker: 'alienBig',
             orientation: 'left',
-            callbacks: [tutorial.disableCowhands, tutorial.activateEatMode, tutorial.listenEatModeEntered],
+            callbacks: [tutorial.listenDisableMoveTiles, tutorial.disableCowhands, tutorial.activateEatMode, tutorial.listenEatModeEntered],
             text: "Alien1:\n"+
             "Ah'll be damned, this planet is so dry ah'm spitting cotton! \n"+
             "Whelp, ah needta wet mah jaw with some sweet primeape barbeque. \n"+
@@ -1462,7 +1482,7 @@
             speaker: 'alienBig',
             orientation: 'left',
             next: true,
-            callbacks: [tutorial.enableAliens, tutorial.enableCowhands, tutorial.listenAllCowhandsKilled],
+            callbacks: [tutorial.enableAliens, tutorial.enableMoveTiles, tutorial.enableCowhands, tutorial.listenAllCowhandsKilled],
             text: "Alien1:\n"+
             "Ah reckon that it's time for us to whip those cowhands like a \n"+
             "red-headed stepchild. Remember that using eat mode is just like \n"+

@@ -127,6 +127,8 @@ Stage1.key = 'stage1';
         //make the next turn button
         Stage1.nextTurn = this.add.image(25,511,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");  
         Stage1.nextTurn.setOrigin(0,0);  
+        Stage1.nextTurn.on('pointerover' , (pointer) => Stage1.nextTurn.setTint(0x808080));
+        Stage1.nextTurn.on('pointerout' , (pointer) => Stage1.nextTurn.setTint(0xffffff));
 
         //place an aimcone
         Stage1.aimcone = this.add.image(0,0,'aimcone').setDepth(5).setVisible(false);     
@@ -143,7 +145,7 @@ Stage1.key = 'stage1';
         Stage1.sfx.shoot = Stage1.scene.sound.add('shoot', {volume: 0.1});
         Stage1.sfx.hawk = Stage1.scene.sound.add('hawk', {volume: 0.1});
         Stage1.sfx.train = Stage1.scene.sound.add('train', {volume: 0.1});
-        Stage1.sfx.eat = Stage1.scene.sound.add('eat', {volume: 0.1});
+        Stage1.sfx.eat = Stage1.scene.sound.add('eat', {volume: 0.2});
 
         //Define user turn, selected unit, and path storage
         Stage1.currentBug = null;
@@ -743,7 +745,8 @@ Stage1.key = 'stage1';
             Stage1.emitter.emit('exitEat');
 
         }else{
-            Stage1.eatMode = true; 
+            Stage1.eatMode = true;
+            Stage1.playSound('eat'); 
             Stage1.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
             Stage1.emitter.emit('enterEat');
         }
@@ -816,7 +819,7 @@ Stage1.key = 'stage1';
         Stage1.cam.stopFollow();
 
         //Make the end turn button show that it was clicked
-        Stage1.nextTurn.setTintFill(0xffffff);
+        Stage1.nextTurn.setTint(0x606060);
         Stage1.turnCounter.inc();
         setTimeout(function(){ Stage1.nextTurn.clearTint(); }, 300);
         

@@ -14,6 +14,8 @@ Lose.create = function() {
     Lose.title = this.add.image(400, 100, 'loseTitle').setScale(4);
     Lose.playAgain = this.add.image(400, 300, 'playAgainButton').setName('playAgain').setScale(2).setInteractive();
     
+    Lose.playAgain.on('pointerover' , (pointer) => Lose.playAgain.setTint(0x808080));
+    Lose.playAgain.on('pointerout' , (pointer) => Lose.playAgain.setTint(0xffffff));
     Lose.music = Lose.scene.sound.add('loseMusic', { volume: 0.1, loop: true });
     Lose.music.play();
 

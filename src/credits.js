@@ -29,9 +29,12 @@ Credits.preload = function(){
 Credits.create = function(){
     Credits.text = this.add.text(0, 0, text);
     Credits.back = this.add.image(400, 540, 'back').setName('back').setScale(2).setInteractive();
+    Credits.back.on('pointerover' , (pointer) => Credits.back.setTint(0x808080));
+    Credits.back.on('pointerout' , (pointer) => Credits.back.setTint(0xffffff));
+
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'back'){
-            Credits.back.setTintFill(0xffffff);
+            Credits.back.setTint(0x606060);
             setTimeout(function(){ Credits.back.clearTint(); }, 300);
             setTimeout(function(){
                 game.scene.stop('credits');

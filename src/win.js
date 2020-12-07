@@ -17,6 +17,9 @@ Win.create = function() {
     Win.music.play();
 
     Win.playAgain = this.add.image(400, 300, 'playAgainButton').setName('playAgain').setScale(2).setInteractive();
+    Win.playAgain.on('pointerover' , (pointer) => Win.playAgain.setTint(0x808080));
+    Win.playAgain.on('pointerover' , (pointer) => Win.playAgain.setTint(0x808080));
+
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'playAgain'){
             Win.playAgain.setTintFill(0xffffff);

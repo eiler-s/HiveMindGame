@@ -475,7 +475,6 @@
                 tutorial.currentBug = gameObject;
                 tutorial.map.setLayer('terrain');
 
-                console.log('alienSelected event emitted')
                 gameObject.isSelected = true;
                 tutorial.emitter.emit('alienSelected');
 
@@ -531,6 +530,7 @@
             //end turn
             else if (gameObject.name == 'nextTurn'){
                 tutorial.moveTiles.clear(true, true); //get rid of move tiles
+                tutorial.currentBug = null;
                 tutorial.endTurn();
                 tutorial.emitter.emit('nextClick');
             }
@@ -1188,17 +1188,14 @@
     //Allows aliens to be moved
     tutorial.enableMoveTiles = function(){
         tutorial.emitter.off('alienSelected', tutorial.handleDisableMoveTiles, this);
-        console.log('movetiles reactivated');
         tutorial.alienDisabled = false;
     }
     
     //Activates and handles event listener for preventing a selected alien's movement
     tutorial.listenDisableMoveTiles = function(){
-        console.log('event heard, calling handler');
         tutorial.emitter.on('alienSelected', tutorial.handleDisableMoveTiles, this);
     }
     tutorial.handleDisableMoveTiles = function(){
-        console.log('movetiles disabled');
         tutorial.alienDisabled = true;
     }
 

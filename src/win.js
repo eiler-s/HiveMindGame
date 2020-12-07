@@ -18,7 +18,7 @@ Win.create = function() {
 
     Win.playAgain = this.add.image(400, 300, 'playAgainButton').setName('playAgain').setScale(2).setInteractive();
     Win.playAgain.on('pointerover' , (pointer) => Win.playAgain.setTint(0x808080));
-    Win.playAgain.on('pointerover' , (pointer) => Win.playAgain.setTint(0x808080));
+    Win.playAgain.on('pointerover' , (pointer) => Win.playAgain.setTint(0xffffff));
 
     this.input.once('gameobjectdown', function (pointer, gameObject){
         if (gameObject.name == 'playAgain'){

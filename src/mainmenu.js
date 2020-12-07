@@ -18,14 +18,14 @@ Menu.create = function() {
     Menu.bkg = this.add.image(0,0,'bigFlag').setOrigin(0,0);
     Menu.title = this.add.image(400, 100, 'title').setScale(4);
     Menu.tutorial = this.add.image(400, 300, 'tutorial').setName('tutorial').setScale(2).setInteractive();
-    Menu.tutorial.on('pointerover' , (pointer) => { Menu.tutorial.setTint(0x808080);});
+    Menu.tutorial.on('pointerover' , (pointer) => Menu.tutorial.setTint(0x808080));
     Menu.tutorial.on('pointerout' , (pointer) => Menu.tutorial.setTint(0xffffff));
     //Menu.select = this.add.image(300, 360, 'select').setName('select').setScale(2).setInteractive(true);
     Menu.notutorial = this.add.image(400, 420, 'notutorial').setName('notutorial').setScale(2).setInteractive();
-    Menu.notutorial.on('pointerover' , (pointer) => { Menu.notutorial.setTint(0x808080);});
+    Menu.notutorial.on('pointerover' , (pointer) => Menu.notutorial.setTint(0x808080));
     Menu.notutorial.on('pointerout' , (pointer) => Menu.notutorial.setTint(0xffffff));
     Menu.credits = this.add.image(400, 540, 'credits').setName('credits').setScale(2).setInteractive();
-    Menu.credits.on('pointerover' , (pointer) => { Menu.credits.setTint(0x808080);});
+    Menu.credits.on('pointerover' , (pointer) => Menu.credits.setTint(0x808080));
     Menu.credits.on('pointerout' , (pointer) => Menu.credits.setTint(0xffffff));
     
     Menu.music = Menu.scene.sound.add('menuMusic', { volume: 0.1, loop: true });

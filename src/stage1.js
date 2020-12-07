@@ -517,6 +517,7 @@ Stage1.key = 'stage1';
             //end turn
             else if (gameObject.name == 'nextTurn'){
                 Stage1.moveTiles.clear(true, true); //get rid of move tiles
+                Stage1.currentBug = null;
                 Stage1.endTurn();
             }
 
@@ -544,7 +545,6 @@ Stage1.key = 'stage1';
                 
                 //Check attack can go ahead
                 if (distanceS < attackRangeS && bug.spent != true){
-                    Stage1.currentBug = null;
 
                     Stage1.aimcone.setVisible(false);//no ghost aimcones
 

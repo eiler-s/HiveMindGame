@@ -130,6 +130,8 @@
         //make the next turn button
         tutorial.nextTurn = this.add.image(0,408,'nextTurn').setDepth(5).setScrollFactor(0).setInteractive().setName("nextTurn");
         tutorial.nextTurn.setOrigin(0,0);
+        tutorial.nextTurn.on('pointerover' , (pointer) => tutorial.nextTurn.setTint(0x808080));
+        tutorial.nextTurn.on('pointerout' , (pointer) => tutorial.nextTurn.setTint(0xffffff));
 
         //place an aimcone
         tutorial.aimcone = this.add.image(0,0,'aimcone').setDepth(5).setVisible(false);     
@@ -146,7 +148,7 @@
         tutorial.sfx.shoot = tutorial.scene.sound.add('shoot', {volume: 0.1});
         tutorial.sfx.hawk = tutorial.scene.sound.add('hawk', {volume: 0.1});
         tutorial.sfx.train = tutorial.scene.sound.add('train', {volume: 0.1});
-        tutorial.sfx.eat = tutorial.scene.sound.add('eat', {volume: 0.1});
+        tutorial.sfx.eat = tutorial.scene.sound.add('eat', {volume: 0.2});
 
         //Define user turn, selected unit, and path storage
         tutorial.currentBug = null;
@@ -774,6 +776,7 @@
 
         }else{
             tutorial.eatMode = true; 
+            tutorial.playSound('eat');
             tutorial.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
             tutorial.emitter.emit('enterEat');
         }
@@ -845,7 +848,7 @@
         tutorial.scene.input.enabled = false;
 
         //Make the end turn button show that it was clicked
-        tutorial.nextTurn.setTintFill(0xffffff);
+        tutorial.nextTurn.setTint(0x606060);
         tutorial.turnCounter.inc();
         setTimeout(function(){ tutorial.nextTurn.clearTint(); }, 300);
 

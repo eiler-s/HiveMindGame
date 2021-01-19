@@ -33,81 +33,81 @@
         tutorial.scene = this;
 
         //Load audio files
-        tutorial.scene.load.audio('music', './Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
-        tutorial.scene.load.audio('cowhandDeath', './src/sound/death.mp3');
-        tutorial.scene.load.audio('run', './Sound/running_feet_-Cam-942211296.mp3');
-        tutorial.scene.load.audio('shoot', './Sound/shoot.mp3');
-        tutorial.scene.load.audio('hawk', './Sound/hawk_screeching-Mike_Koenig-1626170357.mp3');
-        tutorial.scene.load.audio('train', './Sound/train.mp3');
-        tutorial.scene.load.audio('eat', './Sound/eat.mp3');
+        tutorial.scene.load.audio('music', '../Sound/Old_West_Gunslingers_Steve_Oxen.mp3');
+        tutorial.scene.load.audio('cowhandDeath', '../Sound/sound/death.mp3');
+        tutorial.scene.load.audio('run', '../Sound/running_feet_-Cam-942211296.mp3');
+        tutorial.scene.load.audio('shoot', '../Sound/shoot.mp3');
+        tutorial.scene.load.audio('hawk', '../Sound/hawk_screeching-Mike_Koenig-1626170357.mp3');
+        tutorial.scene.load.audio('train', '../Sound/train.mp3');
+        tutorial.scene.load.audio('eat', '../Sound/eat.mp3');
 
         //loads background
-        tutorial.scene.load.image('Backgrounds', "./src/sprites/bgSheet1.png");
-        tutorial.scene.load.image('bg','./Sprites/bgSheet2.png');
+        tutorial.scene.load.image('Backgrounds', "../Sprites/sprites/bgSheet1.png");
+        tutorial.scene.load.image('bg','../Sprites/bgSheet2.png');
 
         //Load tilemap images and map layout files
-        tutorial.scene.load.image('tilemap', "./src/sprites/tilemap.png");
-        tutorial.scene.load.image('red', './src/sprites/red.png');
-        tutorial.scene.load.tilemapTiledJSON('tutmap', './src/tilemaps/tutorialMap.json');
-        tutorial.scene.load.image('flag', './Sprites/terrain/Texas_flag.png');
+        tutorial.scene.load.image('tilemap', "../Sprites/sprites/tilemap.png");
+        tutorial.scene.load.image('red', '../Sprites/sprites/red.png');
+        tutorial.scene.load.tilemapTiledJSON('tutmap', './Code/tilemaps/tutorialMap.json');
+        tutorial.scene.load.image('flag', '../Sprites/terrain/Texas_flag.png');
 
         //Load next turn button
-        tutorial.scene.load.image('nextTurn', "./src/sprites/nextTurnButton.png");
+        tutorial.scene.load.image('nextTurn', "../Sprites/sprites/nextTurnButton.png");
 
         //Load the aimcone
-        tutorial.scene.load.image('aimcone', "./src/sprites/aimcone1.png");
+        tutorial.scene.load.image('aimcone', "../Sprites/sprites/aimcone1.png");
 
         //Load character spritesheets
-        tutorial.scene.load.spritesheet('bug', './Sprites/hunters/huntersheet.png',{
+        tutorial.scene.load.spritesheet('bug', '../Sprites/hunters/huntersheet.png',{
             frameWidth: 32,
             frameHeight: 32,
             margin: 1,
             spacing: 2
         });
-        tutorial.scene.load.spritesheet('cowboy', './Sprites/cowhands/cowboysheet.png',{
+        tutorial.scene.load.spritesheet('cowboy', '../Sprites/cowhands/cowboysheet.png',{
             frameWidth: 32,
             frameHeight: 32,
             margin: 1,
             spacing: 2
         });
-        tutorial.scene.load.spritesheet('cowgirl', './Sprites/cowhands/cowgirlsheet.png',{
+        tutorial.scene.load.spritesheet('cowgirl', '../Sprites/cowhands/cowgirlsheet.png',{
             frameWidth: 32,
             frameHeight: 32,
             margin: 1,
             spacing: 2
         });
-        tutorial.scene.load.spritesheet('farmer', './Sprites/farmers/farmer.png',{
+        tutorial.scene.load.spritesheet('farmer', '../Sprites/farmers/farmer.png',{
             frameWidth:32,
             frameHeight:32,
         });
-        tutorial.scene.load.spritesheet('farmwoman', './Sprites/farmers/farmwoman.png',{
+        tutorial.scene.load.spritesheet('farmwoman', '../Sprites/farmers/farmwoman.png',{
             frameWidth:32,
             frameHeight:32,
         });
-        tutorial.scene.load.spritesheet('health1', './src/sprites/Health11.png',{
+        tutorial.scene.load.spritesheet('health1', '../Sprites/sprites/Health11.png',{
             frameWidth:32,
             frameHeight:32,
         });
-        tutorial.scene.load.spritesheet('health2', './src/sprites/Health21.png',{
+        tutorial.scene.load.spritesheet('health2', '../Sprites/sprites/Health21.png',{
             frameWidth:32,
             frameHeight:32,
         });
-        tutorial.scene.load.spritesheet('health3', './src/sprites/Health31.png',{
+        tutorial.scene.load.spritesheet('health3', '../Sprites/sprites/Health31.png',{
             frameWidth:32,
             frameHeight:32,
         });
-        tutorial.scene.load.spritesheet('health4', './src/sprites/Health41.png',{
+        tutorial.scene.load.spritesheet('health4', '../Sprites/sprites/Health41.png',{
             frameWidth:32,
             frameHeight:32,
         });
 
         //Load images for textboxes
-        tutorial.scene.load.image('farmerBig','./Sprites/farmers/farmer2.png');
-        tutorial.scene.load.image('farmwomanBig','./Sprites/farmers/farmwoman2.png');
-        tutorial.scene.load.image('cowboyBig','./Sprites/cowhands/cowboy2.png');
-        tutorial.scene.load.image('cowgirlBig','./Sprites/cowhands/cowgirl2.png');
-        tutorial.scene.load.image('alienBig','./Sprites/hunters/hunter2.png');
-        tutorial.scene.load.spritesheet('arrows','./Sprites/arrows/arrows.png',{
+        tutorial.scene.load.image('farmerBig','../Sprites/farmers/farmer2.png');
+        tutorial.scene.load.image('farmwomanBig','../Sprites/farmers/farmwoman2.png');
+        tutorial.scene.load.image('cowboyBig','../Sprites/cowhands/cowboy2.png');
+        tutorial.scene.load.image('cowgirlBig','../Sprites/cowhands/cowgirl2.png');
+        tutorial.scene.load.image('alienBig','../Sprites/hunters/hunter2.png');
+        tutorial.scene.load.spritesheet('arrows','../Sprites/arrows/arrows.png',{
             frameWidth:32,
             frameHeight:32,
             margin:1,
@@ -777,7 +777,7 @@
         }else{
             tutorial.eatMode = true; 
             tutorial.playSound('eat');
-            tutorial.scene.input.setDefaultCursor('url(./src/sprites/eat2.cur), pointer');
+            tutorial.scene.input.setDefaultCursor('url(../Sprites/sprites/eat2.cur), pointer');
             tutorial.emitter.emit('enterEat');
         }
     }

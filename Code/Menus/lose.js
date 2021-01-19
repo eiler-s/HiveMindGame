@@ -2,10 +2,10 @@ var Lose = {};
 Lose.key = 'lose';
 Lose.preload = function() {
     Lose.scene = this;
-    Lose.scene.load.image('loseTitle', './Sprites/signs/Lose1.png')
-    Lose.scene.load.image('playAgainButton', './Sprites/signs/playAgainButton1.png');
-    Lose.scene.load.audio('loseMusic', './Sound/Riding_Solo_-_David_Fesliyan.mp3');
-    Lose.scene.load.image('comeTakeIt', './Sprites/comeTakeIt.png');
+    Lose.scene.load.image('loseTitle', '../../Sprites/signs/Lose1.png')
+    Lose.scene.load.image('playAgainButton', '../../Sprites/signs/playAgainButton1.png');
+    Lose.scene.load.audio('loseMusic', '../../Sound/Riding_Solo_-_David_Fesliyan.mp3');
+    Lose.scene.load.image('comeTakeIt', '../../Sprites/comeTakeIt.png');
 }
 
 Lose.create = function() {

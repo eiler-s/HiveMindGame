@@ -23,7 +23,7 @@ var text = 'Attributions:\n'+
 Credits.key = 'credits';
 Credits.preload = function(){
     Credits.scene = this;
-    Credits.scene.load.image('back', './Sprites/signs/back.png'); 
+    Credits.scene.load.image('back', '../../Sprites/signs/back.png'); 
 }
 
 Credits.create = function(){

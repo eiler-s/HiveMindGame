@@ -1,6 +1,8 @@
 # HiveMind Ranching
 This is a turn-based tactics game where the player builds an alien swarm to conquer the Texas frontier.
 
+NOTE FOR COLLABORATORS: Do not try to upload this fork to itch.io as it does not use itch.io's file path convention that relative paths must be relative to the index.html file.
+
 ## Game Creation Credits:
 - Kevin Woo - programmer, game architect 
 - Eiler Schiotz - programmer, sprite artist 

@@ -2,10 +2,10 @@ var Win = {};
 Win.key = 'win';
 Win.preload = function() {
     Win.scene = this;
-    Win.scene.load.image('win', './Sprites/signs/win1.png')
-    Win.scene.load.image('playAgainButton', './Sprites/signs/playAgainButton1.png');   
-    Win.scene.load.audio('winMusic', './Sound/Western_Cowboy_Ride_-_David_Fesliyan.mp3');
-    Win.scene.load.image('steaks', './Sprites/steaks.png');
+    Win.scene.load.image('win', '../../Sprites/signs/win1.png')
+    Win.scene.load.image('playAgainButton', '../../Sprites/signs/playAgainButton1.png');   
+    Win.scene.load.audio('winMusic', '../../Sound/Western_Cowboy_Ride_-_David_Fesliyan.mp3');
+    Win.scene.load.image('steaks', '../../Sprites/steaks.png');
 }
 
 Win.create = function() {

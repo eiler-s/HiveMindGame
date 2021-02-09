@@ -1,5 +1,6 @@
 # HiveMind Ranching
 This is a turn-based tactics game where the player builds an alien swarm to conquer the Texas frontier.
+PLAY THE GAME AT ITCH.IO: https://eilerschiotz.itch.io/hivemind-ranching-15-release
 
 NOTE FOR COLLABORATORS: Do not try to upload this fork to itch.io as it does not use itch.io's file path convention that relative paths must be relative to the index.html file.
 
